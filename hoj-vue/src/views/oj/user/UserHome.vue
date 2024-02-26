@@ -52,10 +52,10 @@
           {{ profile.school }}
         </span>
         <span id="icons">
-          <a :href="profile.github" v-if="profile.github" class="icon" target="_blank">
+          <a :href="formatUrl(profile.github)" v-if="profile.github" class="icon" target="_blank">
             <i class="fa fa-github">{{ $t('m.Github') }}</i>
           </a>
-          <a :href="profile.blog" v-if="profile.blog" class="icon" target="_blank">
+          <a :href="formatUrl(profile.blog)" v-if="profile.blog" class="icon" target="_blank">
             <i class="fa fa-share-alt-square">{{ $t('m.Blog') }}</i>
           </a>
         </span>
@@ -334,6 +334,14 @@ export default {
       } else {
         return list.length;
       }
+    },
+    formatUrl(url) {
+      // 在这里添加逻辑以确保URL以合适的格式存在
+      // 例如，如果缺少协议部分，可以添加默认协议（例如：https://）
+      if (url && !url.startsWith("http")) {
+        return "https://" + url;
+      }
+      return url;
     },
   },
   watch: {
