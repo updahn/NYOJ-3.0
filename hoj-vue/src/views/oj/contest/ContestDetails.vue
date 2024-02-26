@@ -230,23 +230,6 @@
         </el-tab-pane>
 
         <el-tab-pane
-          name="ContestACInfo"
-          lazy
-          :disabled="contestMenuDisabled"
-          v-if="showAdminHelper"
-        >
-          <span slot="label">
-            <i class="el-icon-s-help" aria-hidden="true"></i>
-            &nbsp;{{
-            $t('m.Admin_Helper')
-            }}
-          </span>
-          <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestACInfo'"></router-view>
-          </transition>
-        </el-tab-pane>
-
-        <el-tab-pane
           name="ContestAdminPrint"
           lazy
           :disabled="contestMenuDisabled"
@@ -263,6 +246,22 @@
           </transition>
         </el-tab-pane>
 
+        <el-tab-pane
+          name="ContestACInfo"
+          lazy
+          :disabled="contestMenuDisabled"
+          v-if="showAdminHelper"
+        >
+          <span slot="label">
+            <i class="el-icon-s-help" aria-hidden="true"></i>
+            &nbsp;{{
+            $t('m.Admin_Helper')
+            }}
+          </span>
+          <transition name="el-zoom-in-bottom">
+            <router-view v-if="route_name === 'ContestACInfo'"></router-view>
+          </transition>
+        </el-tab-pane>
         <el-tab-pane
           name="ContestRejudgeAdmin"
           lazy

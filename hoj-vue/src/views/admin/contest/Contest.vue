@@ -44,7 +44,7 @@
           </el-col>
         </el-row>
 
-        <el-row>
+        <el-row :gutter="20">
           <el-col :md="8" :xs="24">
             <el-form-item :label="$t('m.Contest_Rule_Type')" required>
               <el-radio
@@ -80,7 +80,7 @@
           </el-col>
         </el-row>
 
-        <el-row>
+        <el-row :gutter="20">
           <el-col :md="8" :xs="24" v-if="contest.sealRank">
             <el-form-item :label="$t('m.Timeliness_Of_Rank')" required>
               <el-switch
@@ -137,7 +137,7 @@
           </el-col>
         </el-row>
 
-        <el-row>
+        <el-row :gutter="20">
           <el-col :md="8" :xs="24">
             <el-form-item :label="$t('m.Contest_Outside_ScoreBoard')" required>
               <el-switch
@@ -169,7 +169,7 @@
           </el-col>
         </el-row>
 
-        <el-row>
+        <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item :label="$t('m.Rank_Show_Name')" required>
               <el-radio-group v-model="contest.rankShowName">
