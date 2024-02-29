@@ -437,7 +437,7 @@ export default {
       title: "Create Contest",
       disableRuleType: false,
       durationText: "", // 比赛时长文本表示
-      seal_rank_time: 2, // 当开启封榜模式，即实时榜单关闭时，可选择前半小时，前一小时，全程封榜,默认全程封榜
+      seal_rank_time: 1, // 当开启封榜模式，即实时榜单关闭时，可选择前半小时，前一小时，全程封榜,默认全程封榜
       contest: {
         title: "",
         description: "",
@@ -446,39 +446,39 @@ export default {
         duration: 0,
         type: 0,
         pwd: "",
-        sealRank: false,
-        sealRankTime: "", //封榜时间
+        sealRank: true,
+        sealRankTime: "An hour", //封榜时间
         autoRealRank: true,
-        auth: 0,
+        auth: 1,
         openPrint: false,
         rankShowName: "username",
         openAccountLimit: false,
-        allowEndSubmit: false,
+        openRank: true,
+        allowEndSubmit: true,
         accountLimitRule: "",
         starAccount: [],
         oiRankScoreType: "Recent",
-        awardType: 0,
         awardConfigList: [
           {
             priority: 1,
             name: "金牌",
             background: "#e6bf25",
             color: "#fff",
-            num: 10,
+            num: 3,
           },
           {
             priority: 2,
             name: "银牌",
             background: "#b4c0c7",
             color: "#fff",
-            num: 20,
+            num: 5,
           },
           {
             priority: 3,
             name: "铜牌",
             background: "#CD7F32",
             color: "#fff",
-            num: 30,
+            num: 7,
           },
         ],
       },
