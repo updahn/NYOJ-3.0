@@ -39,22 +39,22 @@ Hcode Online Judge (HOJ) : 基于前后端分离，分布式架构的在线测�
 [Github 仓库](https://github.com/HimitZH/HOJ)
 [Gitee 仓库](https://gitee.com/himitzh0730/hoj)
 
-欢迎star收藏本项目对开发者的支持，谢谢  
-有任何部署问题或项目bug请发issue或者加QQ群   
+欢迎star收藏本项目对开发者的支持，谢谢
+有任何部署问题或项目bug请发issue或者加QQ群
 **如果要对本项目进行商业化，请在页面底部的Powered by指向HOJ本仓库地址**
 
 [HDOI Onlie Judge](https://hdoi.cn/)
 
 ## 联系我们
 
-QQ: [372347736](https://wpa.qq.com/msgrd?v=3&uin=372347736&site=qq&menu=yes)  
+QQ: [372347736](https://wpa.qq.com/msgrd?v=3&uin=372347736&site=qq&menu=yes)
 HOJ交流群1: [598587305](https://qm.qq.com/cgi-bin/qm/qr?k=WWGBZ5gfDiBZOcpNvM8xnZTfUq7BT4Rs&jump_from=webapi) （已满）
 
 HOJ交流群2: [743568562](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=-W6_SIFnF-hEMeojR5jr3VcZH3Z2pVNe&authKey=%2F6VXOpBmJuPqhU6LwECyoeHk8Ise4ub5yzJ4oG2Qf%2FUfP3RJOz0TsXkUIGW0MlbL&noverify=0&group_code=743568562)
 
 ## 支持我们
 
-**如果您觉得hoj好用，想要支持一下开发者，项目的开发与维护需要资金，欢迎进行捐助。**  
+**如果您觉得hoj好用，想要支持一下开发者，项目的开发与维护需要资金，欢迎进行捐助。**
 
 **可以微信扫下方二维码支持一波，不必在乎多少，尽自己能力支持即可。**
 

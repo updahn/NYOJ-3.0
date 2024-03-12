@@ -1,4 +1,4 @@
-export const LOGO = 
+export const LOGO =
 "          _    _  _____ ____  _____  ______    \n"+
 "         | |  | |/ ____/ __ \|  __ \|  ____|   \n"+
 "         | |__| | |   | |  | | |  | | |__      \n"+
@@ -12,5 +12,4 @@ export const LOGO =
 "    ->Github<- https://www.github.com/HimitZH/HOJ"+"\n"+
 "    ->Gitee<-  https://gitee.com/himitzh0730/hoj";
 
-export const MOTTO = 
-"         Welcome to Use HOJ, Dream in Code!";
+export const MOTTO = '         Welcome to Use HOJ, Dream in Code!';
