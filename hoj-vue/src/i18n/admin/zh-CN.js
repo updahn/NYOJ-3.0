@@ -12,12 +12,14 @@ export const m = {
 
   // /views/admin/Home.vue
   Dashboard: '仪表盘',
+  Important: '核心设置',
   General: '常用设置',
   User_Admin: '用户管理',
   Auth_Admin: '权限管理',
   Announcement_Admin: '公告管理',
   System_Config: '系统配置',
   System_Switch: '系统开关',
+  File_Admin: '文件管理',
   Problem_Admin: '题目管理',
   Problem_List: '题目列表',
   Create_Problem: '增加题目',
@@ -462,4 +464,9 @@ export const m = {
   Delete_Extra_File_Tips: '你是否确定要删除该额外文件?',
   File_Name: '文件名字',
   File_Content: '文件内容',
+
+  // /views/admin/general/SystemConfig.vue
+  Url: '链接',
+  Hint2: '描述',
+  Edit_Home_Rotation_Chart: '编辑首页轮播图',
 };

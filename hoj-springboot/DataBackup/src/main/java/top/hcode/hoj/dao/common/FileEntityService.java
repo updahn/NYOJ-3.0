@@ -25,4 +25,7 @@ public interface FileEntityService extends IService<File> {
     List<List<Object>> changOIContestRankToExcelRowList(List<OIContestRankVO> oiContestRankVOList,
             List<String> contestProblemDisplayIDList,
             String rankShowName);
+
+    Boolean editHomeCarousel(Long id, String addLink, String addHint);
+
 }

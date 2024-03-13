@@ -7,6 +7,8 @@ const Announcement = () => import('@/views/admin/general/Announcement');
 const SysNotice = () => import('@/views/admin/general/SysNotice');
 const SystemConfig = () => import('@/views/admin/general/SystemConfig');
 const SysSwitch = () => import('@/views/admin/general/SysSwitch');
+const AccountConfig = () => import('@/views/admin/general/AccountConfig');
+const File = () => import('@/views/admin/general/File');
 const ProblemList = () => import('@/views/admin/problem/ProblemList');
 const AdminGroupProblemList = () => import('@/views/admin/problem/GroupProblemList');
 const Problem = () => import('@/views/admin/problem/Problem');
@@ -53,13 +55,13 @@ const adminRoutes = [
         path: 'announcement',
         name: 'admin-announcement',
         component: Announcement,
-        meta: { requireSuperAdmin: true, title: 'Announcement Admin' },
+        meta: { title: 'Announcement Admin' },
       },
       {
         path: 'notice',
         name: 'admin-notice',
         component: SysNotice,
-        meta: { requireSuperAdmin: true, title: 'Notice Admin' },
+        meta: { title: 'Notice Admin' },
       },
       {
         path: 'conf',
@@ -72,6 +74,18 @@ const adminRoutes = [
         name: 'admin-switch',
         component: SysSwitch,
         meta: { requireSuperAdmin: true, title: 'System Switch' },
+      },
+      {
+        path: 'account',
+        name: 'admin-account',
+        component: AccountConfig,
+        meta: { requireSuperAdmin: true, title: 'Account Config' },
+      },
+      {
+        path: 'file',
+        name: 'admin-file',
+        component: File,
+        meta: { title: 'File Admin' },
       },
       {
         path: 'problems',

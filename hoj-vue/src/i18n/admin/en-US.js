@@ -12,12 +12,14 @@ export const m = {
 
   // /views/admin/Home.vue
   Dashboard: 'Dashboard',
+  Important: 'Important',
   General: 'General',
   User_Admin: 'Admin User',
   Auth_Admin: 'Auth Admin',
   Announcement_Admin: 'Announcement',
   System_Config: 'System Config',
   System_Switch: 'System Switch',
+  File_Admin: 'File',
   Problem_Admin: 'Problem',
   Problem_List: 'Problem List',
   Create_Problem: 'Create Problem',
@@ -463,4 +465,9 @@ export const m = {
   Delete_Extra_File_Tips: 'Are you sure you want to delete this extra file?',
   File_Name: 'File Name',
   File_Content: 'File Content',
+
+  // /views/admin/general/SystemConfig.vue
+  Url: 'Add Url',
+  Hint2: 'Add Hint',
+  Edit_Home_Rotation_Chart: 'Edit Home Rotation Chart',
 };
