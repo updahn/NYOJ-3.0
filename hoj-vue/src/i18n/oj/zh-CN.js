@@ -34,6 +34,7 @@ export const m = {
   Dialog_Login: '登录',
   Dialog_Register: '注册',
   Dialog_Reset_Password: '重置密码',
+  Click_To_Home: '点击返回首页',
   Click_To_Change_Web_Language: '点击切换网站语言',
   NavBar_Back_Home: '前往首页',
   NavBar_Training_Home: '训练主页',

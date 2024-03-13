@@ -34,6 +34,7 @@ export const m = {
   Dialog_Login: 'Login',
   Dialog_Register: 'Register',
   Dialog_Reset_Password: 'Reset Password',
+  Click_To_Home: 'Click to Home',
   Click_To_Change_Web_Language: 'Click to change web language',
   NavBar_Back_Home: 'Back Home',
   NavBar_Training_Home: 'Training Home',
