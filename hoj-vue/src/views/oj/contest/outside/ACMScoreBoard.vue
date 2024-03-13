@@ -149,6 +149,23 @@
             </template>
           </template>
         </vxe-table-column>
+        <vxe-table-column field="school" min-width="120" fixed="left" :title="$t('m.School')">
+          <template v-slot="{ row }">
+            <span
+              class="contest-school"
+              v-if="row.school"
+              :title="row.school"
+              style="margin-left: 5px;"
+            >
+              <div class="school-info" style="display: flex; align-items: center;">
+                <div v-if="row.schoolRank" class="num-box" style="margin-right: 5px;">
+                  <span>{{ row.schoolRank }}</span>
+                </div>
+                <span>{{ row.school }}</span>
+              </div>
+            </span>
+          </template>
+        </vxe-table-column>
         <vxe-table-column
           field="username"
           fixed="left"
@@ -190,11 +207,6 @@
                     <span class="contest-rank-flag" v-if="row.rank == -1">Star</span>
                     <span class="contest-rank-flag" v-if="row.gender == 'female'">Girl</span>
                     {{ row.rankShowName }}
-                  </span>
-                  <span class="contest-school" v-if="row.school" :title="row.school">
-                    {{
-                    row.school
-                    }}
                   </span>
                 </a>
               </span>
@@ -241,11 +253,6 @@
                     <span class="contest-rank-flag" v-if="row.rank == -1">Star</span>
                     <span class="contest-rank-flag" v-if="row.gender == 'female'">Girl</span>
                     {{ row.rankShowName }}
-                  </span>
-                  <span class="contest-school" v-if="row.school" :title="row.school">
-                    {{
-                    row.school
-                    }}
                   </span>
                 </a>
               </span>
@@ -413,10 +420,11 @@ export default {
         column.property !== "rank" &&
         column.property !== "rating" &&
         column.property !== "totalTime" &&
-        column.property !== "username"
+        column.property !== "username" &&
+        column.property != "school"
       ) {
         return row.cellClassName[
-          [this.contestProblems[columnIndex - 4].displayId]
+          [this.contestProblems[columnIndex - 5].displayId]
         ];
       } else {
         if (row.isConcerned && column.property !== "username") {
@@ -566,6 +574,17 @@ export default {
 }
 .submission-error {
   font-weight: 400;
+}
+.num-box span {
+  background: #ededed;
+  color: #666;
+  display: block;
+  font: 700 15px/15px Arial;
+  height: 15px;
+  width: 15px;
+  margin-left: auto;
+  overflow: hidden;
+  text-align: center;
 }
 </style>
 

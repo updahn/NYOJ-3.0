@@ -451,7 +451,7 @@ a:hover {
 }
 .contest-rank-user-info {
   flex: 1;
-  text-align: right;
+  text-align: center;
   min-width: 0;
 }
 
@@ -471,7 +471,7 @@ a:hover {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  display: block;
+  display: inline-block;
 }
 .contest-rank-flag {
   margin-right: 20px !important;
