@@ -35,7 +35,6 @@ mybatis-plus:
   global-config:
     banner: false
 
-
 logging:
   level:
     com:

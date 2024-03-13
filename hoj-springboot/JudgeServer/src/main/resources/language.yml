@@ -180,7 +180,6 @@ run:
   env: python3
   command: /usr/bin/pypy3 /w/{exe_path}
 
-
 ---
 language: Golang
 src_path: main.go

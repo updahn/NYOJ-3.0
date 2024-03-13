@@ -1,6 +1,5 @@
 package top.hcode.hoj.util;
 
-
 /**
  * @Author: Himit_ZH
  * @Date: 2021/1/1 13:00
@@ -58,9 +57,7 @@ public class Constants {
         }
     }
 
-
     public enum RemoteJudge {
-
 
         HDU_JUDGE("HDU"),
 
@@ -87,7 +84,8 @@ public class Constants {
         }
 
         public static RemoteJudge getTypeByName(String judgeName) {
-            if (judgeName == null) return null;
+            if (judgeName == null)
+                return null;
             for (RemoteJudge remoteJudge : RemoteJudge.values()) {
                 if (remoteJudge.getName().equals(judgeName)) {
                     return remoteJudge;
@@ -97,7 +95,8 @@ public class Constants {
         }
 
         public static String getListNameByOJName(String judgeName) {
-            if (judgeName == null) return null;
+            if (judgeName == null)
+                return null;
             switch (judgeName) {
                 case "HDU":
                     return RemoteJudge.HDU_REMOTE_JUDGE_ACCOUNT.getName();
@@ -111,7 +110,6 @@ public class Constants {
             return name;
         }
     }
-
 
     public enum JudgeMode {
         TEST("test"),
@@ -139,7 +137,7 @@ public class Constants {
         }
     }
 
-    public enum JudgeCaseMode{
+    public enum JudgeCaseMode {
         DEFAULT("default"),
         SUBTASK_LOWEST("subtask_lowest"),
         SUBTASK_AVERAGE("subtask_average"),
@@ -167,7 +165,6 @@ public class Constants {
         INTERACTIVE_WORKPLACE_DIR("/judge/interactive"),
 
         TMPFS_DIR("/w");
-
 
         private final String content;
 
@@ -216,6 +213,5 @@ public class Constants {
             return name;
         }
     }
-
 
 }
