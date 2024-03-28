@@ -256,13 +256,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         QueryWrapper<UserMultiOj> userMultiOjQueryWrapper = new QueryWrapper<>();
         // 查询不为空的数据
         userMultiOjQueryWrapper.isNotNull("codeforces");
-        List<UserMultiOj> userInfoList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
-        for (UserMultiOj userInfo : userInfoList) {
-            String multiOjUsername = userInfo.getCodeforces();
+        List<UserMultiOj> userMultiOjList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
+        for (UserMultiOj userMultiOj : userMultiOjList) {
+            String multiOjUsername = userMultiOj.getCodeforces();
             // 获取uid
-            String uid = userInfo.getUid();
+            String uid = userMultiOj.getUid();
             // 获取username
-            String username = userInfo.getUsername();
+            String username = userMultiOj.getUsername();
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "CF", multiOjUsername);
 
@@ -299,13 +299,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         QueryWrapper<UserMultiOj> userMultiOjQueryWrapper = new QueryWrapper<>();
         // 查询不为空的数据
         userMultiOjQueryWrapper.isNotNull("nowcoder");
-        List<UserMultiOj> userInfoList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
-        for (UserMultiOj userInfo : userInfoList) {
-            String multiOjUsername = userInfo.getNowcoder();
+        List<UserMultiOj> userMultiOjList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
+        for (UserMultiOj userMultiOj : userMultiOjList) {
+            String multiOjUsername = userMultiOj.getNowcoder();
             // 获取uid
-            String uid = userInfo.getUid();
+            String uid = userMultiOj.getUid();
             // 获取username
-            String username = userInfo.getUsername();
+            String username = userMultiOj.getUsername();
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "NC", multiOjUsername);
 
@@ -341,13 +341,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         QueryWrapper<UserMultiOj> userMultiOjQueryWrapper = new QueryWrapper<>();
         // 查询不为空的数据
         userMultiOjQueryWrapper.isNotNull("vjudge");
-        List<UserMultiOj> userInfoList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
-        for (UserMultiOj userInfo : userInfoList) {
-            String multiOjUsername = userInfo.getVjudge();
+        List<UserMultiOj> userMultiOjList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
+        for (UserMultiOj userMultiOj : userMultiOjList) {
+            String multiOjUsername = userMultiOj.getVjudge();
             // 获取uid
-            String uid = userInfo.getUid();
+            String uid = userMultiOj.getUid();
             // 获取username
-            String username = userInfo.getUsername();
+            String username = userMultiOj.getUsername();
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "VJ", multiOjUsername);
 
@@ -382,13 +382,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         QueryWrapper<UserMultiOj> userMultiOjQueryWrapper = new QueryWrapper<>();
         // 查询不为空的数据
         userMultiOjQueryWrapper.isNotNull("poj");
-        List<UserMultiOj> userInfoList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
-        for (UserMultiOj userInfo : userInfoList) {
-            String multiOjUsername = userInfo.getPoj();
+        List<UserMultiOj> userMultiOjList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
+        for (UserMultiOj userMultiOj : userMultiOjList) {
+            String multiOjUsername = userMultiOj.getPoj();
             // 获取uid
-            String uid = userInfo.getUid();
+            String uid = userMultiOj.getUid();
             // 获取username
-            String username = userInfo.getUsername();
+            String username = userMultiOj.getUsername();
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "PK", multiOjUsername);
 
@@ -423,13 +423,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         QueryWrapper<UserMultiOj> userMultiOjQueryWrapper = new QueryWrapper<>();
         // 查询不为空的数据
         userMultiOjQueryWrapper.isNotNull("atcode");
-        List<UserMultiOj> userInfoList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
-        for (UserMultiOj userInfo : userInfoList) {
-            String multiOjUsername = userInfo.getAtcode();
+        List<UserMultiOj> userMultiOjList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
+        for (UserMultiOj userMultiOj : userMultiOjList) {
+            String multiOjUsername = userMultiOj.getAtcode();
             // 获取uid
-            String uid = userInfo.getUid();
+            String uid = userMultiOj.getUid();
             // 获取username
-            String username = userInfo.getUsername();
+            String username = userMultiOj.getUsername();
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "AT", multiOjUsername);
 
@@ -464,13 +464,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         QueryWrapper<UserMultiOj> userMultiOjQueryWrapper = new QueryWrapper<>();
         // 查询不为空的数据
         userMultiOjQueryWrapper.isNotNull("leetcode");
-        List<UserMultiOj> userInfoList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
-        for (UserMultiOj userInfo : userInfoList) {
-            String multiOjUsername = userInfo.getLeetcode();
+        List<UserMultiOj> userMultiOjList = userMultiOjEntityService.list(userMultiOjQueryWrapper);
+        for (UserMultiOj userMultiOj : userMultiOjList) {
+            String multiOjUsername = userMultiOj.getLeetcode();
             // 获取uid
-            String uid = userInfo.getUid();
+            String uid = userMultiOj.getUid();
             // 获取username
-            String username = userInfo.getUsername();
+            String username = userMultiOj.getUsername();
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "LC", multiOjUsername);
 
