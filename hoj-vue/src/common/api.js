@@ -786,6 +786,11 @@ const ojApi = {
   },
 
   // setting页的请求
+  changeUsername(data) {
+    return ajax('/api/change-username', 'post', {
+      data,
+    });
+  },
   changePassword(data) {
     return ajax('/api/change-password', 'post', {
       data,
