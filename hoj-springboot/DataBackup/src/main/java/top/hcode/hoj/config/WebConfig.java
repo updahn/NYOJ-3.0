@@ -24,6 +24,23 @@ public class WebConfig {
 
     private Integer emailPort;
 
+    // ssh配置
+    private String sshUsername;
+
+    private String sshPassword;
+
+    private String sshHost;
+
+    private Integer sshPort;
+
+    private String sshPath;
+
+    private String sshFronted;
+
+    private String sshBackend;
+
+    private String sshJudgeserver;
+
     private Boolean emailSsl = true;
 
     private String emailBGImg = "https://cdn.jsdelivr.net/gh/HimitZH/CDN/images/HCODE.png";

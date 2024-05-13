@@ -238,6 +238,64 @@
       </el-form>
       <el-button type="primary" @click.native="saveDataBaseConfig" size="small">{{ $t("m.Save") }}</el-button>
     </el-card>
+
+    <el-card style="margin-top: 15px">
+      <div slot="header">
+        <span class="panel-title home-title">{{ $t("m.SSH_Config") }}</span>
+      </div>
+      <el-form label-position="left" label-width="80px" :model="ssh">
+        <el-row :gutter="20">
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Host')" required label-width="80px">
+              <el-input v-model="ssh.sshHost" :placeholder="$t('m.Host')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Port')" required label-width="80px">
+              <el-input v-model="ssh.sshPort" type="number" :placeholder="$t('m.Port')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Account')" required label-width="80px">
+              <el-input v-model="ssh.sshUsername" :placeholder="$t('m.Account')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Password')" label-width="80px" required>
+              <el-input v-model="ssh.sshPassword" type="password" :placeholder="$t('m.Password')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.SSH_Project_Path')" label-width="110px" required>
+              <el-input v-model="ssh.sshPath" :placeholder="$t('m.SSH_Project_Path')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.SSH_Fronted_Path')" label-width="110px" required>
+              <el-input v-model="ssh.sshFronted" :placeholder="$t('m.SSH_Fronted_RelativePath')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.SSH_Backend_Path')" label-width="110px" required>
+              <el-input v-model="ssh.sshBackend" :placeholder="$t('m.SSH_Backend_RelativePath')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.SSH_Judgeserver_Path')" label-width="150px" required>
+              <el-input
+                v-model="ssh.sshJudgeserver"
+                :placeholder="$t('m.SSH_Judgeserver_RelativePath')"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <el-button type="primary" @click.native="saveSSHConfig" size="small">
+        {{
+        $t("m.Save")
+        }}
+      </el-button>
+    </el-card>
   </div>
 </template>
 
@@ -259,6 +317,16 @@ export default {
         emailBGImg: "",
         emailUsername: "email@example.com",
         emailSsl: true,
+      },
+      ssh: {
+        sshHost: null,
+        sshPassword: null,
+        sshPort: null,
+        sshUsername: null,
+        sshPath: null,
+        sshFronted: null,
+        sshBackend: null,
+        sshJudgeserver: null,
       },
       websiteConfig: {},
       databaseConfig: {},
@@ -288,6 +356,15 @@ export default {
         this.databaseConfig = res.data.data;
       })
       .catch(() => {});
+
+    api.admin_getSSHConfig().then((res) => {
+      if (res.data.data) {
+        this.ssh = res.data.data;
+      } else {
+        this.init = true;
+        myMessage.warning("No SSH Config");
+      }
+    });
   },
   methods: {
     saveSMTPConfig() {
@@ -408,6 +485,17 @@ export default {
           this.$refs.xAwardTable.reloadRow(row, null, field);
         }, 300);
       }
+    },
+    saveSSHConfig() {
+      api.admin_editSSHConfig(this.ssh).then(
+        (res) => {
+          myMessage.success(this.$i18n.t("m.Update_Successfully"));
+          this.saved = true;
+        },
+        () => {
+          this.saved = false;
+        }
+      );
     },
   },
 };

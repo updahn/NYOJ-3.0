@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.pojo.dto.DBAndRedisConfigDTO;
 import top.hcode.hoj.pojo.dto.EmailConfigDTO;
+import top.hcode.hoj.pojo.dto.SshConfigDTO;
 import top.hcode.hoj.pojo.dto.TestEmailDTO;
 import top.hcode.hoj.pojo.dto.WebConfigDTO;
 import top.hcode.hoj.service.admin.system.ConfigService;
@@ -93,9 +94,22 @@ public class ConfigController {
     }
 
     @RequiresPermissions("system_info_admin")
+    @RequestMapping("/get-ssh-config")
+    public CommonResult<SshConfigDTO> getSSHConfig() {
+
+        return configService.getSSHConfig();
+    }
+
+    @RequiresPermissions("system_info_admin")
     @PutMapping("/set-email-config")
     public CommonResult<Void> setEmailConfig(@RequestBody EmailConfigDTO config) {
         return configService.setEmailConfig(config);
+    }
+
+    @RequiresPermissions("system_info_admin")
+    @PutMapping("/set-ssh-config")
+    public CommonResult<Void> setSSHConfig(@RequestBody SshConfigDTO config) {
+        return configService.setSSHConfig(config);
     }
 
     @RequiresPermissions("system_info_admin")

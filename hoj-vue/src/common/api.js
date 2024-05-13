@@ -1645,7 +1645,14 @@ const adminApi = {
       data,
     });
   },
-
+  admin_getSSHConfig() {
+    return ajax('/api/admin/config/get-ssh-config', 'get');
+  },
+  admin_editSSHConfig(data) {
+    return ajax('/api/admin/config/set-ssh-config', 'put', {
+      data,
+    });
+  },
   admin_deleteHomeCarousel(id) {
     return ajax('/api/admin/config/home-carousel', 'delete', {
       params: {

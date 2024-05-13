@@ -36,6 +36,23 @@ email-username: ${EMAIL_USERNAME:your_email_username}
 # 邮箱授权码
 email-password: ${EMAIL_PASSWORD:your_email_password}
 
+# ssh服务地址
+ssh-host: ${SSH_SERVER_HOST:your_ssh_host}
+# ssh服务端口号
+ssh-port: ${SSH_SERVER_PORT:22}
+# ssh账号
+ssh-username: ${SSH_USERNAME:your_ssh_username}
+# ssh密码
+ssh-password: ${SSH_PASSWORD:your_ssh_password}
+# ssh项目路径
+ssh-path: ${SSH_PATH:your_ssh_project_path}
+# ssh项目前端相对项目路径
+ssh-fronted: ${SSH_FRONTED:your_ssh_fronted_path}
+# ssh项目后端相对项目路径
+ssh-backend: ${SSH_BACKEND:your_ssh_backend_path}
+# ssh项目判题机相对项目路径
+ssh-judgeserver: ${SSH_JUDGESERVER:your_ssh_judgeserver_path}
+
 # 以下为各个remote judge平台的账号配置
 hdu-username-list: ${HDU_ACCOUNT_USERNAME_LIST:}
 hdu-password-list: ${HDU_ACCOUNT_PASSWORD_LIST:}

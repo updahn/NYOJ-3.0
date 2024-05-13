@@ -39,6 +39,11 @@
             $t("m.User_Admin")
             }}
           </el-menu-item>
+          <el-menu-item index="/admin/docker">
+            {{
+            $t("m.Admin_Docker")
+            }}
+          </el-menu-item>
         </el-submenu>
         <el-submenu index="general" v-if="isMainAdminRole">
           <template slot="title">
@@ -310,6 +315,16 @@
               active-class="mobile-menu-active"
             >
               <mu-list-item-title>{{ $t("m.User_Admin") }}</mu-list-item-title>
+            </mu-list-item>
+            <mu-list-item
+              button
+              :ripple="false"
+              slot="nested"
+              to="/admin/docker"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+            >
+              <mu-list-item-title>{{ $t("m.Admin_Docker") }}</mu-list-item-title>
             </mu-list-item>
           </mu-list-item>
 

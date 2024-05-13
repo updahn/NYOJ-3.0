@@ -123,6 +123,31 @@ public class StartupRunner implements CommandLineRunner {
     @Value("${email-port}")
     private Integer emailPort;
 
+    // ssh配置
+    @Value("${ssh-username}")
+    private String sshUsername;
+
+    @Value("${ssh-password}")
+    private String sshPassword;
+
+    @Value("${ssh-host}")
+    private String sshHost;
+
+    @Value("${ssh-port}")
+    private Integer sshPort;
+
+    @Value("${ssh-path}")
+    private String sshPath;
+
+    @Value("${ssh-fronted}")
+    private String sshFronted;
+
+    @Value("${ssh-backend}")
+    private String sshBackend;
+
+    @Value("${ssh-judgeserver}")
+    private String sshJudgeserver;
+
     @Value("${hdu-username-list}")
     private List<String> hduUsernameList;
 
@@ -195,10 +220,12 @@ public class StartupRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        // 修改nacos上的默认、web、switch配置文件
+        // 修改nacos上的默认、web、switch、ssh配置文件
         initDefaultConfig();
 
         initWebConfig();
+
+        initSSHConfig();
 
         initSwitchConfig();
 
@@ -274,6 +301,54 @@ public class StartupRunner implements CommandLineRunner {
         if (!Objects.equals(webConfig.getEmailPassword(), emailPassword)
                 && (webConfig.getEmailPassword() == null || !"your_email_password".equals(emailPassword))) {
             webConfig.setEmailPassword(emailPassword);
+            isChanged = true;
+        }
+        if (isChanged) {
+            nacosSwitchConfig.publishWebConfig();
+        }
+    }
+
+    private void initSSHConfig() {
+        WebConfig webConfig = nacosSwitchConfig.getWebConfig();
+        boolean isChanged = false;
+        if (!Objects.equals(webConfig.getSshHost(), sshHost)
+                && (webConfig.getSshHost() == null || !"your_ssh_host".equals(sshHost))) {
+            webConfig.setSshHost(sshHost);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getSshPort(), sshPort)
+                && (webConfig.getSshPort() == null || sshPort != 22)) {
+            webConfig.setSshPort(sshPort);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getSshUsername(), sshUsername)
+                && (webConfig.getSshUsername() == null || !"your_ssh_username".equals(sshUsername))) {
+            webConfig.setSshUsername(sshUsername);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getSshPassword(), sshPassword)
+                && (webConfig.getSshPassword() == null || !"your_ssh_password".equals(sshPassword))) {
+            webConfig.setSshPassword(sshPassword);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getSshPath(), sshPath)
+                && (webConfig.getSshPath() == null || !"your_ssh_project_path".equals(sshPath))) {
+            webConfig.setSshPath(sshPath);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getSshFronted(), sshFronted)
+                && (webConfig.getSshFronted() == null || !"your_ssh_fronted_path".equals(sshFronted))) {
+            webConfig.setSshFronted(sshFronted);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getSshBackend(), sshBackend)
+                && (webConfig.getSshBackend() == null || !"your_ssh_backend_path".equals(sshBackend))) {
+            webConfig.setSshBackend(sshBackend);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getSshJudgeserver(), sshJudgeserver)
+                && (webConfig.getSshJudgeserver() == null || !"your_ssh_judgeserver_path".equals(sshJudgeserver))) {
+            webConfig.setSshJudgeserver(sshJudgeserver);
             isChanged = true;
         }
         if (isChanged) {

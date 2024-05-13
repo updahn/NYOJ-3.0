@@ -87,9 +87,24 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
+    public CommonResult<SshConfigDTO> getSSHConfig() {
+        return CommonResult.successResponse(configManager.getSSHConfig());
+    }
+
+    @Override
     public CommonResult<Void> setEmailConfig(EmailConfigDTO config) {
         try {
             configManager.setEmailConfig(config);
+            return CommonResult.successResponse();
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
+        }
+    }
+
+    @Override
+    public CommonResult<Void> setSSHConfig(SshConfigDTO config) {
+        try {
+            configManager.setSSHConfig(config);
             return CommonResult.successResponse();
         } catch (StatusFailException e) {
             return CommonResult.errorResponse(e.getMessage());

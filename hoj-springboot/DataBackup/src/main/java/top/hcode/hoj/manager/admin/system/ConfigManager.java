@@ -264,6 +264,20 @@ public class ConfigManager {
                 .build();
     }
 
+    public SshConfigDTO getSSHConfig() {
+        WebConfig webConfig = nacosSwitchConfig.getWebConfig();
+        return SshConfigDTO.builder()
+                .sshUsername(webConfig.getSshUsername())
+                .sshPassword(webConfig.getSshPassword())
+                .sshHost(webConfig.getSshHost())
+                .sshPort(webConfig.getSshPort())
+                .sshPath(webConfig.getSshPath())
+                .sshFronted(webConfig.getSshFronted())
+                .sshBackend(webConfig.getSshBackend())
+                .sshJudgeserver(webConfig.getSshJudgeserver())
+                .build();
+    }
+
     public void setEmailConfig(EmailConfigDTO config) throws StatusFailException {
         WebConfig webConfig = nacosSwitchConfig.getWebConfig();
         if (!StringUtils.isEmpty(config.getEmailHost())) {
@@ -287,6 +301,45 @@ public class ConfigManager {
 
         if (config.getEmailSsl() != null) {
             webConfig.setEmailSsl(config.getEmailSsl());
+        }
+
+        boolean isOk = nacosSwitchConfig.publishWebConfig();
+        if (!isOk) {
+            throw new StatusFailException("修改失败");
+        }
+    }
+
+    public void setSSHConfig(SshConfigDTO config) throws StatusFailException {
+        WebConfig webConfig = nacosSwitchConfig.getWebConfig();
+        if (!StringUtils.isEmpty(config.getSshHost())) {
+            webConfig.setSshHost(config.getSshHost());
+        }
+        if (!StringUtils.isEmpty(config.getSshPassword())) {
+            webConfig.setSshPassword(config.getSshPassword());
+        }
+
+        if (config.getSshPort() != null) {
+            webConfig.setSshPort(config.getSshPort());
+        }
+
+        if (!StringUtils.isEmpty(config.getSshUsername())) {
+            webConfig.setSshUsername(config.getSshUsername());
+        }
+
+        if (!StringUtils.isEmpty(config.getSshPath())) {
+            webConfig.setSshPath(config.getSshPath());
+        }
+
+        if (!StringUtils.isEmpty(config.getSshFronted())) {
+            webConfig.setSshFronted(config.getSshFronted());
+        }
+
+        if (!StringUtils.isEmpty(config.getSshBackend())) {
+            webConfig.setSshBackend(config.getSshBackend());
+        }
+
+        if (!StringUtils.isEmpty(config.getSshJudgeserver())) {
+            webConfig.setSshJudgeserver(config.getSshJudgeserver());
         }
 
         boolean isOk = nacosSwitchConfig.publishWebConfig();

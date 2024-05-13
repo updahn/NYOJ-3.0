@@ -25,6 +25,7 @@ const ExaminationRoom = () => import('@/views/admin/examination/ExaminationRoom'
 const ExaminationRoomList = () => import('@/views/admin/examination/ExaminationRoomList');
 const ExaminationSeat = () => import('@/views/admin/examination/ExaminationSeat');
 const ExaminationList = () => import('@/views/admin/examination/ExaminationList');
+const Console = () => import('@/views/admin/general/Console');
 
 const adminRoutes = [
   {
@@ -85,6 +86,18 @@ const adminRoutes = [
         name: 'admin-account',
         component: AccountConfig,
         meta: { requireSuperAdmin: true, title: 'Account Config' },
+      },
+      {
+        path: 'ssh',
+        name: 'admin-ssh',
+        component: Console,
+        meta: { requireSuperAdmin: true, title: 'Admin SSH' },
+      },
+      {
+        path: 'docker',
+        name: 'admin-docker',
+        component: Console,
+        meta: { requireSuperAdmin: true, title: 'Admin Docker' },
       },
       {
         path: 'file',

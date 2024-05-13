@@ -66,6 +66,10 @@ Vue.use(AppBar);
 Vue.use(Button);
 Vue.use(Divider);
 
+// websocket 方法
+import socket from '@/common/socket.js';
+Vue.use(socket);
+
 Object.keys(filters).forEach((key) => {
   // 注册全局过滤器
   Vue.filter(key, filters[key]);

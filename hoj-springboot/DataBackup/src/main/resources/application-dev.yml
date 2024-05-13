@@ -34,6 +34,23 @@ email-username: your_email_username
 # 邮箱授权码
 email-password: your_email_password
 
+# ssh服务地址
+ssh-host: your_ssh_host
+# ssh服务端口号
+ssh-port: 22
+# ssh账号
+ssh-username: your_ssh_username
+# ssh密码
+ssh-password: your_ssh_password
+# ssh项目路径
+ssh-path: your_ssh_project_path
+# ssh项目前端相对项目路径
+ssh-fronted: your_ssh_fronted_path
+# ssh项目后端相对项目路径
+ssh-backend: your_ssh_backend_path
+# ssh项目判题机相对项目路径
+ssh-judgeserver: your_ssh_judgeserver_path
+
 # 以下为各个remote judge平台的账号配置
 hdu-username-list:
 hdu-password-list:
