@@ -206,6 +206,7 @@ export const m = {
   Restart_Fronted_Tips: '此操作会重启前端服务，你确定嘛？',
   Restart_Backend_Tips: '此操作会重启所有服务（不包括前端），但是不能修复后端服务无法访问的问题，你确定嘛？',
   Restart_Judgeserver_Tips: '此操作会重启判题服务，你确定嘛？',
+  Wkhtmltopdf_Config: 'Wkhtmltopdf 设置（转PDF的程序）',
 
   // /views/admin/general/SysSwitch.vue
   Judge_Config: '评测配置',

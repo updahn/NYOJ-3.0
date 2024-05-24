@@ -148,6 +148,13 @@ public class StartupRunner implements CommandLineRunner {
     @Value("${ssh-judgeserver}")
     private String sshJudgeserver;
 
+    // wkhtmltopdf配置
+    @Value("${wkhtmltopdf-host}")
+    private String wkhtmltopdfHost;
+
+    @Value("${wkhtmltopdf-port}")
+    private Integer wkhtmltopdfPort;
+
     @Value("${hdu-username-list}")
     private List<String> hduUsernameList;
 
@@ -228,6 +235,8 @@ public class StartupRunner implements CommandLineRunner {
         initSSHConfig();
 
         initSwitchConfig();
+
+        initWKHTMLTOPDFConfig();
 
         upsertHOJLanguageV2();
         // upsertHOJLanguage("PHP", "PyPy2", "PyPy3", "JavaScript Node", "JavaScript
@@ -555,6 +564,24 @@ public class StartupRunner implements CommandLineRunner {
                     switchConfig.getMossUsernameList(),
                     null);
             checkRemoteOJLanguage(Constants.RemoteOJ.SPOJ, Constants.RemoteOJ.ATCODER);
+        }
+    }
+
+    private void initWKHTMLTOPDFConfig() {
+        WebConfig webConfig = nacosSwitchConfig.getWebConfig();
+        boolean isChanged = false;
+        if (!Objects.equals(webConfig.getWkhtmltopdfHost(), wkhtmltopdfHost)
+                && (webConfig.getWkhtmltopdfHost() == null || !"http://172.17.0.1".equals(wkhtmltopdfHost))) {
+            webConfig.setWkhtmltopdfHost(wkhtmltopdfHost);
+            isChanged = true;
+        }
+        if (!Objects.equals(webConfig.getWkhtmltopdfPort(), wkhtmltopdfPort)
+                && (webConfig.getWkhtmltopdfPort() == null || wkhtmltopdfPort != 8001)) {
+            webConfig.setWkhtmltopdfPort(wkhtmltopdfPort);
+            isChanged = true;
+        }
+        if (isChanged) {
+            nacosSwitchConfig.publishWebConfig();
         }
     }
 

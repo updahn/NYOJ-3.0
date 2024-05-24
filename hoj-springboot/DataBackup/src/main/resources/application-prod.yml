@@ -53,6 +53,10 @@ ssh-backend: ${SSH_BACKEND:your_ssh_backend_path}
 # ssh项目判题机相对项目路径
 ssh-judgeserver: ${SSH_JUDGESERVER:your_ssh_judgeserver_path}
 
+# wkhtmltopdf
+wkhtmltopdf-host: ${WKHTMLTOPDF_HOST:http://172.17.0.1}
+wkhtmltopdf-port: ${WKHTMLTOPDF_PORT:8001}
+
 # 以下为各个remote judge平台的账号配置
 hdu-username-list: ${HDU_ACCOUNT_USERNAME_LIST:}
 hdu-password-list: ${HDU_ACCOUNT_PASSWORD_LIST:}

@@ -26,9 +26,13 @@ public interface ConfigService {
 
     public CommonResult<SshConfigDTO> getSSHConfig();
 
+    public CommonResult<WkhtmltopdfDTO> getWkhtmltopdfConfig();
+
     public CommonResult<Void> setEmailConfig(EmailConfigDTO config);
 
     public CommonResult<Void> setSSHConfig(SshConfigDTO config);
+
+    public CommonResult<Void> setWkhtmltopdfConfig(WkhtmltopdfDTO config);
 
     public CommonResult<Void> testEmail(TestEmailDTO testEmailDto);
 

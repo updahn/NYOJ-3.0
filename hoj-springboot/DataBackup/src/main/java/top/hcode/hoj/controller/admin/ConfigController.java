@@ -12,6 +12,7 @@ import top.hcode.hoj.pojo.dto.EmailConfigDTO;
 import top.hcode.hoj.pojo.dto.SshConfigDTO;
 import top.hcode.hoj.pojo.dto.TestEmailDTO;
 import top.hcode.hoj.pojo.dto.WebConfigDTO;
+import top.hcode.hoj.pojo.dto.WkhtmltopdfDTO;
 import top.hcode.hoj.service.admin.system.ConfigService;
 
 import java.util.List;
@@ -101,6 +102,13 @@ public class ConfigController {
     }
 
     @RequiresPermissions("system_info_admin")
+    @RequestMapping("/get-wkhtmltopdf-config")
+    public CommonResult<WkhtmltopdfDTO> getWkhtmltopdfConfig() {
+
+        return configService.getWkhtmltopdfConfig();
+    }
+
+    @RequiresPermissions("system_info_admin")
     @PutMapping("/set-email-config")
     public CommonResult<Void> setEmailConfig(@RequestBody EmailConfigDTO config) {
         return configService.setEmailConfig(config);
@@ -110,6 +118,12 @@ public class ConfigController {
     @PutMapping("/set-ssh-config")
     public CommonResult<Void> setSSHConfig(@RequestBody SshConfigDTO config) {
         return configService.setSSHConfig(config);
+    }
+
+    @RequiresPermissions("system_info_admin")
+    @PutMapping("/set-wkhtmltopdf-config")
+    public CommonResult<Void> setWkhtmltopdfConfig(@RequestBody WkhtmltopdfDTO config) {
+        return configService.setWkhtmltopdfConfig(config);
     }
 
     @RequiresPermissions("system_info_admin")

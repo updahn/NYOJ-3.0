@@ -206,6 +206,7 @@ export const m = {
   Restart_Fronted_Tips: 'This operation will restart the frontend service. Are you sure?',
   Restart_Backend_Tips: 'This operation will restart all services (excluding the frontend), but it cannot fix issues with accessing the backend service. Are you sure?',
   Restart_Judgeserver_Tips: 'This operation will restart the judgeserver service. Are you sure?',
+  Wkhtmltopdf_Config: 'Wkhtmltopdf Config',
 
   // /views/admin/general/SysSwitch.vue
   Judge_Config: 'Judge Config',

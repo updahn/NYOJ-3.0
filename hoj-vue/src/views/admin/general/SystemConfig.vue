@@ -241,6 +241,31 @@
 
     <el-card style="margin-top: 15px">
       <div slot="header">
+        <span class="panel-title home-title">{{ $t("m.Wkhtmltopdf_Config") }}</span>
+      </div>
+      <el-form label-position="left" label-width="80px" :model="wkhtmltopdf">
+        <el-row :gutter="20">
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Host')" required label-width="80px">
+              <el-input v-model="wkhtmltopdf.wkhtmltopdfHost" :placeholder="$t('m.Host')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Port')" required label-width="80px">
+              <el-input v-model="wkhtmltopdf.wkhtmltopdfPort" :placeholder="$t('m.Port')"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <el-button type="primary" @click.native="saveWkhtmltopdfConfig" size="small">
+        {{
+        $t("m.Save")
+        }}
+      </el-button>
+    </el-card>
+
+    <el-card style="margin-top: 15px">
+      <div slot="header">
         <span class="panel-title home-title">{{ $t("m.SSH_Config") }}</span>
       </div>
       <el-form label-position="left" label-width="80px" :model="ssh">
@@ -318,6 +343,10 @@ export default {
         emailUsername: "email@example.com",
         emailSsl: true,
       },
+      wkhtmltopdf: {
+        wkhtmltopdfHost: null,
+        wkhtmltopdfPort: null,
+      },
       ssh: {
         sshHost: null,
         sshPassword: null,
@@ -363,6 +392,15 @@ export default {
       } else {
         this.init = true;
         myMessage.warning("No SSH Config");
+      }
+    });
+
+    api.admin_getWkhtmltopdfConfig().then((res) => {
+      if (res.data.data) {
+        this.wkhtmltopdf = res.data.data;
+      } else {
+        this.init = true;
+        myMessage.warning("No Wkhtmltopdf Config");
       }
     });
   },
@@ -488,6 +526,17 @@ export default {
     },
     saveSSHConfig() {
       api.admin_editSSHConfig(this.ssh).then(
+        (res) => {
+          myMessage.success(this.$i18n.t("m.Update_Successfully"));
+          this.saved = true;
+        },
+        () => {
+          this.saved = false;
+        }
+      );
+    },
+    saveWkhtmltopdfConfig() {
+      api.admin_editWkhtmltopdfConfig(this.wkhtmltopdf).then(
         (res) => {
           myMessage.success(this.$i18n.t("m.Update_Successfully"));
           this.saved = true;

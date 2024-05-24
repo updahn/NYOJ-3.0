@@ -278,6 +278,14 @@ public class ConfigManager {
                 .build();
     }
 
+    public WkhtmltopdfDTO getWkhtmltopdfConfig() {
+        WebConfig webConfig = nacosSwitchConfig.getWebConfig();
+        return WkhtmltopdfDTO.builder()
+                .wkhtmltopdfHost(webConfig.getWkhtmltopdfHost())
+                .wkhtmltopdfPort(webConfig.getWkhtmltopdfPort())
+                .build();
+    }
+
     public void setEmailConfig(EmailConfigDTO config) throws StatusFailException {
         WebConfig webConfig = nacosSwitchConfig.getWebConfig();
         if (!StringUtils.isEmpty(config.getEmailHost())) {
@@ -340,6 +348,21 @@ public class ConfigManager {
 
         if (!StringUtils.isEmpty(config.getSshJudgeserver())) {
             webConfig.setSshJudgeserver(config.getSshJudgeserver());
+        }
+
+        boolean isOk = nacosSwitchConfig.publishWebConfig();
+        if (!isOk) {
+            throw new StatusFailException("修改失败");
+        }
+    }
+
+    public void setWkhtmltopdfConfig(WkhtmltopdfDTO config) throws StatusFailException {
+        WebConfig webConfig = nacosSwitchConfig.getWebConfig();
+        if (!StringUtils.isEmpty(config.getWkhtmltopdfHost())) {
+            webConfig.setWkhtmltopdfHost(config.getWkhtmltopdfHost());
+        }
+        if (!StringUtils.isEmpty(config.getWkhtmltopdfPort())) {
+            webConfig.setWkhtmltopdfPort(config.getWkhtmltopdfPort());
         }
 
         boolean isOk = nacosSwitchConfig.publishWebConfig();
