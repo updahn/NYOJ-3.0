@@ -1,6 +1,6 @@
 *.classpath
 
-# Package Files 
+# Package Files
 *.jar
 *.war
 *.ear
@@ -34,3 +34,12 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# bootstrap.yml
+
+# 添加需要忽略更新的文件
+# git update-index --assume-unchanged hoj-springboot/DataBackup/src/main/resources/bootstrap.yml
+# git update-index --assume-unchanged hoj-springboot/JudgeServer/src/main/resources/bootstrap.yml
+# 取消被忽略的文件
+# git update-index --no-assume-unchanged hoj-springboot/DataBackup/src/main/resources/bootstrap.yml
+# git update-index --no-assume-unchanged hoj-springboot/JudgeServer/src/main/resources/bootstrap.yml

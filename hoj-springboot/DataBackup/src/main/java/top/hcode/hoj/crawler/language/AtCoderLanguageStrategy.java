@@ -269,240 +269,240 @@ public class AtCoderLanguageStrategy extends LanguageStrategy {
         return nameMapContestType.get(name);
     }
 
-    public static void main(String[] args) {
-        String body = "\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5001\" data-ace-mode=\"c_cpp\">C&#43;&#43; 20 (gcc 12.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5002\" data-ace-mode=\"golang\">Go (go 1.20.6)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5003\" data-ace-mode=\"csharp\">C# 11.0 (.NET 7.0.7)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5004\" data-ace-mode=\"kotlin\">Kotlin (Kotlin/JVM 1.8.20)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5005\" data-ace-mode=\"java\">Java (OpenJDK 17)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5006\" data-ace-mode=\"nim\">Nim (Nim 1.6.14)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5007\" data-ace-mode=\"text\">V (V 0.4)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5008\" data-ace-mode=\"text\">Zig (Zig 0.10.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5009\" data-ace-mode=\"javascript\">JavaScript (Node.js 18.16.1)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5010\" data-ace-mode=\"javascript\">JavaScript (Deno 1.35.1)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5011\" data-ace-mode=\"r\">R (GNU R 4.2.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5012\" data-ace-mode=\"d\">D (DMD 2.104.0)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5013\" data-ace-mode=\"d\">D (LDC 1.32.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5014\" data-ace-mode=\"swift\">Swift (swift 5.8.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5015\" data-ace-mode=\"dart\">Dart (Dart 3.0.5)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5016\" data-ace-mode=\"php\">PHP (php 8.2.8)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5017\" data-ace-mode=\"c_cpp\">C (gcc 12.2.0)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5018\" data-ace-mode=\"ruby\">Ruby (ruby 3.2.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5019\" data-ace-mode=\"crystal\">Crystal (Crystal 1.9.1)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5020\" data-ace-mode=\"text\">Brainfuck (bf 20041219)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5021\" data-ace-mode=\"fsharp\">F# 7.0 (.NET 7.0.7)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5022\" data-ace-mode=\"julia\">Julia (Julia 1.9.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5023\" data-ace-mode=\"sh\">Bash (bash 5.2.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5024\" data-ace-mode=\"text\">Text (cat 8.32)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5025\" data-ace-mode=\"haskell\">Haskell (GHC 9.4.5)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5026\" data-ace-mode=\"fortran\">Fortran (gfortran 12.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5027\" data-ace-mode=\"lua\">Lua (LuaJIT 2.1.0-beta3)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5028\" data-ace-mode=\"c_cpp\">C&#43;&#43; 23 (gcc 12.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5029\" data-ace-mode=\"lisp\">Common Lisp (SBCL 2.3.6)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5030\" data-ace-mode=\"cobol\">COBOL (Free) (GnuCOBOL 3.1.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5031\" data-ace-mode=\"c_cpp\">C&#43;&#43; 23 (Clang 16.0.6)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5032\" data-ace-mode=\"sh\">Zsh (Zsh 5.9)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5033\" data-ace-mode=\"python\">SageMath (SageMath 9.5)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5034\" data-ace-mode=\"sh\">Sed (GNU sed 4.8)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5035\" data-ace-mode=\"text\">bc (bc 1.07.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5036\" data-ace-mode=\"text\">dc (dc 1.07.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5037\" data-ace-mode=\"perl\">Perl (perl  5.34)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5038\" data-ace-mode=\"sh\">AWK (GNU Awk 5.0.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5039\" data-ace-mode=\"text\">なでしこ (cnako3 3.4.20)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5040\" data-ace-mode=\"text\">Assembly x64 (NASM 2.15.05)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5041\" data-ace-mode=\"pascal\">Pascal (fpc 3.2.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5042\" data-ace-mode=\"csharp\">C# 11.0 AOT (.NET 7.0.7)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5043\" data-ace-mode=\"lua\">Lua (Lua 5.4.6)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5044\" data-ace-mode=\"prolog\">Prolog (SWI-Prolog 9.0.4)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5045\" data-ace-mode=\"sh\">PowerShell (PowerShell 7.3.1)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5046\" data-ace-mode=\"scheme\">Scheme (Gauche 0.9.12)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5047\" data-ace-mode=\"scala\">Scala 3.3.0 (Scala Native 0.4.14)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5048\" data-ace-mode=\"vbscript\">Visual Basic 16.9 (.NET 7.0.7)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5049\" data-ace-mode=\"text\">Forth (gforth 0.7.3)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5050\" data-ace-mode=\"clojure\">Clojure (babashka 1.3.181)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5051\" data-ace-mode=\"erlang\">Erlang (Erlang 26.0.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5052\" data-ace-mode=\"typescript\">TypeScript 5.1 (Deno 1.35.1)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5053\" data-ace-mode=\"c_cpp\">C&#43;&#43; 17 (gcc 12.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5054\" data-ace-mode=\"rust\">Rust (rustc 1.70.0)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5055\" data-ace-mode=\"python\">Python (CPython 3.11.4)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5056\" data-ace-mode=\"scala\">Scala (Dotty 3.3.0)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5057\" data-ace-mode=\"text\">Koka (koka 2.4.0)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5058\" data-ace-mode=\"typescript\">TypeScript 5.1 (Node.js 18.16.1)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5059\" data-ace-mode=\"ocaml\">OCaml (ocamlopt 5.0.0)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5060\" data-ace-mode=\"raku\">Raku (Rakudo 2023.06)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5061\" data-ace-mode=\"text\">Vim (vim 9.0.0242)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5062\" data-ace-mode=\"lisp\">Emacs Lisp (Native Compile) (GNU Emacs 28.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5063\" data-ace-mode=\"python\">Python (Mambaforge / CPython 3.10.10)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5064\" data-ace-mode=\"clojure\">Clojure (clojure 1.11.1)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5065\" data-ace-mode=\"text\">プロデル (mono版プロデル 1.9.1182)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5066\" data-ace-mode=\"text\">ECLiPSe (ECLiPSe 7.1_13)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5067\" data-ace-mode=\"text\">Nibbles (literate form) (nibbles 1.01)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5068\" data-ace-mode=\"ada\">Ada (GNAT 12.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5069\" data-ace-mode=\"text\">jq (jq 1.6)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5070\" data-ace-mode=\"text\">Cyber (Cyber v0.2-Latest)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5071\" data-ace-mode=\"clojure\">Carp (Carp 0.5.5)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5072\" data-ace-mode=\"c_cpp\">C&#43;&#43; 17 (Clang 16.0.6)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5073\" data-ace-mode=\"c_cpp\">C&#43;&#43; 20 (Clang 16.0.6)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5074\" data-ace-mode=\"text\">LLVM IR (Clang 16.0.6)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5075\" data-ace-mode=\"lisp\">Emacs Lisp (Byte Compile) (GNU Emacs 28.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5076\" data-ace-mode=\"text\">Factor (Factor 0.98)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5077\" data-ace-mode=\"d\">D (GDC 12.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5078\" data-ace-mode=\"python\">Python (PyPy 3.10-v7.3.12)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5079\" data-ace-mode=\"text\">Whitespace (whitespacers 1.0.0)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5080\" data-ace-mode=\"text\">&gt;&lt;&gt; (fishr 0.1.0)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5081\" data-ace-mode=\"ocaml\">ReasonML (reason 3.9.0)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5082\" data-ace-mode=\"python\">Python (Cython 0.29.34)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5083\" data-ace-mode=\"matlab\">Octave (GNU Octave 8.2.0)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5084\" data-ace-mode=\"haxe\">Haxe (JVM) (Haxe 4.3.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5085\" data-ace-mode=\"elixir\">Elixir (Elixir 1.15.2)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5086\" data-ace-mode=\"text\">Mercury (Mercury 22.01.6)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5087\" data-ace-mode=\"text\">Seed7 (Seed7 3.2.1)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5088\" data-ace-mode=\"lisp\">Emacs Lisp (No Compile) (GNU Emacs 28.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5089\" data-ace-mode=\"text\">Unison (Unison M5b)</option>\n" +
-                "\t\t\t\t\t\t\t\t\n" +
-                "\t\t\t\t\t\t\t\t\t<option value=\"5090\" data-ace-mode=\"cobol\">COBOL (GnuCOBOL(Fixed) 3.1.2)</option>\n"
-                +
-                "\t\t\t\t\t\t\t\t";
-        Pattern pattern1 = Pattern
-                .compile("<option value=\"([\\s\\S]*?)\" data-ace-mode=\"[\\s\\S]*?\">[\\s\\S]*?</option>");
-        Pattern pattern2 = Pattern
-                .compile("<option value=\"[\\s\\S]*?\" data-ace-mode=\"[\\s\\S]*?\">([\\s\\S]*?)</option>");
-        Pattern pattern3 = Pattern
-                .compile("<option value=\"[\\s\\S]*?\" data-ace-mode=\"([\\s\\S]*?)\">[\\s\\S]*?</option>");
-        List<String> allGroups1 = ReUtil.findAll(pattern1, body, 1);
-        List<String> allGroups2 = ReUtil.findAll(pattern2, body, 1);
-        List<String> allGroups3 = ReUtil.findAll(pattern3, body, 1);
-        for (int i = 0; i < allGroups1.size(); i++) {
-            String contentType = aceMapCodeMirrorMap.get(allGroups3.get(i));
-            if (contentType == null) {
-                contentType = "text/x-" + allGroups3.get(i);
-            }
-            System.out.println("nameMapContestType.put(\"" + HtmlUtil.unescape(allGroups2.get(i)) + "\", \""
-                    + contentType + "\");");
-        }
-        for (int i = 0; i < allGroups1.size(); i++) {
-            System.out.println("languageMap.put(\"" + HtmlUtil.unescape(allGroups2.get(i)) + "\", \""
-                    + allGroups1.get(i) + "\");");
-        }
-    }
+    // public static void main(String[] args) {
+    //     String body = "\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5001\" data-ace-mode=\"c_cpp\">C&#43;&#43; 20 (gcc 12.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5002\" data-ace-mode=\"golang\">Go (go 1.20.6)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5003\" data-ace-mode=\"csharp\">C# 11.0 (.NET 7.0.7)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5004\" data-ace-mode=\"kotlin\">Kotlin (Kotlin/JVM 1.8.20)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5005\" data-ace-mode=\"java\">Java (OpenJDK 17)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5006\" data-ace-mode=\"nim\">Nim (Nim 1.6.14)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5007\" data-ace-mode=\"text\">V (V 0.4)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5008\" data-ace-mode=\"text\">Zig (Zig 0.10.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5009\" data-ace-mode=\"javascript\">JavaScript (Node.js 18.16.1)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5010\" data-ace-mode=\"javascript\">JavaScript (Deno 1.35.1)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5011\" data-ace-mode=\"r\">R (GNU R 4.2.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5012\" data-ace-mode=\"d\">D (DMD 2.104.0)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5013\" data-ace-mode=\"d\">D (LDC 1.32.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5014\" data-ace-mode=\"swift\">Swift (swift 5.8.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5015\" data-ace-mode=\"dart\">Dart (Dart 3.0.5)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5016\" data-ace-mode=\"php\">PHP (php 8.2.8)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5017\" data-ace-mode=\"c_cpp\">C (gcc 12.2.0)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5018\" data-ace-mode=\"ruby\">Ruby (ruby 3.2.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5019\" data-ace-mode=\"crystal\">Crystal (Crystal 1.9.1)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5020\" data-ace-mode=\"text\">Brainfuck (bf 20041219)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5021\" data-ace-mode=\"fsharp\">F# 7.0 (.NET 7.0.7)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5022\" data-ace-mode=\"julia\">Julia (Julia 1.9.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5023\" data-ace-mode=\"sh\">Bash (bash 5.2.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5024\" data-ace-mode=\"text\">Text (cat 8.32)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5025\" data-ace-mode=\"haskell\">Haskell (GHC 9.4.5)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5026\" data-ace-mode=\"fortran\">Fortran (gfortran 12.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5027\" data-ace-mode=\"lua\">Lua (LuaJIT 2.1.0-beta3)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5028\" data-ace-mode=\"c_cpp\">C&#43;&#43; 23 (gcc 12.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5029\" data-ace-mode=\"lisp\">Common Lisp (SBCL 2.3.6)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5030\" data-ace-mode=\"cobol\">COBOL (Free) (GnuCOBOL 3.1.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5031\" data-ace-mode=\"c_cpp\">C&#43;&#43; 23 (Clang 16.0.6)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5032\" data-ace-mode=\"sh\">Zsh (Zsh 5.9)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5033\" data-ace-mode=\"python\">SageMath (SageMath 9.5)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5034\" data-ace-mode=\"sh\">Sed (GNU sed 4.8)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5035\" data-ace-mode=\"text\">bc (bc 1.07.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5036\" data-ace-mode=\"text\">dc (dc 1.07.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5037\" data-ace-mode=\"perl\">Perl (perl  5.34)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5038\" data-ace-mode=\"sh\">AWK (GNU Awk 5.0.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5039\" data-ace-mode=\"text\">なでしこ (cnako3 3.4.20)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5040\" data-ace-mode=\"text\">Assembly x64 (NASM 2.15.05)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5041\" data-ace-mode=\"pascal\">Pascal (fpc 3.2.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5042\" data-ace-mode=\"csharp\">C# 11.0 AOT (.NET 7.0.7)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5043\" data-ace-mode=\"lua\">Lua (Lua 5.4.6)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5044\" data-ace-mode=\"prolog\">Prolog (SWI-Prolog 9.0.4)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5045\" data-ace-mode=\"sh\">PowerShell (PowerShell 7.3.1)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5046\" data-ace-mode=\"scheme\">Scheme (Gauche 0.9.12)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5047\" data-ace-mode=\"scala\">Scala 3.3.0 (Scala Native 0.4.14)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5048\" data-ace-mode=\"vbscript\">Visual Basic 16.9 (.NET 7.0.7)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5049\" data-ace-mode=\"text\">Forth (gforth 0.7.3)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5050\" data-ace-mode=\"clojure\">Clojure (babashka 1.3.181)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5051\" data-ace-mode=\"erlang\">Erlang (Erlang 26.0.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5052\" data-ace-mode=\"typescript\">TypeScript 5.1 (Deno 1.35.1)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5053\" data-ace-mode=\"c_cpp\">C&#43;&#43; 17 (gcc 12.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5054\" data-ace-mode=\"rust\">Rust (rustc 1.70.0)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5055\" data-ace-mode=\"python\">Python (CPython 3.11.4)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5056\" data-ace-mode=\"scala\">Scala (Dotty 3.3.0)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5057\" data-ace-mode=\"text\">Koka (koka 2.4.0)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5058\" data-ace-mode=\"typescript\">TypeScript 5.1 (Node.js 18.16.1)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5059\" data-ace-mode=\"ocaml\">OCaml (ocamlopt 5.0.0)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5060\" data-ace-mode=\"raku\">Raku (Rakudo 2023.06)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5061\" data-ace-mode=\"text\">Vim (vim 9.0.0242)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5062\" data-ace-mode=\"lisp\">Emacs Lisp (Native Compile) (GNU Emacs 28.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5063\" data-ace-mode=\"python\">Python (Mambaforge / CPython 3.10.10)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5064\" data-ace-mode=\"clojure\">Clojure (clojure 1.11.1)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5065\" data-ace-mode=\"text\">プロデル (mono版プロデル 1.9.1182)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5066\" data-ace-mode=\"text\">ECLiPSe (ECLiPSe 7.1_13)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5067\" data-ace-mode=\"text\">Nibbles (literate form) (nibbles 1.01)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5068\" data-ace-mode=\"ada\">Ada (GNAT 12.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5069\" data-ace-mode=\"text\">jq (jq 1.6)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5070\" data-ace-mode=\"text\">Cyber (Cyber v0.2-Latest)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5071\" data-ace-mode=\"clojure\">Carp (Carp 0.5.5)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5072\" data-ace-mode=\"c_cpp\">C&#43;&#43; 17 (Clang 16.0.6)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5073\" data-ace-mode=\"c_cpp\">C&#43;&#43; 20 (Clang 16.0.6)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5074\" data-ace-mode=\"text\">LLVM IR (Clang 16.0.6)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5075\" data-ace-mode=\"lisp\">Emacs Lisp (Byte Compile) (GNU Emacs 28.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5076\" data-ace-mode=\"text\">Factor (Factor 0.98)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5077\" data-ace-mode=\"d\">D (GDC 12.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5078\" data-ace-mode=\"python\">Python (PyPy 3.10-v7.3.12)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5079\" data-ace-mode=\"text\">Whitespace (whitespacers 1.0.0)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5080\" data-ace-mode=\"text\">&gt;&lt;&gt; (fishr 0.1.0)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5081\" data-ace-mode=\"ocaml\">ReasonML (reason 3.9.0)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5082\" data-ace-mode=\"python\">Python (Cython 0.29.34)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5083\" data-ace-mode=\"matlab\">Octave (GNU Octave 8.2.0)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5084\" data-ace-mode=\"haxe\">Haxe (JVM) (Haxe 4.3.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5085\" data-ace-mode=\"elixir\">Elixir (Elixir 1.15.2)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5086\" data-ace-mode=\"text\">Mercury (Mercury 22.01.6)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5087\" data-ace-mode=\"text\">Seed7 (Seed7 3.2.1)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5088\" data-ace-mode=\"lisp\">Emacs Lisp (No Compile) (GNU Emacs 28.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5089\" data-ace-mode=\"text\">Unison (Unison M5b)</option>\n" +
+    //             "\t\t\t\t\t\t\t\t\n" +
+    //             "\t\t\t\t\t\t\t\t\t<option value=\"5090\" data-ace-mode=\"cobol\">COBOL (GnuCOBOL(Fixed) 3.1.2)</option>\n"
+    //             +
+    //             "\t\t\t\t\t\t\t\t";
+    //     Pattern pattern1 = Pattern
+    //             .compile("<option value=\"([\\s\\S]*?)\" data-ace-mode=\"[\\s\\S]*?\">[\\s\\S]*?</option>");
+    //     Pattern pattern2 = Pattern
+    //             .compile("<option value=\"[\\s\\S]*?\" data-ace-mode=\"[\\s\\S]*?\">([\\s\\S]*?)</option>");
+    //     Pattern pattern3 = Pattern
+    //             .compile("<option value=\"[\\s\\S]*?\" data-ace-mode=\"([\\s\\S]*?)\">[\\s\\S]*?</option>");
+    //     List<String> allGroups1 = ReUtil.findAll(pattern1, body, 1);
+    //     List<String> allGroups2 = ReUtil.findAll(pattern2, body, 1);
+    //     List<String> allGroups3 = ReUtil.findAll(pattern3, body, 1);
+    //     for (int i = 0; i < allGroups1.size(); i++) {
+    //         String contentType = aceMapCodeMirrorMap.get(allGroups3.get(i));
+    //         if (contentType == null) {
+    //             contentType = "text/x-" + allGroups3.get(i);
+    //         }
+    //         System.out.println("nameMapContestType.put(\"" + HtmlUtil.unescape(allGroups2.get(i)) + "\", \""
+    //                 + contentType + "\");");
+    //     }
+    //     for (int i = 0; i < allGroups1.size(); i++) {
+    //         System.out.println("languageMap.put(\"" + HtmlUtil.unescape(allGroups2.get(i)) + "\", \""
+    //                 + allGroups1.get(i) + "\");");
+    //     }
+    // }
 }

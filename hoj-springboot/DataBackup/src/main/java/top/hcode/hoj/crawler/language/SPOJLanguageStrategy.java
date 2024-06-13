@@ -129,15 +129,15 @@ public class SPOJLanguageStrategy extends LanguageStrategy {
         return "SPOJ";
     }
 
-    public static void main(String[] args) {
-        String url = "https://www.spoj.com/submit/HOTLINE/";
-        String body = HttpUtil.get(url);
-        Pattern pattern1 = Pattern.compile("<option value=\"([\\s\\S]*?)\" >[\\s\\S]*?</option>");
-        Pattern pattern2 = Pattern.compile("<option value=\"[\\s\\S]*?\" >([\\s\\S]*?)</option>");
-        List<String> allGroups1 = ReUtil.findAll(pattern1, body, 1);
-        List<String> allGroups2 = ReUtil.findAll(pattern2, body, 1);
-        for (int i = 0; i < allGroups1.size(); i++) {
-            System.out.println("languageMap.put(\"" + allGroups2.get(i) + "\", \"" + allGroups1.get(i) + "\");");
-        }
-    }
+    // public static void main(String[] args) {
+    //     String url = "https://www.spoj.com/submit/HOTLINE/";
+    //     String body = HttpUtil.get(url);
+    //     Pattern pattern1 = Pattern.compile("<option value=\"([\\s\\S]*?)\" >[\\s\\S]*?</option>");
+    //     Pattern pattern2 = Pattern.compile("<option value=\"[\\s\\S]*?\" >([\\s\\S]*?)</option>");
+    //     List<String> allGroups1 = ReUtil.findAll(pattern1, body, 1);
+    //     List<String> allGroups2 = ReUtil.findAll(pattern2, body, 1);
+    //     for (int i = 0; i < allGroups1.size(); i++) {
+    //         System.out.println("languageMap.put(\"" + allGroups2.get(i) + "\", \"" + allGroups1.get(i) + "\");");
+    //     }
+    // }
 }

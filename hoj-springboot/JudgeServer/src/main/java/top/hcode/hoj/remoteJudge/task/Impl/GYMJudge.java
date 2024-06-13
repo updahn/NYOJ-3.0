@@ -36,21 +36,21 @@ public class GYMJudge extends CodeForcesJudge {
         return IMAGE_HOST + String.format("/gym/%s/my", remoteJudgeDTO.getContestId());
     }
 
-    public static void main(String[] args) {
-        String S = HttpUtil.get(HOST + "/submissions/zhanshihui");
+    // public static void main(String[] args) {
+    //     String S = HttpUtil.get(HOST + "/submissions/zhanshihui");
 
-        String regex = "<span .*? submissionId=\"170036627\" submissionVerdict=\"(.*?)\" .*?>.*?</span>.*?<i .*?></i>[\\s]*?</td>[\\s]*?"
-                +
-                "<td class=\"time.*?\">[\\s]*?(\\d+)&nbsp;ms[\\s]*?</td>[\\s]*?" +
-                "<td class=\"memory.*?\">[\\s]*?(\\d+)&nbsp;KB[\\s]*?</td>[\\s]*?</tr>";
-        Pattern pattern = PatternPool.get(regex, Pattern.DOTALL);
-        final Matcher matcher = pattern.matcher(S);
-        if (matcher.find()) {
-            System.out.println(matcher.group(1));
-            System.out.println(matcher.group(2));
-            System.out.println(matcher.group(3));
-        }
-    }
+    //     String regex = "<span .*? submissionId=\"170036627\" submissionVerdict=\"(.*?)\" .*?>.*?</span>.*?<i .*?></i>[\\s]*?</td>[\\s]*?"
+    //             +
+    //             "<td class=\"time.*?\">[\\s]*?(\\d+)&nbsp;ms[\\s]*?</td>[\\s]*?" +
+    //             "<td class=\"memory.*?\">[\\s]*?(\\d+)&nbsp;KB[\\s]*?</td>[\\s]*?</tr>";
+    //     Pattern pattern = PatternPool.get(regex, Pattern.DOTALL);
+    //     final Matcher matcher = pattern.matcher(S);
+    //     if (matcher.find()) {
+    //         System.out.println(matcher.group(1));
+    //         System.out.println(matcher.group(2));
+    //         System.out.println(matcher.group(3));
+    //     }
+    // }
 
     @Override
     public RemoteJudgeRes result() {
