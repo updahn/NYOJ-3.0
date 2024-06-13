@@ -103,13 +103,15 @@ public class ContestManager {
     @Autowired
     private GroupValidator groupValidator;
 
-    public IPage<ContestVO> getContestList(Integer limit, Integer currentPage, Integer status, Integer type, String keyword) {
+    public IPage<ContestVO> getContestList(Integer limit, Integer currentPage, Integer status, Integer type,
+            String keyword) {
         // 页数，每页题数若为空，设置默认值
-        if (currentPage == null || currentPage < 1) currentPage = 1;
-        if (limit == null || limit < 1) limit = 10;
+        if (currentPage == null || currentPage < 1)
+            currentPage = 1;
+        if (limit == null || limit < 1)
+            limit = 10;
         return contestEntityService.getContestList(limit, currentPage, type, status, keyword);
     }
-
 
     public ContestVO getContestInfo(Long cid) throws StatusFailException, StatusForbiddenException {
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
@@ -135,8 +137,8 @@ public class ContestManager {
         return contestInfo;
     }
 
-
-    public void toRegisterContest(RegisterContestDTO registerContestDto) throws StatusFailException, StatusForbiddenException {
+    public void toRegisterContest(RegisterContestDTO registerContestDto)
+            throws StatusFailException, StatusForbiddenException {
 
         Long cid = registerContestDto.getCid();
         String password = registerContestDto.getPassword();
@@ -171,7 +173,6 @@ public class ContestManager {
             throw new StatusFailException("对不起！本次比赛只允许特定账号规则的用户参赛！");
         }
 
-
         QueryWrapper<ContestRegister> wrapper = new QueryWrapper<ContestRegister>().eq("cid", cid)
                 .eq("uid", userRolesVo.getUid());
         if (contestRegisterEntityService.getOne(wrapper, false) != null) {
@@ -203,7 +204,8 @@ public class ContestManager {
                 throw new StatusFailException("对不起，该比赛不存在!");
             }
             if (contest.getOpenAccountLimit()
-                    && !contestValidator.validateAccountRule(contest.getAccountLimitRule(), userRolesVo.getUsername())) {
+                    && !contestValidator.validateAccountRule(contest.getAccountLimitRule(),
+                            userRolesVo.getUsername())) {
                 access = false;
                 contestRecordEntityService.removeById(contestRegister.getId());
             }
@@ -214,8 +216,8 @@ public class ContestManager {
         return accessVo;
     }
 
-
-    public List<ContestProblemVO> getContestProblem(Long cid, Boolean isContainsContestEndJudge) throws StatusFailException, StatusForbiddenException {
+    public List<ContestProblemVO> getContestProblem(Long cid, Boolean isContainsContestEndJudge)
+            throws StatusFailException, StatusForbiddenException {
 
         // 获取当前登录的用户
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
@@ -230,10 +232,9 @@ public class ContestManager {
 
         isContainsContestEndJudge = Objects.equals(contest.getAllowEndSubmit(), true) && isContainsContestEndJudge;
 
-
-        if (userRolesVo == null){ // 如果访问者没登录
-            if (Objects.equals(contest.getOpenRank(), true)  // 比賽開放赛外榜单
-                    && contest.getStatus().intValue() != Constants.Contest.STATUS_SCHEDULED.getCode()){
+        if (userRolesVo == null) { // 如果访问者没登录
+            if (Objects.equals(contest.getOpenRank(), true) // 比賽開放赛外榜单
+                    && contest.getStatus().intValue() != Constants.Contest.STATUS_SCHEDULED.getCode()) {
                 return contestProblemEntityService.getContestProblemList(cid,
                         contest.getStartTime(),
                         contest.getEndTime(),
@@ -242,7 +243,7 @@ public class ContestManager {
                         contest.getAuthor(),
                         groupRootUidList,
                         isContainsContestEndJudge);
-            }else{
+            } else {
                 // 比赛没有开启赛外榜单，同时访问者也没登录，则不允许访问比赛题目数据
                 throw new StatusForbiddenException("请您先登录！");
             }
@@ -260,7 +261,6 @@ public class ContestManager {
         boolean isAdmin = isRoot
                 || contest.getAuthor().equals(userRolesVo.getUsername())
                 || (contest.getIsGroup() && groupValidator.isGroupRoot(userRolesVo.getUid(), contest.getGid()));
-
 
         // 如果比赛开启封榜
         if (contestValidator.isSealRank(userRolesVo.getUid(), contest, true, isRoot)) {
@@ -286,7 +286,8 @@ public class ContestManager {
         return contestProblemList;
     }
 
-    public List<ProblemFullScreenListVO> getContestFullScreenProblemList(Long cid) throws StatusForbiddenException, StatusFailException {
+    public List<ProblemFullScreenListVO> getContestFullScreenProblemList(Long cid)
+            throws StatusForbiddenException, StatusFailException {
         // 获取当前登录的用户
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
@@ -331,7 +332,8 @@ public class ContestManager {
                     // 判断该提交是否为封榜之后的提交,OI赛制封榜后的提交看不到提交结果，
                     // 只有比赛结束可以看到,比赛管理员与超级管理员的提交除外
                     if (isSealRank) {
-                        pidMap.put(judge.getPid(), new Pair_<>(Constants.Judge.STATUS_SUBMITTED_UNKNOWN_RESULT.getStatus(), null));
+                        pidMap.put(judge.getPid(),
+                                new Pair_<>(Constants.Judge.STATUS_SUBMITTED_UNKNOWN_RESULT.getStatus(), null));
                     } else {
                         pidMap.put(judge.getPid(), new Pair_<>(judge.getStatus(), judge.getScore()));
                     }
@@ -356,7 +358,8 @@ public class ContestManager {
         return problemList;
     }
 
-    public ProblemInfoVO getContestProblemDetails(Long cid, String displayId, Boolean isContainsContestEndJudge) throws StatusFailException, StatusForbiddenException, StatusNotFoundException {
+    public ProblemInfoVO getContestProblemDetails(Long cid, String displayId, Boolean isContainsContestEndJudge)
+            throws StatusFailException, StatusForbiddenException, StatusNotFoundException {
 
         // 获取当前登录的用户
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
@@ -379,7 +382,7 @@ public class ContestManager {
             throw new StatusNotFoundException("该比赛题目不存在");
         }
 
-        //查询题目详情，题目标签，题目语言，题目做题情况
+        // 查询题目详情，题目标签，题目语言，题目做题情况
         Problem problem = problemEntityService.getById(contestProblem.getPid());
 
         if (problem.getAuth() == 2) {
@@ -418,7 +421,7 @@ public class ContestManager {
                 .stream().map(ProblemLanguage::getLid).collect(Collectors.toList());
         Collection<Language> languages = languageEntityService.listByIds(lidList);
         languages = languages.stream().sorted(Comparator.comparing(Language::getSeq, Comparator.reverseOrder())
-                        .thenComparing(Language::getId))
+                .thenComparing(Language::getId))
                 .collect(Collectors.toList());
         languages.forEach(language -> {
             languagesStr.add(language.getName());
@@ -426,7 +429,7 @@ public class ContestManager {
         });
 
         Date sealRankTime = null;
-        //封榜时间除超级管理员和比赛管理员外 其它人不可看到最新数据
+        // 封榜时间除超级管理员和比赛管理员外 其它人不可看到最新数据
         if (contestValidator.isSealRank(userRolesVo.getUid(), contest, true, isRoot)) {
             sealRankTime = contest.getSealRankTime();
         } else {
@@ -443,7 +446,8 @@ public class ContestManager {
         superAdminUidList.add(contest.getUid());
 
         // 获取题目的提交记录
-        ProblemCountVO problemCount = judgeEntityService.getContestProblemCount(contestProblem.getPid(), contestProblem.getId(),
+        ProblemCountVO problemCount = judgeEntityService.getContestProblemCount(contestProblem.getPid(),
+                contestProblem.getId(),
                 contestProblem.getCid(), contest.getStartTime(), sealRankTime, superAdminUidList);
 
         // 获取题目的代码模板
@@ -460,17 +464,16 @@ public class ContestManager {
         return new ProblemInfoVO(problem, tags, languagesStr, problemCount, LangNameAndCode);
     }
 
-
     public IPage<JudgeVO> getContestSubmissionList(Integer limit,
-                                                   Integer currentPage,
-                                                   boolean onlyMine,
-                                                   String displayId,
-                                                   Integer searchStatus,
-                                                   String searchUsername,
-                                                   Long searchCid,
-                                                   boolean beforeContestSubmit,
-                                                   boolean completeProblemID,
-                                                   boolean isContainsContestEndJudge) throws StatusFailException, StatusForbiddenException {
+            Integer currentPage,
+            boolean onlyMine,
+            String displayId,
+            Integer searchStatus,
+            String searchUsername,
+            Long searchCid,
+            boolean beforeContestSubmit,
+            boolean completeProblemID,
+            boolean isContainsContestEndJudge) throws StatusFailException, StatusForbiddenException {
 
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
         // 获取本场比赛的状态
@@ -483,8 +486,10 @@ public class ContestManager {
         contestValidator.validateContestAuth(contest, userRolesVo, isRoot);
 
         // 页数，每页题数若为空，设置默认值
-        if (currentPage == null || currentPage < 1) currentPage = 1;
-        if (limit == null || limit < 1) limit = 30;
+        if (currentPage == null || currentPage < 1)
+            currentPage = 1;
+        if (limit == null || limit < 1)
+            limit = 30;
 
         String uid = null;
         // 只查看当前用户的提交
@@ -545,7 +550,6 @@ public class ContestManager {
         }
     }
 
-
     public IPage getContestRank(ContestRankDTO contestRankDto) throws StatusFailException, StatusForbiddenException {
 
         Long cid = contestRankDto.getCid();
@@ -565,8 +569,10 @@ public class ContestManager {
             forceRefresh = false;
         }
         // 页数，每页题数若为空，设置默认值
-        if (currentPage == null || currentPage < 1) currentPage = 1;
-        if (limit == null || limit < 1) limit = 50;
+        if (currentPage == null || currentPage < 1)
+            currentPage = 1;
+        if (limit == null || limit < 1)
+            limit = 50;
 
         // 获取当前登录的用户
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
@@ -616,8 +622,8 @@ public class ContestManager {
         return resultList;
     }
 
-
-    public IPage<AnnouncementVO> getContestAnnouncement(Long cid, Integer limit, Integer currentPage) throws StatusFailException, StatusForbiddenException {
+    public IPage<AnnouncementVO> getContestAnnouncement(Long cid, Integer limit, Integer currentPage)
+            throws StatusFailException, StatusForbiddenException {
 
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
         // 获取本场比赛的状态
@@ -629,14 +635,16 @@ public class ContestManager {
         // 需要对该比赛做判断，是否处于开始或结束状态才可以获取题目，同时若是私有赛需要判断是否已注册（比赛管理员包括超级管理员可以直接获取）
         contestValidator.validateContestAuth(contest, userRolesVo, isRoot);
 
-        if (currentPage == null || currentPage < 1) currentPage = 1;
-        if (limit == null || limit < 1) limit = 10;
+        if (currentPage == null || currentPage < 1)
+            currentPage = 1;
+        if (limit == null || limit < 1)
+            limit = 10;
 
         return announcementEntityService.getContestAnnouncement(cid, true, limit, currentPage);
     }
 
-
-    public List<Announcement> getContestUserNotReadAnnouncement(UserReadContestAnnouncementDTO userReadContestAnnouncementDto) {
+    public List<Announcement> getContestUserNotReadAnnouncement(
+            UserReadContestAnnouncementDTO userReadContestAnnouncementDto) {
 
         Long cid = userReadContestAnnouncementDto.getCid();
         List<Long> readAnnouncementList = userReadContestAnnouncementDto.getReadAnnouncementList();
@@ -646,7 +654,8 @@ public class ContestManager {
         if (readAnnouncementList != null && readAnnouncementList.size() > 0) {
             contestAnnouncementQueryWrapper.notIn("aid", readAnnouncementList);
         }
-        List<ContestAnnouncement> announcementList = contestAnnouncementEntityService.list(contestAnnouncementQueryWrapper);
+        List<ContestAnnouncement> announcementList = contestAnnouncementEntityService
+                .list(contestAnnouncementQueryWrapper);
 
         List<Long> aidList = announcementList
                 .stream()
@@ -662,7 +671,6 @@ public class ContestManager {
         }
 
     }
-
 
     public void submitPrintText(ContestPrintDTO contestPrintDto) throws StatusFailException, StatusForbiddenException {
 

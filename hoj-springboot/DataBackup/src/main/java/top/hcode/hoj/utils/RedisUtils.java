@@ -42,7 +42,7 @@ public final class RedisUtils {
             }
             long reVal = incr(lockName, 1);
             if (1 == reVal) {
-                //获取到锁
+                // 获取到锁
                 result = true;
             }
         } catch (Exception e) {
@@ -99,7 +99,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 删除缓存
      *
@@ -127,7 +126,6 @@ public final class RedisUtils {
             redisTemplate.delete(keys);
         }
     }
-
 
     // ============================String=============================
 
@@ -159,7 +157,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 普通缓存放入并设置时间
      *
@@ -183,7 +180,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 递增
      *
@@ -197,7 +193,6 @@ public final class RedisUtils {
         return redisTemplate.opsForValue().increment(key, delta);
     }
 
-
     /**
      * 递减
      *
@@ -210,7 +205,6 @@ public final class RedisUtils {
         }
         return redisTemplate.opsForValue().increment(key, -delta);
     }
-
 
     // ================================Map=================================
 
@@ -250,7 +244,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * HashSet 并设置时间
      *
@@ -271,7 +264,6 @@ public final class RedisUtils {
             return false;
         }
     }
-
 
     /**
      * 向一张hash表中放入数据,如果不存在将创建
@@ -313,7 +305,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 删除hash表中的值
      *
@@ -323,7 +314,6 @@ public final class RedisUtils {
     public void hdel(String key, Object... item) {
         redisTemplate.opsForHash().delete(key, item);
     }
-
 
     /**
      * 判断hash表中是否有该项的值
@@ -336,7 +326,6 @@ public final class RedisUtils {
         return redisTemplate.opsForHash().hasKey(key, item);
     }
 
-
     /**
      * hash递增 如果不存在,就会创建一个 并把新增后的值返回
      *
@@ -348,7 +337,6 @@ public final class RedisUtils {
         return redisTemplate.opsForHash().increment(key, item, by);
     }
 
-
     /**
      * hash递减
      *
@@ -359,7 +347,6 @@ public final class RedisUtils {
     public double hdecr(String key, String item, double by) {
         return redisTemplate.opsForHash().increment(key, item, -by);
     }
-
 
     // ============================set=============================
 
@@ -377,7 +364,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 根据value从一个set中查询,是否存在
      *
@@ -394,7 +380,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 将数据放入set缓存
      *
@@ -410,7 +395,6 @@ public final class RedisUtils {
             return 0;
         }
     }
-
 
     /**
      * 将set数据放入缓存
@@ -432,7 +416,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 获取set缓存的长度
      *
@@ -446,7 +429,6 @@ public final class RedisUtils {
             return 0;
         }
     }
-
 
     /**
      * 移除值为value的
@@ -484,7 +466,6 @@ public final class RedisUtils {
         }
     }
 
-
     /**
      * 获取list缓存的长度
      *
@@ -498,7 +479,6 @@ public final class RedisUtils {
             return 0;
         }
     }
-
 
     /**
      * 通过索引 获取list中的值
@@ -514,7 +494,6 @@ public final class RedisUtils {
             return null;
         }
     }
-
 
     /**
      * 将list右边放入缓存
@@ -568,7 +547,6 @@ public final class RedisUtils {
 
     }
 
-
     /**
      * 将list放入缓存
      *
@@ -587,7 +565,6 @@ public final class RedisUtils {
 
     }
 
-
     public boolean llPushList(String key, List<Object> value) {
         try {
             redisTemplate.opsForList().leftPushAll(key, value);
@@ -598,7 +575,6 @@ public final class RedisUtils {
         }
 
     }
-
 
     public Object lrPop(String key) {
         try {
@@ -667,7 +643,6 @@ public final class RedisUtils {
         }
 
     }
-
 
     /**
      * 给特定频道发布消息
