@@ -20,6 +20,7 @@ import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.IpUtils;
 import top.hcode.hoj.utils.JwtUtils;
+import top.hcode.hoj.utils.Md5Utils;
 import top.hcode.hoj.utils.RedisUtils;
 
 import javax.annotation.Resource;
@@ -70,7 +71,7 @@ public class AdminAccountManager {
             throw new StatusFailException("用户名或密码错误");
         }
 
-        if (!userRolesVo.getPassword().equals(SecureUtil.md5(loginDto.getPassword()))) {
+        if (!Md5Utils.verifySaltPassword(loginDto.getPassword(), userRolesVo.getPassword())) {
             if (tryLoginCount == null) {
                 redisUtils.set(key, 1, 60 * 30); // 三十分钟不尝试，该限制会自动清空消失
             } else {
