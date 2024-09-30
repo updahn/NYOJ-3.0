@@ -314,7 +314,6 @@ export const m = {
   Submitted_Not_Result: '提交成功，判题结果暂不可知',
   You_have_submitted_a_solution: '您已有提交记录',
   Contest_has_ended: '比赛已结束',
-  You_have_submission_in_this_problem_sure_to_cover_it: '您已经提交过该问题的代码，确定重新提交？',
   Close: '关闭',
   Cancel: '取消',
   OK: '确定',
@@ -580,7 +579,7 @@ export const m = {
   Security: '安全性',
   Security_Desc: '判题沙盒使用cgroup隔离，网站权限控制完善',
   Diversity: '多样性',
-  Diversity_Desc: '支持Codefoces，HDU，POJ，GYM，AtCoder，SPOJ，LIBRE，SCPC，QOJ，NSWOJ的远程判题',
+  Diversity_Desc: '支持Codefoces，HDU，POJ，GYM，AtCoder，SPOJ，LIBRE，SCPC，QOJ，NSWOJ，NEWOJ的远程判题',
   Available: '有效',
   Faulty: '不完善',
 

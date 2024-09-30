@@ -315,7 +315,6 @@ export const m = {
   Submitted_Not_Result: 'Submitted successfully, but the result is not known at present',
   You_have_submitted_a_solution: 'You have submitted a solution.',
   Contest_has_ended: 'Contest has ended',
-  You_have_submission_in_this_problem_sure_to_cover_it: 'You have submission in this problem, sure to cover it?',
   Close: 'Close',
   Cancel: 'Cancel',
   OK: 'OK',
@@ -580,7 +579,7 @@ export const m = {
   Security: 'Security',
   Security_Desc: 'The Sandbox is isolated by CGroup, and the website authority control is perfect',
   Diversity: 'Diversity',
-  Diversity_Desc: 'Support Codefoces, HDU, POJ, GYM, AtCoder, SPOJ, LIBRE, SCPC, QOJ, NSWOJ remote judge',
+  Diversity_Desc: 'Support Codefoces, HDU, POJ, GYM, AtCoder, SPOJ, LIBRE, SCPC, QOJ, NSWOJ, NEWOJ remote judge',
   Available: 'Available',
   Faulty: 'Faulty',
 
@@ -909,7 +908,7 @@ export const m = {
   StudentNumber_Check_OnlyDigits: 'The student Number must consist only of digits.',
   StudentNumber_Check_length: 'The length is between 6 and 15 digit characters',
   Enter_Your_School: 'Enter Your School',
-  Not_Find_School: 'Don\'t Find School',
+  Not_Find_School: "Don't Find School",
 
   // /components/oj/setting/MultiOj.vue
   Home_Multi_Oj: 'Multi Home Oj',
