@@ -403,6 +403,12 @@ export default {
           logo: require("@/assets/qoj-logo.png"),
           status: true,
         },
+        {
+          url: "https://acm.nyist.edu.cn",
+          name: "NSWOJ",
+          logo: require("@/assets/nswoj-logo.png"),
+          status: true,
+        },
       ],
     };
   },
