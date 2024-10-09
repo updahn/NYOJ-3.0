@@ -841,7 +841,7 @@ export const m = {
   // Beauty
   Beauty_Code: 'Beauty Code',
 
-  // /views/oj/rank/ACMContestStatistic.vue
+  // /views/oj/rank/StatisticRank.vue
   ACM_StatisticRank: 'Statistic ACM Ranklist',
   Contest_Rank_Search_Cids: "Please enter the Cids: ('+'splited)",
 

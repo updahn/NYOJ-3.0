@@ -592,9 +592,20 @@ const ojApi = {
     });
   },
   // 系列比赛排行榜
+  getStatisticList(currentPage, limit, keyword) {
+    let params = { currentPage, limit };
+    if (keyword) {
+      params.keyword = keyword;
+    }
+    return ajax('/api/get-statistic-list', 'get', { params: params });
+  },
   getStatisticRank(data) {
     return ajax('/api/get-statistic-rank', 'post', { data });
   },
+  getStatisticRankCids(scid) {
+    return ajax('/api/get-statistic-rank-cids', 'get', { params: { scid } });
+  },
+
   // 获取比赛题目详情
   getContestProblem(displayId, cid, gid, containsEnd = false) {
     return ajax('/api/get-contest-problem-details', 'get', {
@@ -2277,6 +2288,31 @@ const adminApi = {
   admin_changeHonorStatus(hid, status, author) {
     return ajax('/api/admin/honor/change-honor-status', 'put', {
       params: { hid, status, author },
+    });
+  },
+  // 系列比赛排行榜
+  admin_getStatisticList(currentPage, limit, keyword) {
+    let params = { currentPage, limit };
+    if (keyword) {
+      params.keyword = keyword;
+    }
+    return ajax('/api/admin/get-statistic-list', 'get', { params: params });
+  },
+
+  admin_changeStatisticVisible(scid, show, author) {
+    return ajax('/api/admin/change-statistic-visible', 'put', {
+      params: { scid, show, author },
+    });
+  },
+  admin_addStatisticRank(data) {
+    return ajax('/api/admin/statistic-rank', 'post', { data });
+  },
+  admin_editStatistic(data) {
+    return ajax('/api/admin/statistic-rank', 'put', { data });
+  },
+  admin_deleteStatistic(scid) {
+    return ajax('/api/admin/statistic-rank', 'delete', {
+      params: { scid },
     });
   },
 };

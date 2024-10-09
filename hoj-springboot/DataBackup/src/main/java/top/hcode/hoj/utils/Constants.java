@@ -244,6 +244,9 @@ public class Constants {
         OJ_RANK_CACHE("oj_rank_cache"),
         NEW_OJ_RANK_CACHE("new_oj_rank_cache"),
 
+        STATISTIC_RANK_DIR("statistic_rank_dir"),
+        STATISTIC_RANK_TITLE("statistic_rank_title"),
+        STATISTIC_RANK_CACHE("statistic_rank_cache"),
         CODE_RANK_CACHE("code_rank_cache"),
 
         GROUP_RANK_CACHE("group_rank_cache"),

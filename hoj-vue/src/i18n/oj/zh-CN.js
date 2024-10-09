@@ -842,7 +842,7 @@ export const m = {
   // Beauty
   Beauty_Code: '美化代码',
 
-  // /views/oj/rank/ACMContestStatistic.vue
+  // /views/oj/rank/StatisticRank.vue
   ACM_StatisticRank: 'ACM 系列比赛排行榜',
   Contest_Rank_Search_Cids: "请输入比赛的 Cids：（'+'隔开）",
 

@@ -28,6 +28,8 @@ const ExaminationList = () => import('@/views/admin/examination/ExaminationList'
 const Cloc = () => import('@/views/admin/cloc/Cloc');
 const HonorList = () => import('@/views/admin/honor/HonorList');
 const Honor = () => import('@/views/admin/honor/Honor');
+const StaticRank = () => import('@/views/oj/rank/StatisticRank');
+const StaticRankList = () => import('@/views/oj/rank/StatisticRankList');
 
 const adminRoutes = [
   {
@@ -81,13 +83,13 @@ const adminRoutes = [
         path: 'switch',
         name: 'admin-switch',
         component: SysSwitch,
-        meta: { requireSuperAdmin: true, title: 'System Switch' },
+        meta: { requireMainRoleAdmin: true, title: 'System Switch' },
       },
       {
         path: 'account',
         name: 'admin-account',
         component: AccountConfig,
-        meta: { requireSuperAdmin: true, title: 'Account Config' },
+        meta: { requireMainRoleAdmin: true, title: 'Account Config' },
       },
       {
         path: 'file',
@@ -262,6 +264,24 @@ const adminRoutes = [
         name: 'admin-edit-honor',
         component: Honor,
         meta: { requireMainRoleAdmin: true, title: 'Edit Honor' },
+      },
+      {
+        path: 'tools/ranks-list',
+        name: 'admin-static-ranks-list',
+        component: StaticRankList,
+        meta: { requireMainRoleAdmin: true, title: 'Admin StaticRank List' },
+      },
+      {
+        path: 'tools/ranks/create',
+        name: 'admin-create-static-rank',
+        component: StaticRank,
+        meta: { requireMainRoleAdmin: true, title: 'Admin Create StaticRank', keepAlive: true },
+      },
+      {
+        path: 'tools/ranks/:scid/edit',
+        name: 'admin-edit-static-rank',
+        component: StaticRank,
+        meta: { requireMainRoleAdmin: true, title: 'Admin Edit StaticRank' },
       },
     ],
   },

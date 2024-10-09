@@ -15,7 +15,7 @@ import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
 import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.vo.ACMContestRankVO;
-import top.hcode.hoj.pojo.vo.ACMStatisticContestVO;
+import top.hcode.hoj.pojo.vo.StatisticVO;
 import top.hcode.hoj.pojo.vo.OIContestRankVO;
 import top.hcode.hoj.pojo.vo.UserContestsRankingVO;
 import top.hcode.hoj.shiro.AccountProfile;
@@ -208,22 +208,6 @@ public class ContestRankManager {
     }
 
     /**
-     * @param cids        查询比赛的cid列表
-     * @param currentPage 当前页面
-     * @param limit       分页大小
-     * @param keyword     搜索关键词：匹配学校或榜单显示名称
-     * @desc 获取ACM比赛排行榜
-     */
-    public IPage<ACMStatisticContestVO> getStatisticRankPage(List<Contest> contestList, int currentPage, int limit,
-            String keyword)
-            throws StatusFailException, StatusForbiddenException {
-
-        List<ACMStatisticContestVO> result = getStatisticRankList(contestList, keyword);
-        // 计算好排行榜，然后进行分页
-        return getPagingRankList(result, currentPage, limit);
-    }
-
-    /**
      * 获取ACM比赛排行榜外榜
      *
      * @param isOpenSealRank              是否开启封榜
@@ -280,37 +264,35 @@ public class ContestRankManager {
         return getPagingRankList(acmContestRankVOS, currentPage, limit);
     }
 
-    /**
-     * @param cids       是否封榜
-     * @param keyword    搜索关键词：匹配学校或榜单显示名称
-     * @param isDownload 是否为下载请求
-     * @desc 获取ACM系列比赛排行榜
-     */
-    public List<ACMStatisticContestVO> getStatisticRankList(List<Contest> contestList, String keyword)
-            throws StatusFailException, StatusForbiddenException {
+    // 筛选关键词 + 比例调整 + 重新排序
+    public List<ACMContestRankVO> getStatisticRankList(StatisticVO statisticVo)
+            throws StatusFailException, StatusForbiddenException, Exception {
+        List<Contest> contestList = statisticVo.getContestList();
+        String keyword = statisticVo.getKeyword();
 
-        List<ACMStatisticContestVO> result = contestCalculateRankManager.calcStatisticRank(contestList);
-
-        for (int i = 0; i < contestList.size(); i++) {
-            Contest contest = contestList.get(i);
-
-            // keyword 查询
-            if (StrUtil.isNotBlank(keyword)) {
-                String finalKeyword = keyword.trim().toLowerCase();
-                result = result.stream()
-                        .filter(rankVo -> {
-                            boolean shouldFilter = filterBySchoolORRankShowName(finalKeyword,
+        List<ACMContestRankVO> result = contestCalculateRankManager.calcStatisticRank(statisticVo);
+        // 筛选关键词
+        if (StrUtil.isNotBlank(keyword)) {
+            String finalKeyword = keyword.trim().toLowerCase();
+            List<ACMContestRankVO> filteredResult = result.stream()
+                    .filter(rankVo -> contestList.stream()
+                            .anyMatch(contest -> filterBySchoolORRankShowName(
+                                    finalKeyword,
                                     rankVo.getSchool(),
-                                    getUserRankShowName(contest.getRankShowName(),
-                                            rankVo.getUsername(),
-                                            rankVo.getRealname(),
-                                            rankVo.getNickname()));
-                            return shouldFilter; // 返回 true 则筛选，返回 false 则不筛选
-                        })
-                        .collect(Collectors.toList());
+                                    "default".equals(contest.getOj())
+                                            ? getUserRankShowName(contest.getRankShowName(), rankVo.getUsername(),
+                                                    rankVo.getRealname(), rankVo.getNickname())
+                                            : rankVo.getRealname())))
+                    .collect(Collectors.toList());
+
+            // 如果筛选结果不为空，则更新对应的result
+            if (!CollectionUtils.isEmpty(filteredResult)) {
+                result = filteredResult;
             }
         }
-        return result;
+
+        // 重新排序
+        return contestCalculateRankManager.getSortedRankList(result);
     }
 
     /**
@@ -456,7 +438,7 @@ public class ContestRankManager {
         return userContestsRankingVO;
     }
 
-    private <T> Page<T> getPagingRankList(List<T> rankList, int currentPage, int limit) {
+    public <T> Page<T> getPagingRankList(List<T> rankList, int currentPage, int limit) {
         Page<T> page = new Page<>(currentPage, limit);
         int count = rankList.size();
         List<T> pageList = new ArrayList<>();
