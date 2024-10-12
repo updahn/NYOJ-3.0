@@ -14,6 +14,8 @@ public interface DiscussionService {
     public CommonResult<IPage<Discussion>> getDiscussionList(Integer limit,
             Integer currentPage,
             Integer categoryId,
+            Long cid,
+            Long tid,
             String pid,
             Boolean onlyMine,
             String keyword,

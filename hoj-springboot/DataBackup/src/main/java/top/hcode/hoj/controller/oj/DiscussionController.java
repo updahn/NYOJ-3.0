@@ -37,13 +37,16 @@ public class DiscussionController {
     public CommonResult<IPage<Discussion>> getDiscussionList(
             @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit,
             @RequestParam(value = "currentPage", required = false, defaultValue = "1") Integer currentPage,
-            @RequestParam(value = "cid", required = false) Integer categoryId,
+            @RequestParam(value = "caid", required = false) Integer categoryId,
+            @RequestParam(value = "cid", required = false) Long cid,
+            @RequestParam(value = "tid", required = false) Long tid,
             @RequestParam(value = "pid", required = false) String pid,
             @RequestParam(value = "onlyMine", required = false, defaultValue = "false") Boolean onlyMine,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "admin", defaultValue = "false") Boolean admin) {
 
-        return discussionService.getDiscussionList(limit, currentPage, categoryId, pid, onlyMine, keyword, admin);
+        return discussionService.getDiscussionList(limit, currentPage, categoryId, cid, tid, pid, onlyMine, keyword,
+                admin);
 
     }
 

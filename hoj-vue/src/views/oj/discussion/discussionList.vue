@@ -75,6 +75,32 @@
                     )
                   "
                 >{{ $t('m.Go_to_problem') }}</el-button>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="margin-left:5px;"
+                  v-else-if="discussion.cid"
+                  @click="
+                    pushRouter(
+                      null,
+                      { contestID: discussion.cid },
+                      'ContestProblemList'
+                    )
+                  "
+                >{{ $t('m.Go_to_ContestProblem') }}</el-button>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="margin-left:5px;"
+                  v-else-if="discussion.tid"
+                  @click="
+                    pushRouter(
+                      null,
+                      { trainingID: discussion.tid },
+                      'TrainingProblemList'
+                    )
+                  "
+                >{{ $t('m.Go_to_TrainingProblem') }}</el-button>
               </h1>
               <a @click="toDiscussionDetail(discussion.id)" class="article-hlink2">
                 <p>{{ discussion.description }}</p>
@@ -145,7 +171,7 @@
                     @click="
                       pushRouter(
                         {
-                          cid: discussion.categoryId,
+                          caid: discussion.categoryId,
                           onlyMine: query.onlyMine,
                         },
                         { problemID: query.pid },
@@ -244,7 +270,7 @@
         <el-button class="btn" type="primary" @click="toEditDiscussion" style="width: 100%;">
           <i class="el-icon-edit">
             {{
-            this.query.pid == ''
+            this.query.pid == '' && this.query.cid == '' && this.query.tid == ''
             ? $t('m.Post_discussion')
             : $t('m.Post_problem_discussion')
             }}
@@ -259,7 +285,7 @@
         >
           <i class="el-icon-search">{{ query.onlyMine ? $t('m.All') : $t('m.Mine') }}</i>
         </el-button>
-        <template v-if="this.query.pid">
+        <template v-if="this.query.pid || this.query.cid || this.query.tid">
           <el-button
             class="btn"
             type="success"
@@ -272,16 +298,15 @@
           <el-button
             class="btn"
             type="warning"
-            @click="
-              pushRouter(
-                { onlyMine: query.onlyMine },
-                { problemID: query.pid },
-                'ProblemDetails'
-              )
-            "
+            @click="backToProblem(query.cid, query.pid, query.tid)"
             style="width: 100%;margin-left:0;margin-top:10px"
           >
-            <i class="el-icon-back">{{ $t('m.Return') }} ({{ query.pid }})</i>
+            <i class="el-icon-back">
+              {{ $t('m.Return') }}
+              <span
+                style="font-size: 10px;"
+              >({{ query.tid ? "Training " + query.tid : (query.cid ? "Contest " + query.cid : "Problem: " + query.pid) }})</span>
+            </i>
           </el-button>
         </template>
         <div class="category-body">
@@ -317,7 +342,7 @@
                 <a
                   @click="
                   pushRouter(
-                    { cid: category.id, onlyMine: query.onlyMine },
+                    { caid: category.id, onlyMine: query.onlyMine },
                     { problemID: query.pid },
                     routeName
                   )
@@ -385,7 +410,11 @@
         <el-form-item :label="$t('m.Discussion_Desc')" required>
           <el-input v-model="discussion.description" :placeholder="$t('m.Discussion_Desc')"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('m.Discussion_Category')" required>
+        <el-form-item
+          v-show="!query.pid && !query.cid && !query.tid"
+          :label="$t('m.Discussion_Category')"
+          required
+        >
           <el-select v-model="discussion.categoryId" placeholder="---">
             <el-option
               v-for="category in categoryList"
@@ -451,6 +480,8 @@ export default {
       discussion: {
         id: null,
         pid: null, // 题目id 为null表示不关联
+        cid: null,
+        tid: null,
         title: "",
         content: "",
         description: "",
@@ -469,9 +500,11 @@ export default {
       currentCategory: "",
       query: {
         keyword: "",
-        cid: "",
+        caid: "",
         currentPage: 1,
         limit: 10,
+        cid: "",
+        tid: "",
         pid: "",
         onlyMine: false,
       },
@@ -515,11 +548,12 @@ export default {
       this.routeName = this.$route.name;
       let query = this.$route.query;
       this.query.keyword = query.keyword || "";
-      this.query.cid = query.cid || "";
-      this.query.pid = this.$route.params.problemID || "";
+      this.query.caid = query.caid || "";
+      this.query.cid = this.$route.params.contestID || "";
+      this.query.tid = this.$route.params.trainingID || "";
       this.query.onlyMine = query.onlyMine + "" == "true" ? true : false; // 统一换成字符串判断
-      if (this.query.cid) {
-        this.currentCategory = this.cidMapName[this.query.cid];
+      if (this.query.caid) {
+        this.currentCategory = this.cidMapName[this.query.caid];
       } else {
         this.currentCategory = "";
       }
@@ -590,6 +624,9 @@ export default {
     },
 
     toEditDiscussion() {
+      if (this.query.pid || this.query.cid || this.query.tid) {
+        this.discussion.categoryId = 2; // 数据库中 2 为题解
+      }
       if (!this.isAuthenticated) {
         myMessage.warning(this.$i18n.t("m.Please_login_first"));
         this.$store.dispatch("changeModalStatus", { visible: true });
@@ -599,10 +636,14 @@ export default {
           this.discussion = this.backupDiscussion;
           // 避免监听覆盖
           this.discussion.pid = this.query.pid || null;
+          this.discussion.cid = this.query.cid || null;
+          this.discussion.tid = this.query.tid || null;
         } else {
           this.discussion = {
             id: null,
             pid: this.query.pid || null,
+            cid: this.query.cid || null,
+            tid: this.query.tid || null,
             title: "",
             content: "",
             description: "",
@@ -671,6 +712,9 @@ export default {
     },
 
     submitDiscussion() {
+      if (this.query.pid || this.query.cid || this.query.tid) {
+        this.discussion.categoryId = 2; // 数据库中 2 为题解
+      }
       if (!this.discussion.title || this.discussion.title.trim() === "") {
         myMessage.error(
           this.$i18n.t("m.Discussion_title") +
@@ -791,6 +835,24 @@ export default {
     },
     removeCategory(index) {
       this.categoryList.splice(index, 1);
+    },
+    backToProblem(cid, pid, tid) {
+      if (cid) {
+        this.$router.push({
+          name: "ContestProblemList",
+          params: { contestID: cid },
+        });
+      } else if (tid) {
+        this.$router.push({
+          name: "TrainingProblemList",
+          params: { trainingID: tid },
+        });
+      } else {
+        this.$router.push({
+          name: "ProblemDetails",
+          params: { problemID: pid },
+        });
+      }
     },
   },
 

@@ -428,6 +428,8 @@ export const m = {
   Can_not_exceed_255: 'length cannot exceed 255',
   Can_not_exceed_65535: 'length cannot exceed 65535',
   Can_not_exceed_10000: 'length cannot exceed 10000',
+  Go_to_ContestProblem: 'Go to ContestProblem',
+  Go_to_TrainingProblem: 'Go to TrainingProblem',
 
   // /views/oj/discussion/discussion.vue
   Report: 'Report',

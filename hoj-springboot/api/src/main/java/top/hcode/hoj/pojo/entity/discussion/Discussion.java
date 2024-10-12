@@ -40,6 +40,12 @@ public class Discussion {
     @ApiModelProperty(value = "题目关联 默认为null则不关联题目")
     private String pid;
 
+    @ApiModelProperty(value = "比赛关联 默认为null则不关联比赛")
+    private Long cid;
+
+    @ApiModelProperty(value = "训练关联 默认为null则不关联训练")
+    private Long tid;
+
     @ApiModelProperty(value = "发表者id")
     private String uid;
 

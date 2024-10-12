@@ -2566,3 +2566,92 @@ CALL add_ContestProblem_PdfDescription ;
 DROP PROCEDURE add_ContestProblem_PdfDescription;
 
 
+DROP PROCEDURE IF EXISTS add_Discussion_Cid;
+DELIMITER $$
+
+CREATE PROCEDURE add_Discussion_Cid ()
+BEGIN
+-- 检查是否已存在 cid 字段
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'discussion'
+	AND column_name = 'cid'
+) THEN
+	-- 如果不存在则添加 cid 字段
+	ALTER TABLE discussion ADD COLUMN `cid` bigint unsigned COMMENT '比赛id';
+END IF;
+
+-- 检查是否已存在外键 discussion_ibfk_8
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.TABLE_CONSTRAINTS
+	WHERE
+		CONSTRAINT_NAME = 'discussion_ibfk_8'
+	AND TABLE_NAME = 'discussion'
+) THEN
+	-- 添加外键约束，将 cid 与 contest 表的 id 关联
+	ALTER TABLE discussion
+	ADD CONSTRAINT `discussion_ibfk_8` FOREIGN KEY (`cid`) REFERENCES `contest` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+END IF;
+END$$
+
+DELIMITER ;
+
+-- 调用存储过程
+CALL add_Discussion_Cid();
+
+-- 删除存储过程
+DROP PROCEDURE add_Discussion_Cid;
+
+
+DROP PROCEDURE IF EXISTS add_Discussion_Tid;
+DELIMITER $$
+
+CREATE PROCEDURE add_Discussion_Tid ()
+BEGIN
+-- 检查是否已存在 cid 字段
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'discussion'
+	AND column_name = 'tid'
+) THEN
+	-- 如果不存在则添加 cid 字段
+	ALTER TABLE discussion ADD COLUMN `tid` bigint unsigned COMMENT '训练id';
+END IF;
+
+-- 检查是否已存在外键 discussion_ibfk_9
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.TABLE_CONSTRAINTS
+	WHERE
+		CONSTRAINT_NAME = 'discussion_ibfk_9'
+	AND TABLE_NAME = 'discussion'
+) THEN
+	-- 添加外键约束，将 tid 与 contest 表的 id 关联
+	ALTER TABLE discussion
+	ADD CONSTRAINT `discussion_ibfk_9` FOREIGN KEY (`tid`) REFERENCES `training` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+END IF;
+END$$
+
+DELIMITER ;
+
+-- 调用存储过程
+CALL add_Discussion_Tid();
+
+-- 删除存储过程
+DROP PROCEDURE add_Discussion_Tid;
+
+
+

@@ -428,6 +428,8 @@ export const m = {
   Can_not_exceed_255: '的长度不能超过255',
   Can_not_exceed_65535: '的长度不能超过65535',
   Can_not_exceed_10000: '的长度不能超过10000',
+  Go_to_ContestProblem: '前往比赛题目',
+  Go_to_TrainingProblem: '前往训练题目',
 
   // /views/oj/discussion/discussion.vue
   Report: '举报',

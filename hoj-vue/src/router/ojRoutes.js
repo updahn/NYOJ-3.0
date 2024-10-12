@@ -366,9 +366,21 @@ const ojRoutes = [
     component: DiscussionList,
   },
   {
-    path: '/discussion/:problemID',
+    path: '/discussion/problem/:problemID',
     name: 'ProblemDiscussion',
     meta: { title: 'Discussion', access: 'discussion' },
+    component: DiscussionList,
+  },
+  {
+    path: '/discussion/contest/:contestID',
+    name: 'ContestDiscussion',
+    meta: { title: 'ContsetDiscussion', access: 'discussion' },
+    component: DiscussionList,
+  },
+  {
+    path: '/discussion/training/:trainingID',
+    name: 'TrainingDiscussion',
+    meta: { title: 'TrainingDiscussion', access: 'discussion' },
     component: DiscussionList,
   },
   {
@@ -464,9 +476,15 @@ const ojRoutes = [
         meta: { title: 'Group Discussion', access: 'groupDiscussion' },
       },
       {
-        path: 'discussion/:problemID',
+        path: 'discussion/problem/:problemID',
         name: 'GroupProblemDiscussion',
         meta: { title: 'Group Discussion', access: 'groupDiscussion' },
+        component: GroupDiscussionList,
+      },
+      {
+        path: 'discussion/contest/:contestID',
+        name: 'GroupContestProblemDiscussion',
+        meta: { title: 'Group Contest Discussion', access: 'groupDiscussion' },
         component: GroupDiscussionList,
       },
       {

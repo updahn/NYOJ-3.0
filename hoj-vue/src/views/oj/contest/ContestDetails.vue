@@ -681,7 +681,7 @@
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane name="ContestAcCsv" lazy :disabled="contestMenuDisabled">
+        <el-tab-pane name="ContestAcCsv" lazy :disabled="contestMenuDisabled" v-if="contestEnded">
           <span slot="label">
             <i class="el-icon-s-grid" aria-hidden="true"></i>
             &nbsp;{{ $t('m.ContestAcCsv') }}
@@ -689,6 +689,18 @@
           <transition name="el-zoom-in-bottom">
             <router-view v-if="route_name === 'ContestAcCsv'"></router-view>
           </transition>
+        </el-tab-pane>
+
+        <el-tab-pane
+          name="Discussion"
+          lazy
+          :disabled="contestMenuDisabled"
+          v-if="contest.gid == null && contestEnded"
+        >
+          <span slot="label">
+            <i class="fa fa-comments" aria-hidden="true"></i>
+            &nbsp;{{ $t('m.Problem_Discussion') }}
+          </span>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -940,6 +952,10 @@ export default {
     },
     tabClick(tab) {
       let name = tab.name;
+      if (name === "Discussion") {
+        this.goToContestDiscussion();
+        return;
+      }
       if (name !== this.$route.name) {
         this.$router.push({ name: name });
       }
@@ -1144,6 +1160,13 @@ export default {
     },
     openPdf(pdfDescription) {
       window.open(pdfDescription, "_blank");
+    },
+    goToContestDiscussion() {
+      let cid = this.$route.params.contestID;
+      this.$router.push({
+        name: "ContestDiscussion",
+        params: { contestID: cid },
+      });
     },
   },
   computed: {

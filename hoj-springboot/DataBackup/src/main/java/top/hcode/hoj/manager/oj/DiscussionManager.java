@@ -16,6 +16,7 @@ import top.hcode.hoj.common.exception.StatusForbiddenException;
 import top.hcode.hoj.common.exception.StatusNotFoundException;
 import top.hcode.hoj.config.NacosSwitchConfig;
 import top.hcode.hoj.config.SwitchConfig;
+import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.discussion.DiscussionEntityService;
 import top.hcode.hoj.dao.discussion.DiscussionLikeEntityService;
 import top.hcode.hoj.dao.discussion.DiscussionReportEntityService;
@@ -23,6 +24,7 @@ import top.hcode.hoj.dao.problem.CategoryEntityService;
 import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.dao.user.UserAcproblemEntityService;
 import top.hcode.hoj.exception.AccessException;
+import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.entity.discussion.Discussion;
 import top.hcode.hoj.pojo.entity.discussion.DiscussionLike;
 import top.hcode.hoj.pojo.entity.discussion.DiscussionReport;
@@ -69,6 +71,9 @@ public class DiscussionManager {
     private ProblemEntityService problemEntityService;
 
     @Autowired
+    private ContestEntityService contestEntityService;
+
+    @Autowired
     private GroupValidator groupValidator;
 
     @Autowired
@@ -83,6 +88,8 @@ public class DiscussionManager {
     public IPage<Discussion> getDiscussionList(Integer limit,
             Integer currentPage,
             Integer categoryId,
+            Long cid,
+            Long tid,
             String pid,
             boolean onlyMine,
             String keyword,
@@ -112,6 +119,14 @@ public class DiscussionManager {
 
         if (!StringUtils.isEmpty(pid)) {
             discussionQueryWrapper.eq("pid", pid);
+        }
+
+        if (cid != null) {
+            discussionQueryWrapper.eq("cid", cid);
+        }
+
+        if (tid != null) {
+            discussionQueryWrapper.eq("tid", tid);
         }
 
         if (!(admin && isRoot)) {
@@ -219,6 +234,14 @@ public class DiscussionManager {
             int problemCount = problemEntityService.count(problemQueryWrapper);
             if (problemCount == 0) {
                 throw new StatusNotFoundException("对不起，该题目不存在，无法发布题解!");
+            }
+        }
+
+        Long cid = discussion.getCid();
+        if (cid != null) {
+            Contest contest = contestEntityService.getById(cid);
+            if (contest == null) {
+                throw new StatusNotFoundException("对不起，该比赛不存在，无法发布题解!");
             }
         }
 

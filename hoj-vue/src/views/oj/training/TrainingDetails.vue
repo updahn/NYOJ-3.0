@@ -180,6 +180,13 @@
             ></router-view>
           </transition>
         </el-tab-pane>
+
+        <el-tab-pane name="Discussion" lazy :disabled="trainingMenuDisabled" v-if="groupID == null">
+          <span slot="label">
+            <i class="fa fa-comments" aria-hidden="true"></i>
+            &nbsp;{{ $t('m.Problem_Discussion') }}
+          </span>
+        </el-tab-pane>
       </el-tabs>
     </div>
   </div>
@@ -233,6 +240,10 @@ export default {
     ...mapActions(["changeDomTitle"]),
     tabClick(tab) {
       let name = tab.name;
+      if (name === "Discussion") {
+        this.goToTrainingDiscussion();
+        return;
+      }
       if (name !== this.$route.name) {
         this.$router.push({ name: name });
       }
@@ -271,6 +282,13 @@ export default {
         (this.training.acCount / this.training.problemCount) *
         100
       ).toFixed(2);
+    },
+    goToTrainingDiscussion() {
+      let tid = this.training.id;
+      this.$router.push({
+        name: "TrainingDiscussion",
+        params: { trainingID: tid },
+      });
     },
   },
   computed: {
