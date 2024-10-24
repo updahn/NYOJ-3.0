@@ -101,4 +101,10 @@ public class AdminProblemController {
         return adminProblemService.changeProblemAuth(problem);
     }
 
+    @GetMapping("/update-remote-description")
+    @RequiresAuthentication
+    public CommonResult<Void> updateRemoteDescription(@RequestParam(value = "pid", required = true) Long pid) {
+        return adminProblemService.updateRemoteDescription(pid);
+    }
+
 }

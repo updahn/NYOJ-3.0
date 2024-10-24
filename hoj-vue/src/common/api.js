@@ -1834,6 +1834,11 @@ const adminApi = {
       data,
     });
   },
+  admin_updateRemoteDescription(pid) {
+    return ajax('/api/admin/problem/update-remote-description', 'get', {
+      params: { pid },
+    });
+  },
   admin_getProblem(pid, peid) {
     return ajax('/api/admin/problem', 'get', {
       params: { pid, peid },

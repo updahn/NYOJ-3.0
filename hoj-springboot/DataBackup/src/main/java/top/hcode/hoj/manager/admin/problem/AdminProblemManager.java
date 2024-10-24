@@ -1,6 +1,10 @@
 package top.hcode.hoj.manager.admin.problem;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ReUtil;
+
+import com.alibaba.excel.util.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -15,25 +19,32 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.exception.StatusNotFoundException;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.crawler.problem.ProblemStrategy;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
 import top.hcode.hoj.dao.problem.ProblemCaseEntityService;
+import top.hcode.hoj.dao.problem.ProblemDescriptionEntityService;
 import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.judge.Dispatcher;
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.dto.CompileDTO;
 import top.hcode.hoj.pojo.dto.ProblemDTO;
 import top.hcode.hoj.pojo.dto.ProblemResDTO;
 import top.hcode.hoj.pojo.entity.judge.Judge;
 import top.hcode.hoj.pojo.entity.problem.Problem;
 import top.hcode.hoj.pojo.entity.problem.ProblemCase;
+import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.validator.ProblemValidator;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author: Himit_ZH
@@ -65,6 +76,9 @@ public class AdminProblemManager {
 
     @Autowired
     private RemoteProblemManager remoteProblemManager;
+
+    @Autowired
+    private ProblemDescriptionEntityService problemDescriptionEntityService;
 
     public IPage<ProblemResDTO> getProblemList(Integer limit, Integer currentPage, String keyword, Integer auth,
             String oj,
@@ -310,6 +324,75 @@ public class AdminProblemManager {
         log.info("[{}],[{}],value:[{}],pid:[{}],operatorUid:[{}],operatorUsername:[{}]",
                 "Admin_Problem", "Change_Auth", problem.getAuth(), problem.getId(), userRolesVo.getUid(),
                 userRolesVo.getUsername());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void updateRemoteDescription(Long pid) throws StatusFailException, StatusNotFoundException, Exception {
+        // 获取当前登录的用户
+        AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
+
+        Problem problem = problemEntityService.getById(pid);
+
+        if (problem == null) {
+            throw new StatusNotFoundException("该题目不存在");
+        }
+
+        ProblemResDTO problemResDTO = problemEntityService.getProblemResDTO(problem.getId(), null, null, null);
+
+        List<ProblemDescription> problemDescriptionList = problemResDTO.getProblemDescriptionList();
+        // 按照 rank 从大到小排序
+        problemDescriptionList.sort((desc1, desc2) -> Integer.compare(desc2.getRank(), desc1.getRank()));
+
+        int rankIndex = problemDescriptionList.isEmpty() ? 1 : problemDescriptionList.get(0).getRank() + 1;
+
+        String problemId = problem.getProblemId().toUpperCase();
+        String[] source = problemId.split("-");
+        String remoteOj = problemId.startsWith("VJ-") ? "VJ" : source[0];
+        String remoteProblemId = problemId.startsWith("VJ-") ? problemId.replace("VJ-", "") : source[1];
+
+        if (remoteOj.equals("VJ")) {
+            remoteProblemId = ReUtil.get("(\\d+)\\(([^)]+)\\)", remoteProblemId, 2);
+        }
+
+        // 批量保存或更新的列表
+        List<ProblemDescription> descriptionsToUpdate = new ArrayList<>();
+
+        // 获取远程题面信息
+        ProblemStrategy.RemoteProblemInfo otherOJProblemInfo = remoteProblemManager.getOtherOJProblemInfo(remoteOj,
+                remoteProblemId, userRolesVo.getUsername());
+
+        if (otherOJProblemInfo == null) {
+            throw new StatusFailException("更新题面失败！原因：可能是与该OJ链接超时或题号格式错误！");
+        }
+
+        for (ProblemDescription description : otherOJProblemInfo.getProblemDescriptionList()) {
+            description.setPid(problem.getId());
+
+            // 如果爬取的题面无作者，则填充当前账号为作者
+            if (description.getAuthor() == null) {
+                description.setAuthor(userRolesVo.getUsername());
+            }
+
+            // 设置描述的 rank
+            description.setRank(rankIndex++);
+
+            // 添加到批量更新列表
+            descriptionsToUpdate.add(description);
+
+        }
+
+        if (!CollectionUtils.isEmpty(descriptionsToUpdate)) {
+            // 批量保存或更新
+            boolean isUpdated = problemDescriptionEntityService.saveBatch(descriptionsToUpdate);
+
+            UpdateWrapper<Problem> problemUpdateWrapper = new UpdateWrapper<>();
+            problemUpdateWrapper.eq("id", pid).set("modified_user", userRolesVo.getUsername());
+            boolean isProblemUpdated = problemEntityService.update(problemUpdateWrapper);
+
+            if (!isUpdated || !isProblemUpdated) {
+                throw new StatusFailException("更新题面失败！请重新尝试！");
+            }
+        }
     }
 
 }

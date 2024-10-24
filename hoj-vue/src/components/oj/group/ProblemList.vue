@@ -96,7 +96,7 @@
           </el-select>
         </template>
       </vxe-table-column>
-      <vxe-table-column :title="$t('m.Option')" min-width="200">
+      <vxe-table-column :title="$t('m.Option')" min-width="300">
         <template v-slot="{ row }">
           <el-tooltip
             effect="dark"
@@ -113,6 +113,21 @@
               type="primary"
             ></el-button>
           </el-tooltip>
+          <el-tooltip
+            effect="dark"
+            :content="$t('m.Update_RemoteDescription')"
+            placement="top"
+            v-show="row.isRemote === true"
+            v-if="isGroupRoot || row.author == userInfo.username"
+          >
+            <el-button
+              icon="el-icon-refresh"
+              size="mini"
+              @click.native="updateRemoteDescription(row.id)"
+              type="info"
+            ></el-button>
+          </el-tooltip>
+
           <el-tooltip
             effect="dark"
             :content="$t('m.Download_Testcase')"
@@ -433,6 +448,19 @@ export default {
         mMessage.success(this.$i18n.t("m.Update_Successfully"));
         this.init();
       });
+    },
+    updateRemoteDescription(pid) {
+      this.$confirm(this.$i18n.t("m.Update_RemoteDescription_Tips"), "Tips", {
+        type: "warning",
+      }).then(
+        () => {
+          api.admin_updateRemoteDescription(pid).then((res) => {
+            mMessage.success(this.$i18n.t("m.Update_Successfully"));
+            this.$emit("currentChangeProblem");
+          });
+        },
+        () => {}
+      );
     },
   },
   computed: {

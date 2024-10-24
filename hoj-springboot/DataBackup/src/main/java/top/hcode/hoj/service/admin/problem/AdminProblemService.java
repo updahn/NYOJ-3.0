@@ -31,4 +31,7 @@ public interface AdminProblemService {
     public CommonResult<Void> importRemoteOJProblem(String name, String problemId, Long gid);
 
     public CommonResult<Void> changeProblemAuth(ProblemResDTO problem);
+
+    public CommonResult<Void> updateRemoteDescription(Long pid);
+
 }

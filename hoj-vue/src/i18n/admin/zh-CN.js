@@ -266,6 +266,8 @@ export const m = {
   Remote_Tips_NSWOJ: '示例网址：`https://acm.nyist.edu.cn/p/100` - 对应的题目ID为 [100]',
   Remote_Tips_NEWOJ: '示例网址：`http://oj.ecustacm.cn/problem.php?id=1000` - 对应的题目ID为 [1000]',
   Remote_Tips_VJ: '示例网址：`https://vjudge.net/problem/Gym-101350M` - 对应的题目ID为 [Gym-101350M]',
+  Update_RemoteDescription: '更新远程题目题面',
+  Update_RemoteDescription_Tips: '该操作会将原题链接中的所有题面，添加到已有题面中，你是否确定？',
 
   // /views/admin/problem/Problem.vue
   Problem_Display_ID: '题目展示ID',

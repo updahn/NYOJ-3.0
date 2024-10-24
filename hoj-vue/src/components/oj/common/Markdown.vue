@@ -22,30 +22,67 @@ export default {
   },
   computed: {
     html: function () {
+      // 如果内容为空，直接返回空字符串
       if (this.content == null || this.content == undefined) {
         return "";
       }
+
+      // 渲染 markdown 内容
       let res = this.$markDown.render(this.content);
-      // 获取pdf链接生成预览模块
+
+      // 定义一个检查 PDF 链接是否有效的函数
+      function checkPDF(url) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("HEAD", url, false); // 使用同步的 HEAD 请求检查链接
+        try {
+          xhr.send();
+          // 如果状态码为 404，则 PDF 文件不存在
+          if (xhr.status === 404) {
+            return false;
+          }
+          // 其他状态码则认为文件存在
+          return true;
+        } catch (error) {
+          // 如果发生错误，也返回 false 表示链接不可用
+          return false;
+        }
+      }
+
+      // 匹配并替换 markdown 中的 PDF 链接
       res = res.replace(
         /<a.*?href="(.*?.pdf)".*?>(.*?)<\/a>/gi,
-        `<p></p>
-        <file-card>
-            <div>
-                <img class="pdf-svg" src="${this.pdfLogo}">
-            </div>
-            <div>
-                <h5 class="filename">$2</h5>
-                <p><a href="$1" target="_blank">Download</a></p>
-            </div>
-        </file-card>
-        <object data="$1" type="application/pdf" width="100%" height="800px">
-            <embed src="$1">
-            This browser does not support PDFs. Please download the PDF to view it: <a href="$1" target="_blank">Download PDF</a>.</p>
-            </embed>
-        </object>
-        `
+        (match, pdfUrl, pdfName) => {
+          // 使用 checkPDF 函数同步检查该 PDF 链接是否存在
+          const exists = checkPDF(pdfUrl);
+
+          // 如果 PDF 存在，返回正常的 PDF 预览模块
+          if (exists) {
+            return `
+          <p></p>
+          <file-card>
+              <div>
+                  <img class="pdf-svg" src="${this.pdfLogo}">
+              </div>
+              <div>
+                  <h5 class="filename">${pdfName}</h5>
+                  <p><a href="${pdfUrl}" target="_blank">Download</a></p>
+              </div>
+          </file-card>
+          <object data="${pdfUrl}" type="application/pdf" width="100%" height="800px">
+              <embed src="${pdfUrl}">
+              浏览器不支持 PDF 预览，请下载 PDF 文件查看：<a href="${pdfUrl}" target="_blank">下载 PDF</a>。
+              </embed>
+          </object>
+        `;
+          } else {
+            // 如果 PDF 不存在，返回 "Whitelabel Error Page" 错误提示
+            return `题面已失效，请等待网站管理更新题面
+                  <h4>There was an unexpected error (type=Not Found, status=404).</h4>`;
+          }
+        }
       );
+
+      // 返回处理后的内容
       return res;
     },
   },

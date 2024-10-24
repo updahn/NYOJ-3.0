@@ -266,6 +266,8 @@ export const m = {
   Remote_Tips_NSWOJ: 'Example url: `https://acm.nyist.edu.cn/p/100` - The corresponding problem ID is [100]',
   Remote_Tips_NEWOJ: 'Example url: `http://oj.ecustacm.cn/problem.php?id=1000` - The corresponding problem ID is [1000]',
   Remote_Tips_VJ: 'Example url: `https://vjudge.net/problem/Gym-101350M` - The corresponding problem ID is [Gym-101350M]',
+  Update_RemoteDescription: 'Update Remote Problem Description',
+  Update_RemoteDescription_Tips: 'This operation will add all descriptions from the original problem link to the existing descriptions. Are you sure?',
 
   // /views/admin/problem/Problem.vue
   Problem_Display_ID: 'Problem Display ID',
