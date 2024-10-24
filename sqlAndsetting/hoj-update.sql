@@ -2508,3 +2508,61 @@ DROP PROCEDURE add_Judge_Key;
 
 
 
+/*
+* contest 添加 pdf_description
+*/
+DROP PROCEDURE
+IF EXISTS add_Contest_PdfDescription;
+DELIMITER $$
+
+CREATE PROCEDURE add_Contest_PdfDescription ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'contest'
+	AND column_name = 'pdf_description'
+) THEN
+	ALTER TABLE contest ADD COLUMN `pdf_description` varchar(255) DEFAULT NULL COMMENT 'PDF链接';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_Contest_PdfDescription ;
+
+DROP PROCEDURE add_Contest_PdfDescription;
+
+
+/*
+* contest_problem 添加 pdf_description
+*/
+DROP PROCEDURE
+IF EXISTS add_ContestProblem_PdfDescription;
+DELIMITER $$
+
+CREATE PROCEDURE add_ContestProblem_PdfDescription ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'contest_problem'
+	AND column_name = 'pdf_description'
+) THEN
+	ALTER TABLE contest_problem ADD COLUMN `pdf_description` varchar(255) DEFAULT NULL COMMENT 'PDF链接';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_ContestProblem_PdfDescription ;
+
+DROP PROCEDURE add_ContestProblem_PdfDescription;
+
+

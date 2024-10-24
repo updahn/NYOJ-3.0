@@ -50,6 +50,9 @@ public class ContestProblem implements Serializable {
     @ApiModelProperty(value = "气球的颜色")
     private String color;
 
+    @ApiModelProperty(value = "PDF题面")
+    private String pdfDescription;
+
     @TableField(fill = FieldFill.INSERT)
     private Date gmtCreate;
 

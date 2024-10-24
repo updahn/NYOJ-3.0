@@ -494,6 +494,7 @@ export const m = {
   SubmitIp_List: '提交 Ip 列表',
   Contest_ResetIp_Tips: '该操作会重置该用户的提交IP',
   Reset_successfully: '重置成功',
+  Contest_PDF: '比赛题面',
 
   // /views/oj/contest/children/ACMContestRank.vue
   Contest_Rank: '比赛排名',

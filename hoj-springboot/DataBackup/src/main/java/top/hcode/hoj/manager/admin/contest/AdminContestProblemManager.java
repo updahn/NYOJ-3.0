@@ -3,6 +3,8 @@ package top.hcode.hoj.manager.admin.contest;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.IdUtil;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.exception.StatusNotFoundException;
 import top.hcode.hoj.crawler.problem.ProblemStrategy;
 import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.contest.ContestProblemEntityService;
@@ -24,6 +27,7 @@ import top.hcode.hoj.manager.admin.problem.RemoteProblemManager;
 import top.hcode.hoj.manager.group.GroupManager;
 import top.hcode.hoj.pojo.dto.ContestProblemDTO;
 import top.hcode.hoj.pojo.dto.ProblemDTO;
+import top.hcode.hoj.pojo.dto.ProblemRes;
 import top.hcode.hoj.pojo.dto.ProblemResDTO;
 import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.entity.contest.ContestProblem;
@@ -35,6 +39,7 @@ import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.HtmlToPdfUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -289,6 +294,15 @@ public class AdminContestProblemManager {
             log.info("[{}],[{}],cid:[{}],ContestProblem:[{}],operatorUid:[{}],operatorUsername:[{}]",
                     "Admin_Contest", "Update_Problem", contestProblem.getCid(), contestProblem, userRolesVo.getUid(),
                     userRolesVo.getUsername());
+
+            // 获取题面
+            ProblemRes problem = problemEntityService.getProblemRes(contestProblem.getPid(), null, null, null,
+                    contestProblem.getCid());
+
+            Set<Long> processedCids = new HashSet<>();
+            // 更新题面对应的pdf信息
+            htmlToPdfUtils.updateProblemPDF(problem, contestProblem.getCid(), processedCids);
+
             return contestProblem;
         } else {
             throw new StatusFailException("更新失败");
@@ -427,6 +441,37 @@ public class AdminContestProblemManager {
         log.info("[{}],[{}],cid:[{}],pid:[{}],problemId:[{}],operatorUid:[{}],operatorUsername:[{}]",
                 "Admin_Contest", "Add_Remote_Problem", cid, problem.getId(), problem.getProblemId(),
                 userRolesVo.getUid(), userRolesVo.getUsername());
+    }
+
+    public String getContestPdf(Long cid, Boolean isCoverPage)
+            throws StatusFailException, StatusNotFoundException, IOException, StatusForbiddenException {
+        Contest contest = contestEntityService.getById(cid);
+
+        if (contest == null) {
+            throw new StatusFailException("查询失败：该比赛不存在,请检查参数cid是否准确！");
+        }
+
+        // 获取当前登录的用户
+        AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
+
+        boolean isRoot = SecurityUtils.getSubject().hasRole("root")
+                || SecurityUtils.getSubject().hasRole("admin");
+
+        // 只有超级管理员和题目管理员、题目创建者才能操作
+        if (!isRoot && !userRolesVo.getUsername().equals(contest.getAuthor())) {
+            throw new StatusForbiddenException("对不起，你无权限制作Pdf题目！");
+        }
+
+        String outputPath = contest.getPdfDescription();
+        // 如果 outputName 为空，生成一个唯一 ID
+        if (outputPath == null) {
+            outputPath = IdUtil.fastSimpleUUID();
+        }
+
+        // 异步生成比赛题面
+        htmlToPdfUtils.updateContestPDF(contest, outputPath);
+
+        return outputPath;
     }
 
 }

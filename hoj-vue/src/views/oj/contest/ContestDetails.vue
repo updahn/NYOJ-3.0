@@ -114,6 +114,18 @@
                 </div>
               </el-popover>
             </div>
+            <div
+              class="config"
+              v-if="contest.pdfDescription && isShowContestPdf"
+              style="margin-right: 10px;"
+            >
+              <el-button
+                round
+                size="small"
+                slot="reference"
+                @click="openPdf(contest.pdfDescription)"
+              >{{$t('m.Contest_PDF')}}</el-button>
+            </div>
             <div class="admin">
               <el-button
                 v-if="isContestAdmin"
@@ -1130,6 +1142,9 @@ export default {
         this.filteredStates = [];
       }
     },
+    openPdf(pdfDescription) {
+      window.open(pdfDescription, "_blank");
+    },
   },
   computed: {
     ...mapState({
@@ -1170,6 +1185,11 @@ export default {
     },
     showScrollBoard() {
       return this.isContestAdmin && this.contestRuleType === RULE_TYPE.ACM;
+    },
+    isShowContestPdf() {
+      return (
+        this.isContestAdmin || this.contestStatus !== CONTEST_STATUS.SCHEDULED
+      );
     },
     contestEnded() {
       return this.contestStatus === CONTEST_STATUS.ENDED;

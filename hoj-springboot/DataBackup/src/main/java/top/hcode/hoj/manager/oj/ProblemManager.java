@@ -321,11 +321,11 @@ public class ProblemManager {
 
             // 查询题目详情，题目标签，题目语言，题目做题情况
             problem = problemEntityService.getProblemRes(trainingProblem.getPid(), trainingProblem.getPeid(),
-                    null, null);
+                    null, null, null);
             problemDescriptionList = problemEntityService.getProblemDescriptionList(
                     trainingProblem.getPid(), trainingProblem.getPeid(), null, null);
         } else {
-            problem = problemEntityService.getProblemRes(null, peid, problemId, gid);
+            problem = problemEntityService.getProblemRes(null, peid, problemId, gid, null);
             problemDescriptionList = problemEntityService.getProblemDescriptionList(null, null, problemId, gid);
         }
 
@@ -406,11 +406,11 @@ public class ProblemManager {
                 languageKey);
     }
 
-    public String getProblemPdf(Long pid, Long peid)
+    public String getProblemPdf(Long pid, Long peid, Long cid)
             throws StatusForbiddenException, StatusNotFoundException, IOException, StatusFailException {
 
         // 查询题目详情
-        ProblemRes problem = problemEntityService.getProblemRes(pid, peid, null, null);
+        ProblemRes problem = problemEntityService.getProblemRes(pid, peid, null, null, cid);
         if (problem == null) {
             throw new StatusNotFoundException("该题号对应的题目不存在");
         }
@@ -420,23 +420,16 @@ public class ProblemManager {
                 .setSpjCode(null)
                 .setSpjLanguage(null);
 
-        String fileName = problem.getPdfDescription();
+        String filePath = problem.getPdfDescription();
 
         // 如果不存在对应pdf题面则创建
-        if (StringUtils.isEmpty(fileName)) {
-            String pdfName = htmlToPdfUtils.convertByHtml(problem);
-
-            fileName = Constants.File.FILE_API.getPath() + pdfName + ".pdf";
-
+        if (StringUtils.isEmpty(filePath)) {
+            Set<Long> processedCids = new HashSet<>();
             // 更新题面对应的pdf信息
-            Boolean isOk = problemEntityService.updateProblemDescription(pid, peid, pdfName);
-
-            if (StringUtils.isEmpty(pdfName) || !isOk) {
-                throw new IOException("PDF题面保存失败！");
-            }
+            htmlToPdfUtils.updateProblemPDF(problem, cid, processedCids);
         }
 
-        return fileName;
+        return filePath;
     }
 
     public LastAcceptedCodeVO getUserLastAcceptedCode(Long pid, Long cid) {

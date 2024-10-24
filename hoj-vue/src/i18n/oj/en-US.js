@@ -329,7 +329,7 @@ export const m = {
   Copied_successfully: 'Copied successfully',
   Copied_failed: 'Copied failed',
   View_as_PDF: 'View PDF',
-  Get_PDF_Failed: "Don't Have PDF",
+  Get_PDF_Failed: "Don\'t Have PDF",
   Problem_Descriptions: 'Problem Descriptions',
 
   // /views/oj/status/SubmissionList.vue
@@ -494,6 +494,7 @@ export const m = {
   SubmitIp_List: 'Submit Ip List',
   Contest_ResetIp_Tips: 'The operation will reset the user’s submission IP.',
   Reset_successfully: 'Reset Successfully',
+  Contest_PDF: 'Contest PDF',
 
   // /views/oj/contest/children/ACMContestRank.vue
   Contest_Rank: 'Contest Rank',

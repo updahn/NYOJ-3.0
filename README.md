@@ -444,12 +444,16 @@ def generate_pdf():
     # 从表单获取输入参数
     input_path = request.form.get("input_path")
     output_path = request.form.get("output_path")
+    contest_title = request.form.get("contest_title")
+    contest_data = request.form.get("contest_data")
     EC = request.form.get("EC", "false").lower() == "true"
+
+    input_paths = input_path.split(",") if input_path else []
 
     # 构建 Pandoc 命令
     command = [
         "pandoc",
-        input_path,
+        *input_paths,
         "-t",
         "pdf",
         "-o",
@@ -461,6 +465,12 @@ def generate_pdf():
 
     # 添加 EC 参数
     command += ["-M", "ec={}".format(str(EC).lower())]
+
+    if contest_title:
+        command += ["-M", 'contest_title={}'.format(contest_title)]
+
+    if contest_data:
+        command += ["-M", 'contest_data={}'.format(contest_data)]
 
     if input_path:
         try:
@@ -552,6 +562,14 @@ def convert_latex(markdown):
     - content (str): 转换后的 HTML 内容。
     """
 
+    # 使用正则表达式匹配并提取代码块，保留它们在后续处理中不被改变
+    code_blocks = re.findall(r"```(.*?)```", markdown, re.DOTALL)
+
+    # 用带编号的占位符替换代码块，避免它们被处理
+    placeholders = [f"CODE_CODE_{i}" for i in range(len(code_blocks))]
+    for i, block in enumerate(code_blocks):
+        markdown = markdown.replace(f"```{block}```", placeholders[i])
+
     # 使用正则表达式将所有包含多个 $ 的公式替换为单个 $
     markdown = re.sub(r"\${2,}([^$]+?)\${2,}", r"$\1$", markdown)
 
@@ -617,7 +635,14 @@ def convert_latex(markdown):
     for figure in soup.find_all("figure"):
         figure.unwrap()
 
-    return str(soup)
+    # 将代码块还原到文本中
+    html_content = str(soup)
+    for i, block in enumerate(code_blocks):
+        # 使用对应的占位符恢复代码块
+        block = convert_pandoc(f"```{block}```", "markdown", "html")
+        html_content = html_content.replace(placeholders[i], block)
+
+    return html_content
 
 
 # 字符串传入转化为对应格式字符串
@@ -1049,6 +1074,10 @@ docker build -t hoj-htmltopdf .
 % 设置页眉页脚样式
 \pagestyle{fancy}
 \fancyhf{}
+% 页眉中间显示比赛标题和学校、日期，居中显示，两行
+\fancyhead[C]{%
+  \shortstack{$contest_title$ \\ $if(ec)$南阳理工学院$else$NYIST NYOJ$endif$ $contest_data$}
+}
 
 % 调整页眉和页脚高度
 \setlength{\headheight}{40pt}  % 页眉高度
