@@ -9,6 +9,7 @@ import cn.hutool.json.JSONObject;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.pojo.entity.problem.Problem;
+import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.utils.Constants;
 
 /*
@@ -159,18 +161,20 @@ public class SCPCProblemStrategy extends ProblemStrategy {
             JSONObject record = jsonObject.getJSONObject("data");
 
             Problem info = new Problem();
-            info.setTitle(record.getStr("title"));
+            ProblemDescription problemDescription = new ProblemDescription().setPid(info.getId());
+
+            problemDescription.setTitle(record.getStr("title"));
             info.setTimeLimit(record.getInt("timeLimit"));
             info.setMemoryLimit(record.getInt("memoryLimit"));
 
-            info.setDescription(record.getStr("description").replace("/api", HOST + "/api"));
-            info.setInput(record.getStr("input").replace("/api", HOST + "/api"));
-            info.setOutput(record.getStr("output").replace("/api", HOST + "/api"));
-            info.setHint(record.getStr("hint").replace("/api", HOST + "/api"));
+            problemDescription.setDescription(record.getStr("description").replace("/api", HOST + "/api"));
+            problemDescription.setInput(record.getStr("input").replace("/api", HOST + "/api"));
+            problemDescription.setOutput(record.getStr("output").replace("/api", HOST + "/api"));
+            problemDescription.setHint(record.getStr("hint").replace("/api", HOST + "/api"));
 
-            info.setExamples(record.getStr("examples"));
+            problemDescription.setExamples(record.getStr("examples"));
             info.setIsRemote(true);
-            info.setSource(problem_hint);
+            problemDescription.setSource(problem_hint);
             Integer difficultyValue = record.getInt("difficulty");
             Integer difficulty;
 
@@ -196,30 +200,14 @@ public class SCPCProblemStrategy extends ProblemStrategy {
                     .setIsRemoveEndBlank(false)
                     .setIsGroup(false);
 
-            Boolean isRemote = record.getBool("isRemote"); // 是否为远程评测
-            if (isRemote) {
-                problemId = record.getStr("problemId");
-                String remoteOJ = problemId.split("-")[0];
-                info.setProblemId(problemId);
+            info.setProblemId(JUDGE_NAME + "-" + problemId);
 
-                // 解决远程评测id重复问题
-                QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("problem_id", problemId);
-                Problem problem = problemEntityService.getOne(queryWrapper, false);
-                if (problem != null) {
-                    throw new IllegalArgumentException("SCPC: Repeat Problem Id! ");
-                }
-                return new RemoteProblemInfo()
-                        .setProblem(info)
-                        .setTagList(null)
-                        .setRemoteOJ(Constants.RemoteOJ.getRemoteOJ(remoteOJ));
-            } else {
-                info.setProblemId(JUDGE_NAME + "-" + problemId);
-                return new RemoteProblemInfo()
-                        .setProblem(info)
-                        .setTagList(null)
-                        .setRemoteOJ(Constants.RemoteOJ.SCPC);
-            }
+            List<ProblemDescription> problemDescriptionList = Collections.singletonList(problemDescription);
+            return new RemoteProblemInfo()
+                    .setProblem(info)
+                    .setProblemDescriptionList(problemDescriptionList)
+                    .setTagList(null)
+                    .setRemoteOJ(Constants.RemoteOJ.SCPC);
         } else {
             throw new IllegalArgumentException("SCPC: Don't have such problem! ");
         }

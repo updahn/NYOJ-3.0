@@ -127,6 +127,22 @@
                       </el-link>
                     </span>
                   </div>
+
+                  <div class="problem-description" v-if="!contestID && !trainingID">
+                    <div style="font-size: 16px;">{{ $t('m.Problem_Descriptions') }}</div>
+                    <el-tag
+                      v-for="problemDescription in problemData.problemDescriptionList"
+                      size="medium"
+                      class="filter-item"
+                      :effect="peid == problemDescription.id ? 'dark' : 'plain'"
+                      :key="problemDescription.id"
+                      @click="goProblemDescription(problemDescription.id)"
+                    >
+                      {{ problemDescription.title ? ' Title: ' + problemDescription.title : '' }}
+                      Author: {{ problemDescription.author }}
+                    </el-tag>
+                  </div>
+
                   <div class="question-intr">
                     <template v-if="!isCFProblem">
                       <span>
@@ -484,7 +500,6 @@
           </el-tabs>
         </el-col>
         <div
-          v-if="isAcmOi"
           class="problem-resize hidden-sm-and-down"
           :id="'js-center'+'-'+ $route.name"
           :title="$t('m.Shrink_Sidebar')"
@@ -532,79 +547,81 @@
           :style="{ height: '100%'}"
         >
           <el-card :padding="10" id="submit-code" shadow="always" class="submit-detail">
-            <div v-if="isAcmOi">
-              <CodeMirror
-                :value.sync="code"
-                :languages="problemData.languages"
-                :language.sync="language"
-                :theme.sync="theme"
-                :height.sync="height"
-                :fontSize.sync="fontSize"
-                :tabSize.sync="tabSize"
-                @resetCode="onResetToTemplate"
-                @changeTheme="onChangeTheme"
-                @changeLang="onChangeLang"
-                @getUserLastAccepetedCode="getUserLastAccepetedCode"
-                @switchFocusMode="switchFocusMode"
-                :openFocusMode.sync="openFocusMode"
-                :openTestCaseDrawer.sync="openTestCaseDrawer"
-                :problemTestCase="problemData.problem.examples"
-                :pid="problemData.problem.id"
-                :type="problemType"
-                :isAuthenticated="isAuthenticated"
-                :isRemoteJudge="problemData.problem.isRemote"
-                :submitDisabled="submitDisabled"
-              ></CodeMirror>
-            </div>
-            <div v-else-if="isSelection || isDecide" :style="{ height: getLeftHeight() + 'px'}">
-              <el-row :style="{ height: '100%', display: 'flex', flexDirection: 'column' }">
-                <!-- 上部区域，占据85%的高度 -->
-                <el-col
-                  :span="24"
-                  :style="{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-around' }"
-                >
-                  <div
-                    v-for="(item, index) in (isSelection ? problemData.problem.examples : orderList)"
-                    :key="index"
+            <div id="js-right-body">
+              <div v-if="isAcmOi">
+                <CodeMirror
+                  :value.sync="code"
+                  :languages="problemData.languages"
+                  :language.sync="language"
+                  :theme.sync="theme"
+                  :height.sync="height"
+                  :fontSize.sync="fontSize"
+                  :tabSize.sync="tabSize"
+                  @resetCode="onResetToTemplate"
+                  @changeTheme="onChangeTheme"
+                  @changeLang="onChangeLang"
+                  @getUserLastAccepetedCode="getUserLastAccepetedCode"
+                  @switchFocusMode="switchFocusMode"
+                  :openFocusMode.sync="openFocusMode"
+                  :openTestCaseDrawer.sync="openTestCaseDrawer"
+                  :problemTestCase="problemData.problem.examples"
+                  :pid="problemData.problem.id"
+                  :type="problemType"
+                  :isAuthenticated="isAuthenticated"
+                  :isRemoteJudge="problemData.problem.isRemote"
+                  :submitDisabled="submitDisabled"
+                ></CodeMirror>
+              </div>
+              <div style="margin-left: 5px; height: 100%;" v-else-if="isSelection || isDecide">
+                <el-row :style="{ height: '100%', display: 'flex', flexDirection: 'column' }">
+                  <!-- 上部区域，占据85%的高度 -->
+                  <el-col
+                    :span="24"
+                    :style="{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-around' }"
                   >
-                    <el-button
-                      class="centered-button"
-                      size="size"
-                      @click="addAnswer(item, index)"
-                      style="flex-grow: 1;"
-                    >{{ isSelection ? String.fromCharCode(65 + index) : item.output }}</el-button>
-                  </div>
-                </el-col>
+                    <div
+                      v-for="(item, index) in (isSelection ? problemData.problem.examples : orderList)"
+                      :key="index"
+                    >
+                      <el-button
+                        class="centered-button"
+                        size="size"
+                        @click="addAnswer(item, index)"
+                        style="flex-grow: 1;"
+                      >{{ isSelection ? String.fromCharCode(65 + index) : item.output }}</el-button>
+                    </div>
+                  </el-col>
 
-                <!-- 下部区域，占据15%的高度 -->
-                <el-col :span="24" :style="{ flexBasis: '15%' }">
-                  <el-form>
-                    <el-form-item :label="$t('m.Selected_Answer')" required>
-                      <el-tag
-                        v-for="selected in selectedList"
-                        closable
-                        :close-transition="false"
-                        :key="selected.index"
-                        size="small"
-                        @close="closeAnswer(selected)"
-                        style="margin-right: 7px;margin-top:4px"
-                      >{{ isSelection ? String.fromCharCode(65 + selected.index) : selected.output }}</el-tag>
-                    </el-form-item>
-                  </el-form>
-                </el-col>
-              </el-row>
-            </div>
-            <div v-else :style="{ height: getLeftHeight() + 'px'}">
-              <el-form>
-                <el-form-item :label="$t('m.Filling_Answer')" required>
-                  <el-input
-                    v-for="(selected, index) in problemData.problem.examples"
-                    :key="index"
-                    v-model="selected.output"
-                    style="margin-top: 20px"
-                  ></el-input>
-                </el-form-item>
-              </el-form>
+                  <!-- 下部区域，占据15%的高度 -->
+                  <el-col :span="24" :style="{ flexBasis: '15%' }">
+                    <el-form>
+                      <el-form-item :label="$t('m.Selected_Answer')" required>
+                        <el-tag
+                          v-for="selected in selectedList"
+                          closable
+                          :close-transition="false"
+                          :key="selected.index"
+                          size="small"
+                          @close="closeAnswer(selected)"
+                          style="margin-right: 7px; margin-top:4px; max-height: 600px;"
+                        >{{ isSelection ? String.fromCharCode(65 + selected.index) : selected.output }}</el-tag>
+                      </el-form-item>
+                    </el-form>
+                  </el-col>
+                </el-row>
+              </div>
+              <div style="margin-left: 5px; height: 100%;" v-else>
+                <el-form>
+                  <el-form-item :label="$t('m.Filling_Answer')" required>
+                    <el-input
+                      v-for="(selected, index) in problemData.problem.examples"
+                      :key="index"
+                      v-model="selected.output"
+                      style="margin-top: 20px; width:80%;"
+                    ></el-input>
+                  </el-form-item>
+                </el-form>
+              </div>
             </div>
             <div id="js-right-bottom">
               <el-row>
@@ -725,7 +742,7 @@
                       :closable="false"
                     >{{ $t('m.You_have_submitted_a_solution') }}</el-alert>
                   </div>
-                  <div v-if="contestEnded && !statusVisible">
+                  <div v-else-if="this.contestID && contestEnded && !statusVisible">
                     <el-alert
                       type="warning"
                       show-icon
@@ -881,6 +898,7 @@ export default {
       groupID: null,
       problemID: "",
       trainingID: null,
+      descriptionID: null,
       submitting: false,
       code: "",
       language: "",
@@ -901,6 +919,7 @@ export default {
         problem: {
           difficulty: 0,
         },
+        problemDescriptionList: [],
         problemCount: {},
         tags: [],
         languages: [],
@@ -943,6 +962,7 @@ export default {
       type: 0,
       selectedList: [],
       orderList: [{ output: "YES" }, { output: "NO" }],
+      peid: null,
     };
   },
   created() {
@@ -1170,6 +1190,9 @@ export default {
       right.style.width = "0px";
       right.style.display = "none";
       this.toResetWatch = true;
+
+      // 保持左右高度相同
+      this.resizeWatchHeight(false);
     },
     resetWatch(minLeft = false) {
       var resize = document.getElementById(
@@ -1195,8 +1218,11 @@ export default {
       right.style.width = 100 - leftRadio + "%";
       right.style.display = "";
       this.toResetWatch = false;
+
+      // 保持左右高度相同
+      this.resizeWatchHeight(false);
     },
-    resizeWatchHeight() {
+    resizeWatchHeight(hide = true) {
       try {
         let headerHeight = document.getElementById("header").offsetHeight;
         let headerWidth = document.getElementById("header").offsetWidth;
@@ -1213,9 +1239,8 @@ export default {
             "problem-box" + "-" + this.$route.name
           );
           let tmp = (left.clientWidth / box.clientWidth) * 100;
-          // 防止右方的元素丢失
-          if (tmp === 100) {
-            tmp = 50;
+          if (tmp > 80) {
+            tmp = 100;
           }
           left.style.width = tmp + "%";
           right.style.width = 100 - tmp + "%";
@@ -1224,14 +1249,13 @@ export default {
           left.style.width = "100%";
         }
 
-        let problemLeftHight = totalHeight - (headerHeight + 64);
+        let problemLeftHight = totalHeight - (headerHeight + 94);
         if (this.showProblemHorizontalMenu) {
           let footerMenuHeight =
             document.getElementById("problem-footer").offsetHeight;
           problemLeftHight = problemLeftHight - footerMenuHeight;
         }
-        let jsRHeaderHeight =
-          document.getElementById("js-right-header").offsetHeight;
+
         let jsRBottomHeight =
           document.getElementById("js-right-bottom").offsetHeight;
 
@@ -1239,31 +1263,59 @@ export default {
           jsRBottomHeight = 48;
         }
 
-        let problemRightHight =
-          problemLeftHight -
-          95 -
-          (jsRHeaderHeight - 36) -
-          (jsRBottomHeight - 48);
-        if (problemRightHight < 0) {
-          problemRightHight = 0;
+        if (this.isAcmOi) {
+          let jsRHeaderHeight =
+            document.getElementById("js-right-header").offsetHeight;
+
+          let problemRightHight =
+            problemLeftHight -
+            95 -
+            (jsRHeaderHeight - 36) -
+            (jsRBottomHeight - 48);
+          if (problemRightHight < 0) {
+            problemRightHight = 0;
+          }
+          this.height = problemRightHight;
+        } else {
+          this.height = problemLeftHight - 36;
+          document
+            .getElementById("js-right-body")
+            .setAttribute("style", "height:" + this.height + "px !important");
         }
-        this.height = problemRightHight;
+
+        // 确保保证js-center 能显示
+        var box = document.getElementById(
+          "problem-box" + "-" + this.$route.name
+        );
+        let leftMax = box.clientWidth - 10; // 最大宽度，单位为 px
+        let leftWidthPx =
+          (parseFloat(left.style.width) / 100) * box.clientWidth; // 将百分比转换为像素
+
+        document
+          .getElementById("js-center" + "-" + this.$route.name)
+          .setAttribute(
+            "style",
+            `top: ${problemLeftHight * 0.5}px !important; left: ${Math.min(
+              leftWidthPx,
+              leftMax
+            )}px !important`
+          );
+
+        // 当缩放题面显示超过80%,自动收起答题区域
+        if (hide && !this.toResetWatch && parseFloat(left.style.width) > 80) {
+          this.onlyWatchProblem();
+        }
+
         if (problemLeftHight < 0) {
           problemLeftHight = 0;
         }
         if (this.activeName == "problemDetail") {
-          if (headerWidth >= 992) {
-            document
-              .getElementById("js-left" + "-" + this.$route.name)
-              .setAttribute(
-                "style",
-                "height:" + problemLeftHight + "px !important"
-              );
-          } else {
-            document
-              .getElementById("js-left" + "-" + this.$route.name)
-              .setAttribute("style", "height: auto");
-          }
+          document
+            .getElementById("js-left" + "-" + this.$route.name)
+            .setAttribute(
+              "style",
+              "height:" + problemLeftHight + "px !important"
+            );
         } else if (this.activeName == "mySubmission") {
           document
             .getElementById("js-submission")
@@ -1279,17 +1331,9 @@ export default {
               "height:" + problemLeftHight + "px !important"
             );
         }
-        document
-          .getElementById("js-center" + "-" + this.$route.name)
-          .setAttribute(
-            "style",
-            "top:" +
-              problemLeftHight * 0.5 +
-              "px !important; left:" +
-              left.style.width
-          );
+
+        this.updateHeights();
       } catch (e) {}
-      this.updateHeights();
     },
     init() {
       if (this.$route.name === "ContestFullProblemDetails") {
@@ -1306,13 +1350,23 @@ export default {
       if (this.$route.params.trainingID) {
         this.trainingID = this.$route.params.trainingID;
       }
+      if (this.$route.params.descriptionID) {
+        this.descriptionID = this.$route.params.descriptionID;
+      }
       let func =
         this.$route.name === "ContestProblemDetails" ||
         this.$route.name === "ContestFullProblemDetails"
           ? "getContestProblem"
           : "getProblem";
       this.loading = true;
-      api[func](this.problemID, this.contestID, this.groupID, true).then(
+      api[func](
+        this.problemID,
+        this.contestID,
+        this.groupID,
+        true,
+        this.trainingID,
+        this.descriptionID
+      ).then(
         (res) => {
           let result = res.data.data;
           this.changeDomTitle({ title: result.problem.title });
@@ -1327,6 +1381,9 @@ export default {
 
           this.problemData = result;
           this.changeType();
+          this.peid = this.descriptionID
+            ? this.descriptionID
+            : this.problemData.problemDescriptionList[0].id;
           this.loading = false;
 
           if (this.isAuthenticated) {
@@ -1804,6 +1861,8 @@ export default {
       this.isSelection = type === 2;
       this.isFilling = type === 3;
       this.isDecide = type > 3;
+
+      this.resizeWatchHeight(false);
     },
     addAnswer(example, index) {
       let type = this.problemData.problem.type;
@@ -1831,19 +1890,11 @@ export default {
       const right = document.getElementById(`problem-right-${route}`);
 
       if (left && right) {
-        const maxHeight = Math.max(left.offsetHeight, right.offsetHeight);
-        left.style.height = right.style.height = `${maxHeight}px`;
+        const minHeight = window.innerHeight * 0.7;
+        left.style.height = right.style.height = `${minHeight}px`;
       }
     },
-    getLeftHeight() {
-      let route = this.$route.name;
-      const left = document.getElementById(`problem-left-${route}`);
-      const rightBottom = document.getElementById(`js-right-bottom`);
-
-      return left.offsetHeight - rightBottom.offsetHeight * 1.5;
-    },
     getProblemPdf() {
-      let problem = this.problemData.problem;
       const regex = /\/api\/public\/file\/(.+)\.pdf/;
 
       const openPdf = (pdfUrl) => {
@@ -1860,13 +1911,30 @@ export default {
         }
       };
 
-      if (!problem.pdfDescription) {
-        api.getProblemPdf(problem.id).then(
+      api
+        .getProblemPdf(
+          this.problemData.problem.id,
+          this.descriptionID,
+          this.contestID
+        )
+        .then(
           (res) => openPdf(res.data.msg),
-          (err) => {}
+          (err) => {
+            myMessage.warning(this.$i18n.t("m.Get_PDF_Failed"));
+          }
         );
+    },
+    goProblemDescription(peid) {
+      if (this.groupID) {
+        this.$router.push({
+          name: "GroupProblemDetails",
+          params: { submitID: this.submissionId, gid: this.groupID },
+        });
       } else {
-        openPdf(problem.pdfDescription);
+        this.$router.push({
+          name: "ProblemDetails",
+          params: { descriptionID: peid },
+        });
       }
     },
   },
@@ -2021,7 +2089,8 @@ export default {
   justify-content: center;
   align-items: center;
   margin: 10px auto; /* 上下间距10px，左右自动居中 */
-  width: 80%; /* 宽度为父元素宽度的80% */
+  width: 80%;
+  max-width: 600px !important;
 }
 .problem-menu {
   float: left;
@@ -2039,8 +2108,8 @@ a {
   font-size: 14px !important;
   color: #909399 !important;
 }
-.question-intr {
-  margin-top: 30px;
+.question-intr,
+.problem-description {
   border-radius: 4px;
   border: 1px solid #ddd;
   border-left: 2px solid #3498db;
@@ -2049,6 +2118,12 @@ a {
   line-height: 1.8;
   margin-bottom: 10px;
   font-size: 14px;
+}
+.question-intr {
+  margin-top: 30px;
+}
+.problem-description {
+  margin-top: 10px;
 }
 
 .extra-file {
@@ -2065,18 +2140,23 @@ a {
   height: 100%;
 }
 
+.el-tabs__content {
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 /deep/.el-tabs--border-card > .el-tabs__content {
   padding-top: 0px;
   padding-right: 0px;
   padding-bottom: 0px;
 }
 
-.js-left {
-  padding-right: 15px;
-}
 @media screen and (min-width: 992px) {
   .problem-body {
     margin-bottom: 20px;
+    height: 100%;
   }
   .js-left {
     height: 730px !important;
@@ -2117,8 +2197,8 @@ a {
   .problem-left {
     width: 50%; /*左侧初始化宽度*/
     height: 100%;
-    overflow-y: auto;
     overflow-x: hidden;
+    overflow-y: hidden;
     float: left;
   }
   .problem-resize {
@@ -2205,7 +2285,7 @@ a {
   margin-top: -40px;
 }
 #problem-content .title {
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 600;
   margin: 25px 0 8px 0;
   color: #3091f2;
@@ -2220,7 +2300,6 @@ a {
 }
 
 .md-content {
-  margin: 1em;
   font-size: 15px;
 }
 .flex-container {
@@ -2314,5 +2393,13 @@ a {
   background-color: #67c23a;
   border-color: #67c23a;
   color: #fff;
+}
+.filter-item {
+  margin-right: 1em;
+  margin-top: 0.5em;
+  font-size: 13px;
+}
+.filter-item:hover {
+  cursor: pointer;
 }
 </style>

@@ -5,10 +5,12 @@ import cn.hutool.http.HtmlUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import top.hcode.hoj.pojo.entity.problem.Problem;
+import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.pojo.entity.problem.Tag;
 import top.hcode.hoj.utils.Constants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -34,6 +36,7 @@ public class NEWOJProblemStrategy extends ProblemStrategy {
 	public RemoteProblemInfo getProblemInfo(String problemId, String author) throws Exception {
 
 		Problem info = new Problem();
+		ProblemDescription problemDescription = new ProblemDescription().setPid(info.getId());
 
 		// 题号仅为正整数
 		if (!problemId.matches("[1-9]\\d*")) {
@@ -58,7 +61,7 @@ public class NEWOJProblemStrategy extends ProblemStrategy {
 		Matcher matcher = pattern.matcher(html);
 		if (matcher.find()) {
 			String headerContent = matcher.group(1);
-			info.setTitle(getLastLine(headerContent));
+			problemDescription.setTitle(getLastLine(headerContent));
 		}
 
 		Pattern memoryPattern = Pattern.compile("内存限制：(\\d+)\\s*MB");
@@ -89,11 +92,11 @@ public class NEWOJProblemStrategy extends ProblemStrategy {
 					"src=\"" + "//images.weserv.nl/?url=" + HOST + "/");
 
 			if (header.equals("题目描述")) {
-				info.setDescription(getNoSplitString(content));
+				problemDescription.setDescription(getNoSplitString(content));
 			} else if (header.equals("输入格式")) {
-				info.setInput(getNoSplitString(content));
+				problemDescription.setInput(getNoSplitString(content));
 			} else if (header.equals("输出格式")) {
-				info.setOutput(getNoSplitString(content));
+				problemDescription.setOutput(getNoSplitString(content));
 			} else if (header.startsWith("输入样例") || header.startsWith("输出样例")) {
 				String[] examples = ReUtil.findAll("\\<pre.*?\\>(.*?)\\<\\/pre\\>", contents.get(i).trim(), 1).get(0)
 						.split("样例\\d+");
@@ -108,7 +111,7 @@ public class NEWOJProblemStrategy extends ProblemStrategy {
 					}
 				}
 			} else if (header.equals("数据范围与提示")) {
-				info.setHint(getNoSplitString(content));
+				problemDescription.setHint(getNoSplitString(content));
 			}
 
 		}
@@ -124,7 +127,7 @@ public class NEWOJProblemStrategy extends ProblemStrategy {
 			examples.append(exampleOutput).append("</output>");
 		}
 
-		info.setExamples(examples.toString());
+		problemDescription.setExamples(examples.toString());
 
 		List<Tag> tagList = new LinkedList<>();
 		Pattern pattern2 = Pattern.compile("href=\"problemset\\.php\\?search=([^\"]+)\"");
@@ -133,10 +136,11 @@ public class NEWOJProblemStrategy extends ProblemStrategy {
 			String hrefContent = matcher2.group(1);
 			tagList.add(new Tag().setName(hrefContent.trim()));
 		}
+		problemDescription.setSource(String.format(
+				"<a style='color:#1A5CC8' href='%s'>%s</a>",
+				url, JUDGE_NAME + "-" + problemId));
+
 		info.setIsRemote(true)
-				.setSource(String.format(
-						"<a style='color:#1A5CC8' href='%s'>%s</a>",
-						url, JUDGE_NAME + "-" + problemId))
 				.setType(0)
 				.setAuth(1)
 				.setAuthor(author)
@@ -145,8 +149,10 @@ public class NEWOJProblemStrategy extends ProblemStrategy {
 				.setIsGroup(false)
 				.setDifficulty(1); // 默认为简单
 
+		List<ProblemDescription> problemDescriptionList = Collections.singletonList(problemDescription);
 		return new RemoteProblemInfo()
 				.setProblem(info)
+				.setProblemDescriptionList(problemDescriptionList)
 				.setTagList(tagList)
 				.setRemoteOJ(Constants.RemoteOJ.NEWOJ);
 

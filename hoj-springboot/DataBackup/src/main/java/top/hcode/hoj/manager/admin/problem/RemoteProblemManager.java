@@ -35,6 +35,9 @@ public class RemoteProblemManager {
     private ProblemEntityService problemEntityService;
 
     @Autowired
+    private ProblemDescriptionEntityService problemDescriptionEntityService;
+
+    @Autowired
     private ProblemTagEntityService problemTagEntityService;
 
     @Autowired
@@ -136,6 +139,15 @@ public class RemoteProblemManager {
         }
 
         boolean addProblemResult = problemEntityService.save(problem);
+
+        List<ProblemDescription> problemDescriptionList = remoteProblemInfo.getProblemDescriptionList();
+
+        boolean addProblemDescriptionResult = problemDescriptionList.stream()
+                .anyMatch(problemDescription -> {
+                    problemDescription.setPid(problem.getId()).setAuthor(problem.getAuthor());
+                    return problemDescriptionEntityService.save(problemDescription);
+                });
+
         // 为新的其它oj题目添加对应的language
         QueryWrapper<Language> languageQueryWrapper = new QueryWrapper<>();
         if (OJName.equals("GYM")) {
@@ -204,7 +216,7 @@ public class RemoteProblemManager {
                     .setPid(problem.getId()));
         }
 
-        if (addProblemResult && addProblemTagResult && addProblemLanguageResult) {
+        if (addProblemResult && addProblemDescriptionResult && addProblemTagResult && addProblemLanguageResult) {
             return problem;
         } else {
             return null;

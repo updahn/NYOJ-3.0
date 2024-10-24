@@ -6,8 +6,10 @@ import cn.hutool.http.HttpUtil;
 import org.apache.commons.lang.Validate;
 import org.jsoup.Jsoup;
 import top.hcode.hoj.pojo.entity.problem.Problem;
+import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.utils.Constants;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -58,19 +60,22 @@ public class AtCoderProblemStrategy extends ProblemStrategy {
                 String title = ReUtil.get("<title>[\\s\\S]*? - ([\\s\\S]*?)</title>", body, 1);
 
                 Problem problem = new Problem();
+                ProblemDescription problemDescription = new ProblemDescription().setPid(problem.getId());
+
                 problem.setProblemId(getJudgeName() + "-" + problemId)
                                 .setAuthor(author)
-                                .setTitle(title)
                                 .setType(0)
                                 .setTimeLimit(Integer.parseInt(timeLimit) * 1000)
                                 .setMemoryLimit(Integer.parseInt(memoryLimit))
                                 .setIsRemote(true)
-                                .setSource(getProblemSource(problemId, contestId))
                                 .setAuth(1)
                                 .setOpenCaseResult(false)
                                 .setIsRemoveEndBlank(false)
                                 .setIsGroup(false)
                                 .setDifficulty(1); // 默认为中等
+
+                problemDescription.setTitle(title)
+                                .setSource(getProblemSource(problemId, contestId));
 
                 if (body.contains("Problem Statement")) {
                         String desc = ReUtil.get("<h3>Problem Statement</h3>([\\s\\S]*?)</section>[\\s\\S]*?</div>",
@@ -114,7 +119,9 @@ public class AtCoderProblemStrategy extends ProblemStrategy {
                                 examples.append(exampleOutput).append("</output>");
                         }
 
-                        problem.setInput("<pp>" + HtmlUtil.unescape(input.trim().replaceAll("(?<=\\>)\\s+(?=\\<)", "")))
+                        problemDescription
+                                        .setInput("<pp>" + HtmlUtil
+                                                        .unescape(input.trim().replaceAll("(?<=\\>)\\s+(?=\\<)", "")))
                                         .setOutput("<pp>" + HtmlUtil
                                                         .unescape(output.trim().replaceAll("(?<=\\>)\\s+(?=\\<)", "")))
                                         .setDescription("<pp>" + HtmlUtil
@@ -129,10 +136,13 @@ public class AtCoderProblemStrategy extends ProblemStrategy {
                                         "<pre style=\"padding:9px!important;background-color: #f5f5f5!important\">");
                         desc = desc.replaceAll("<var>", "\\$").replaceAll("</var>", "\\$");
                         desc = desc.replaceAll("<hr>", "");
-                        problem.setDescription(desc);
+                        problemDescription.setDescription(desc);
                 }
+
+                List<ProblemDescription> problemDescriptionList = Collections.singletonList(problemDescription);
                 return new RemoteProblemInfo()
                                 .setProblem(problem)
+                                .setProblemDescriptionList(problemDescriptionList)
                                 .setTagList(null)
                                 .setLangIdList(null)
                                 .setRemoteOJ(Constants.RemoteOJ.ATCODER);

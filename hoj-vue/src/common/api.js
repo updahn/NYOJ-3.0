@@ -322,19 +322,16 @@ const ojApi = {
   },
 
   // Problem详情页的相关请求
-  getProblem(problemId, cid, gid) {
+  getProblem(problemId, cid, gid, containsEnd, tid = null, peid = null) {
     return ajax('/api/get-problem-detail', 'get', {
-      params: {
-        problemId,
-        gid,
-      },
+      params: { problemId, gid, tid, peid },
     });
   },
 
   // Problem的pdf链接
-  getProblemPdf(pid) {
+  getProblemPdf(pid, peid) {
     return ajax('/api/get-problem-pdf', 'get', {
-      params: { pid },
+      params: { pid, peid },
     });
   },
 
@@ -1766,10 +1763,7 @@ const adminApi = {
 
   getLanguages(pid, all) {
     return ajax('/api/languages', 'get', {
-      params: {
-        pid,
-        all,
-      },
+      params: { pid, all },
     });
   },
   getProblemLanguages(pid) {
@@ -1808,6 +1802,12 @@ const adminApi = {
       },
     });
   },
+  admin_changeContestProblemDescription(data) {
+    return ajax('/api/admin/contest/change-problem-description', 'post', { data });
+  },
+  admin_changeTrainingProblemDescription(data) {
+    return ajax('/api/admin/training/change-problem-description', 'post', { data });
+  },
 
   admin_createProblem(data) {
     return ajax('/api/admin/problem', 'post', {
@@ -1821,9 +1821,7 @@ const adminApi = {
   },
   admin_deleteProblem(pid) {
     return ajax('/api/admin/problem', 'delete', {
-      params: {
-        pid,
-      },
+      params: { pid },
     });
   },
   admin_changeProblemAuth(data) {
@@ -1831,11 +1829,9 @@ const adminApi = {
       data,
     });
   },
-  admin_getProblem(pid) {
+  admin_getProblem(pid, peid) {
     return ajax('/api/admin/problem', 'get', {
-      params: {
-        pid,
-      },
+      params: { pid, peid },
     });
   },
   admin_getAllProblemTagList(oj) {
@@ -2073,11 +2069,9 @@ const adminApi = {
     });
   },
 
-  admin_getContestProblem(pid) {
+  admin_getContestProblem(pid, peid) {
     return ajax('/api/admin/contest/problem', 'get', {
-      params: {
-        pid,
-      },
+      params: { pid, peid },
     });
   },
   admin_createContestProblem(data) {

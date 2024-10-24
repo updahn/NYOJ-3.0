@@ -8,6 +8,7 @@ import cn.hutool.http.HtmlUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import top.hcode.hoj.pojo.entity.problem.Problem;
+import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.utils.CodeForcesUtils;
 import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.JsoupUtils;
@@ -15,6 +16,7 @@ import top.hcode.hoj.utils.JsoupUtils;
 import java.io.File;
 import java.net.HttpCookie;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,7 @@ public class QOJProblemStrategy extends ProblemStrategy {
 	public RemoteProblemInfo getProblemInfo(String problemId, String author) throws Exception {
 
 		Problem info = new Problem();
+		ProblemDescription problemDescription = new ProblemDescription().setPid(info.getId());
 
 		info.setProblemId(JUDGE_NAME + "-" + problemId);
 
@@ -91,7 +94,7 @@ public class QOJProblemStrategy extends ProblemStrategy {
 			throw new IllegalArgumentException("[QOJ]: Don't have problem id!");
 		}
 
-		info.setTitle(getLastLine(ReUtil.get("text-center\">([\\s\\S]*?)</h1>", html, 1).trim()));
+		problemDescription.setTitle(getLastLine(ReUtil.get("text-center\">([\\s\\S]*?)</h1>", html, 1).trim()));
 		info.setTimeLimit(
 				(int) Math.round(Double.parseDouble(
 						ReUtil.get("<span class=.*?>Time Limit:\\s*(\\d*\\.?\\d*)\\s*s\\s*</span>", html, 1))) * 1000);
@@ -123,20 +126,21 @@ public class QOJProblemStrategy extends ProblemStrategy {
 					.append(fileRealName)
 					.append("</a></p>");
 
-			info.setDescription(pdf_description.toString().trim());
+			problemDescription.setDescription(pdf_description.toString().trim());
 		} else {
 			String description = ReUtil
 					.get("<article class=\"uoj-article top-buffer-md\">([\\s\\S]*?)</article>", html,
 							1);
-			info.setDescription(
+			problemDescription.setDescription(
 					"<pp>" + HtmlUtil.unescape(description.trim()).replaceAll("src=\"/", "src=\"" + HOST + "/")
 							.replaceAll("(?<=\\>)\\s+(?=\\<)", ""));
 		}
 
+		problemDescription.setSource(String.format(
+				"<a style='color:#1A5CC8' href='%s'>%s</a>",
+				url, problemId, JUDGE_NAME + "-" + problemId));
+
 		info.setIsRemote(true)
-				.setSource(String.format(
-						"<a style='color:#1A5CC8' href='%s'>%s</a>",
-						url, problemId, JUDGE_NAME + "-" + problemId))
 				.setType(info.getIsFileIO() != null ? 1 : 0)
 				.setAuth(1)
 				.setAuthor(author)
@@ -145,8 +149,10 @@ public class QOJProblemStrategy extends ProblemStrategy {
 				.setIsGroup(false)
 				.setDifficulty(1); // 默认为简单
 
+		List<ProblemDescription> problemDescriptionList = Collections.singletonList(problemDescription);
 		return new RemoteProblemInfo()
 				.setProblem(info)
+				.setProblemDescriptionList(problemDescriptionList)
 				.setTagList(null)
 				.setRemoteOJ(Constants.RemoteOJ.QOJ);
 

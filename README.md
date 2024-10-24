@@ -1198,3 +1198,9 @@ $body$
 
 2024 年 7 月 12 日 16 点
 
+# 多题面部署
+   ![image.png](docs/docs/.vuepress/public/b133652a57714c02a6b1b1a80ab17489.png)
+
+2024 年 7 月 14 日 16 点
+
+

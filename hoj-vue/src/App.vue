@@ -744,9 +744,6 @@ a:hover {
   display: block;
 }
 
-.full-height {
-  height: 100vh;
-}
 .flex-column {
   display: flex;
   flex-direction: column;
@@ -824,6 +821,7 @@ footer h1 {
   font-size: 1rem !important;
   background: #f8f8f9 !important;
   white-space: pre !important;
+  margin: 1em;
 }
 .markdown-body pre code {
   line-height: 26px !important;
@@ -879,7 +877,7 @@ footer h1 {
   padding: 10px;
   margin-left: 0;
   font-size: 14px;
-  background: #f8f8f8;
+  margin: 1em;
 }
 .markdown-body h1,
 .markdown-body h2,
@@ -892,37 +890,29 @@ footer h1 {
   margin-bottom: 16px;
   font-weight: bold;
   line-height: 1.4;
+  color: rgb(77, 171, 246); /* 设置字体颜色为 rgb(77, 171, 246) */
 }
 .markdown-body h1 {
-  padding-bottom: 0.3em;
-  font-size: 1.86em;
+  font-size: 21px;
   line-height: 1.2;
-  border-bottom: 1px solid #eee;
 }
 .markdown-body h2 {
-  font-size: 1.45em;
+  font-size: 19px;
   line-height: 1.425;
-  border-bottom: 1px solid #eee;
-  background: #cce5ff;
-  padding: 8px 10px;
-  color: #545857;
-  border-radius: 3px;
 }
 .markdown-body h3 {
-  font-size: 1.3em;
+  font-size: 17px;
   line-height: 1.43;
 }
 .markdown-body h3:before {
   content: "";
-  border-left: 4px solid #03a9f4;
   padding-left: 6px;
 }
 .markdown-body h4 {
-  font-size: 1.12em;
+  font-size: 15px;
 }
 .markdown-body h4:before {
   content: "";
-  border-left: 4px solid #bbb;
   padding-left: 6px;
 }
 .markdown-body img {
@@ -931,6 +921,7 @@ footer h1 {
   padding: 15px;
   margin: 5px 0;
   box-shadow: inset 0 0 12px rgb(219 219 219);
+  margin: 1em;
 }
 .markdown-body p {
   font-size: 15px;
@@ -938,9 +929,11 @@ footer h1 {
   word-break: break-word;
   line-height: 1.8;
   color: black;
+  margin: 1em;
 }
 .markdown-body li {
   color: black;
+  margin: 1em;
 }
 .markdown-body {
   color: black;
@@ -956,5 +949,23 @@ footer h1 {
 #back {
   position: absolute;
   z-index: 9999; /*防止被遮挡调到最大值*/
+}
+
+#problem-content {
+  min-height: 100vh;
+  min-height: 80vh;
+  height: 100%;
+}
+.main {
+  min-height: 100vh;
+}
+#app {
+  min-height: 100vh;
+}
+.full-height {
+  min-height: 100vh;
+}
+#oj-content {
+  min-height: 90vh;
 }
 </style>
