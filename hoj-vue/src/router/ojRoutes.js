@@ -15,6 +15,7 @@ import CODERank from '@/views/oj/rank/CODERank.vue';
 import StaticRank from '@/views/oj/rank/StatisticRank.vue';
 import StatisticRankList from '@/views/oj/rank/StatisticRankList.vue';
 import ContestDetails from '@/views/oj/contest/ContestDetails.vue';
+import ContestFullScreenDetails from '@/views/oj/contest/ContestFullScreenDetails.vue';
 import ACMScoreBoard from '@/views/oj/contest/outside/ACMScoreBoard.vue';
 import OIScoreBoard from '@/views/oj/contest/outside/OIScoreBoard.vue';
 import ContestProblemList from '@/views/oj/contest/children/ContestProblemList.vue';
@@ -45,6 +46,7 @@ import InventMsg from '@/views/oj/message/InventMsg.vue';
 import SysMsg from '@/views/oj/message/SysMsg.vue';
 import TrainingList from '@/views/oj/training/TrainingList.vue';
 import TrainingDetails from '@/views/oj/training/TrainingDetails.vue';
+import TrainingFullScreenDetails from '@/views/oj/training/TrainingFullScreenDetails.vue';
 import TrainingProblemList from '@/views/oj/training/TrainingProblemList.vue';
 import TrainingRank from '@/views/oj/training/TrainingRank.vue';
 import GroupList from '@/views/oj/group/GroupList.vue';
@@ -58,6 +60,8 @@ import GroupMemberList from '@/views/oj/group/children/GroupMemberList.vue';
 import GroupSetting from '@/views/oj/group/children/GroupSetting.vue';
 import GroupRank from '@/views/oj/group/children/GroupRank.vue';
 import NotFound from '@/views/404.vue';
+import GroupContestFullScreen from '@/views/oj/group/GroupContestFullScreen.vue';
+import GroupTrainingFullScreen from '@/views/oj/group/GroupTrainingFullScreen.vue';
 
 const ojRoutes = [
   {
@@ -85,28 +89,80 @@ const ojRoutes = [
     meta: { title: 'Problem Details' },
   },
   {
-    name: 'TrainingFullProblemDetails',
-    path: '/training/:trainingID/problem/:problemID/full-screen',
-    component: Problem,
-    meta: { title: 'Training Problem Details', fullScreenSource: 'training' },
+    name: 'TrainingFullScreenDetails',
+    path: '/training/:trainingID/full-screen/',
+    component: TrainingFullScreenDetails,
+    meta: { title: 'Contest Details', fullScreenSource: 'training' },
+    children: [
+      {
+        name: 'TrainingFullProblemDetails',
+        path: 'problem/:problemID?',
+        component: Problem,
+        meta: { title: 'Training Problem Details', fullScreenSource: 'training' },
+      },
+      {
+        name: 'TrainingFullRank',
+        path: 'rank',
+        component: TrainingRank,
+        meta: { title: 'Training Rank', fullScreenSource: 'training' },
+      },
+      {
+        name: 'TrainingFullSubmissionList',
+        path: 'submissions',
+        component: SubmissionList,
+        meta: { title: 'Training Submission', fullScreenSource: 'training' },
+      },
+      {
+        name: 'TrainingFullSubmissionDetails',
+        path: 'submission-detail/:submitID',
+        component: SubmissionDetails,
+        meta: { title: 'Training Submission Details', fullScreenSource: 'training' },
+      },
+    ],
   },
   {
-    name: 'ContestFullProblemDetails',
-    path: '/contest/:contestID/problem/:problemID/full-screen',
-    component: Problem,
-    meta: { title: 'Contest Problem Details', fullScreenSource: 'contest' },
-  },
-  {
-    name: 'GroupFullProblemDetails',
-    path: '/group/:groupID/problem/:problemID/description/:descriptionID?/full-screen',
-    component: Problem,
-    meta: { title: 'Group Problem Details', fullScreenSource: 'group' },
-  },
-  {
-    name: 'GroupTrainingFullProblemDetails',
-    path: '/group/:groupID/training/:trainingID/problem/:problemID/full-screen',
-    component: Problem,
-    meta: { title: 'Group Training Problem Details', fullScreenSource: 'training' },
+    name: 'ContestFullScreenDetails',
+    path: '/contest/:contestID/full-screen/',
+    component: ContestFullScreenDetails,
+    meta: { title: 'Contest Details', fullScreenSource: 'contest' },
+    children: [
+      {
+        name: 'ContestFullProblemDetails',
+        path: 'problem/:problemID?',
+        component: Problem,
+        meta: { title: 'Contest Problem Details', fullScreenSource: 'contest' },
+      },
+      {
+        name: 'ContestFullSubmissionList',
+        path: 'submissions',
+        component: SubmissionList,
+        meta: { title: 'Contest Submission', fullScreenSource: 'contest' },
+      },
+      {
+        name: 'ContestFullSubmissionDetails',
+        path: 'submission-detail/:submitID',
+        component: SubmissionDetails,
+        meta: { title: 'Contest Submission Details', fullScreenSource: 'contest' },
+      },
+      {
+        name: 'ContestFullRank',
+        path: 'rank',
+        component: ContestRank,
+        meta: { title: 'Contest Rank', fullScreenSource: 'contest' },
+      },
+      {
+        name: 'ContestFullAnnouncement',
+        path: 'announcement/:announcementID?',
+        component: Announcements,
+        meta: { title: 'Contest Announcement', fullScreenSource: 'contest' },
+      },
+      {
+        name: 'ContestFullComment',
+        path: 'comment',
+        component: ContestComment,
+        meta: { title: 'Contest Comment', access: 'contestComment', fullScreenSource: 'contest' },
+      },
+    ],
   },
   {
     path: '/training',
@@ -167,7 +223,7 @@ const ojRoutes = [
       {
         name: 'ContestAcCsv',
         path: 'acCsv',
-        meta: { title: 'AcCsv' },
+        meta: { title: 'Contest AcCsv' },
         component: AcCsv,
       },
       {
@@ -284,7 +340,7 @@ const ojRoutes = [
     ],
   },
   {
-    path: '/status',
+    path: '/submissions',
     name: 'SubmissionList',
     component: SubmissionList,
     meta: { title: 'Status' },
@@ -396,120 +452,318 @@ const ojRoutes = [
     meta: { title: 'Group' },
   },
   {
-    path: '/group/:groupID',
+    path: '/group/:groupID/',
     name: 'GroupDetails',
     component: GroupDetails,
-    meta: { title: 'Group Details', requireAuth: true },
+    meta: { title: 'Group Details', requireAuth: true, fullScreenSource: 'group' },
     children: [
+      {
+        name: 'GroupTrainingFullScreen',
+        path: 'training/:trainingID/full-screen/',
+        component: GroupTrainingFullScreen,
+        meta: { title: 'Contest Details', fullScreenSource: 'training' },
+        children: [
+          {
+            name: 'GroupTrainingFullProblemDetails',
+            path: 'problem/:problemID?',
+            component: Problem,
+            meta: { title: 'Group Training Problem Details', fullScreenSource: 'training' },
+          },
+          {
+            name: 'GroupTrainingFullRank',
+            path: 'rank',
+            component: TrainingRank,
+            meta: { title: 'Group Training Rank', fullScreenSource: 'training' },
+          },
+          {
+            name: 'GroupTrainingFullSubmissionList',
+            path: 'submissions',
+            component: SubmissionList,
+            meta: { title: 'Group Training Submission', fullScreenSource: 'training' },
+          },
+          {
+            name: 'GroupTrainingFullSubmissionDetails',
+            path: 'submission-detail/:submitID',
+            component: SubmissionDetails,
+            meta: { title: 'Group Training Submission Details', fullScreenSource: 'training' },
+          },
+        ],
+      },
+      {
+        name: 'GroupContestFullScreen',
+        path: 'contest/:contestID/full-screen/',
+        component: GroupContestFullScreen,
+        meta: { title: 'Group Contest Details', fullScreenSource: 'contest' },
+        children: [
+          {
+            name: 'GroupContestFullProblemDetails',
+            path: 'problem/:problemID?',
+            component: Problem,
+            meta: { title: 'Group Contest Problem Details', fullScreenSource: 'contest' },
+          },
+          {
+            name: 'GroupContestFullSubmissionList',
+            path: 'submissions',
+            component: SubmissionList,
+            meta: { title: 'Group Contest Submission', fullScreenSource: 'contest' },
+          },
+          {
+            name: 'GroupContestFullSubmissionDetails',
+            path: 'submission-detail/:submitID',
+            component: SubmissionDetails,
+            meta: { title: 'Group Contest Submission Details', fullScreenSource: 'contest' },
+          },
+          {
+            name: 'GroupContestFullRank',
+            path: 'rank',
+            component: ContestRank,
+            meta: { title: 'Group Contest Rank', fullScreenSource: 'contest' },
+          },
+          {
+            name: 'GroupContestFullAnnouncement',
+            path: 'announcement/:announcementID?',
+            component: Announcements,
+            meta: { title: 'Group Contest Announcement', fullScreenSource: 'contest' },
+          },
+          {
+            name: 'GroupContestFullComment',
+            path: 'comment',
+            component: ContestComment,
+            meta: { title: 'Group Contest Comment', access: 'contestComment', fullScreenSource: 'contest' },
+          },
+        ],
+      },
       {
         path: 'announcement',
         name: 'GroupAnnouncementList',
         component: GroupAnnouncementList,
-        meta: { title: 'Group Announcement' },
+        meta: { title: 'Group Announcement', fullScreenSource: 'group' },
       },
       {
         path: 'problem',
         name: 'GroupProblemList',
         component: GroupProblemList,
-        meta: { title: 'Group Problem' },
+        meta: { title: 'Group Problem', fullScreenSource: 'group' },
       },
       {
         name: 'GroupProblemDetails',
         path: 'problem/:problemID/description/:descriptionID?',
         component: Problem,
-        meta: { title: 'Group Problem Details' },
+        meta: { title: 'Group Problem Details', fullScreenSource: 'group' },
       },
       {
         path: 'training',
         name: 'GroupTrainingList',
         component: GroupTrainingList,
-        meta: { title: 'Group Training' },
+        meta: { title: 'Group Training', fullScreenSource: 'group' },
       },
       {
         name: 'GroupTrainingDetails',
         path: 'training/:trainingID/',
         component: TrainingDetails,
-        meta: { title: 'Group Training Details' },
+        meta: { title: 'Group Training Details', fullScreenSource: 'group' },
         children: [
           {
             name: 'GroupTrainingProblemList',
             path: 'problems',
             component: TrainingProblemList,
-            meta: { title: 'Group Training Problem' },
+            meta: { title: 'Group Training Problem', fullScreenSource: 'group' },
           },
           {
             name: 'GroupTrainingProblemDetails',
             path: 'problem/:problemID/',
             component: Problem,
-            meta: { title: 'Group Training Problem Details' },
+            meta: { title: 'Group Training Problem Details', fullScreenSource: 'group' },
           },
           {
             name: 'GroupTrainingRank',
             path: 'rank',
             component: TrainingRank,
-            meta: { title: 'Group Training Rank' },
+            meta: { title: 'Group Training Rank', fullScreenSource: 'group' },
           },
         ],
       },
       {
-        path: 'contest',
-        name: 'GroupContestList',
-        component: GroupContestList,
-        meta: { title: 'Group Contest' },
-      },
-      {
-        path: 'status',
+        path: 'submissions',
         name: 'GroupSubmissionList',
         component: SubmissionList,
-        meta: { title: 'Group Status' },
+        meta: { title: 'Group Status', fullScreenSource: 'group' },
       },
       {
         path: 'submission-detail/:submitID',
         name: 'GroupSubmissionDetails',
         component: SubmissionDetails,
-        meta: { title: 'Group Submission Details' },
+        meta: { title: 'Group Submission Details', fullScreenSource: 'group' },
       },
       {
         path: 'discussion',
         name: 'GroupDiscussionList',
         component: GroupDiscussionList,
-        meta: { title: 'Group Discussion', access: 'groupDiscussion' },
+        meta: { title: 'Group Discussion', access: 'groupDiscussion', fullScreenSource: 'group' },
       },
       {
         path: 'discussion/problem/:problemID',
         name: 'GroupProblemDiscussion',
-        meta: { title: 'Group Discussion', access: 'groupDiscussion' },
+        meta: { title: 'Group Discussion', access: 'groupDiscussion', fullScreenSource: 'group' },
         component: GroupDiscussionList,
       },
       {
         path: 'discussion/contest/:contestID',
         name: 'GroupContestProblemDiscussion',
-        meta: { title: 'Group Contest Discussion', access: 'groupDiscussion' },
+        meta: { title: 'Group Contest Discussion', access: 'groupDiscussion', fullScreenSource: 'group' },
         component: GroupDiscussionList,
       },
       {
         path: 'discussion-detail/:discussionID',
         name: 'GroupDiscussionDetails',
-        meta: { title: 'Group Discussion Details', access: 'groupDiscussion' },
+        meta: { title: 'Group Discussion Details', access: 'groupDiscussion', fullScreenSource: 'group' },
         component: Discussion,
       },
       {
         path: 'member',
         name: 'GroupMemberList',
         component: GroupMemberList,
-        meta: { title: 'Group Member' },
+        meta: { title: 'Group Member', fullScreenSource: 'group' },
       },
       {
         path: 'setting',
         name: 'GroupSetting',
         component: GroupSetting,
-        meta: { title: 'Group Setting' },
+        meta: { title: 'Group Setting', fullScreenSource: 'group' },
       },
       {
         path: 'rank',
         name: 'GroupRank',
         component: GroupRank,
-        meta: { title: 'Group Rank' },
+        meta: { title: 'Group Rank', fullScreenSource: 'group' },
+      },
+      {
+        path: 'contest',
+        name: 'GroupContestList',
+        component: GroupContestList,
+        meta: { title: 'Group Contest', fullScreenSource: 'group' },
+      },
+      {
+        name: 'GroupContestDetails',
+        path: 'contest/:contestID/',
+        component: ContestDetails,
+        meta: { title: 'Group Contest Details', fullScreenSource: 'group' },
+        children: [
+          {
+            name: 'GroupContestAcCsv',
+            path: 'acCsv',
+            meta: { title: 'Group Contest AcCsv', fullScreenSource: 'group' },
+            component: AcCsv,
+          },
+          {
+            name: 'GroupContestSubmissionList',
+            path: 'submissions',
+            component: SubmissionList,
+            meta: { title: 'Group Contest Submission', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestSubmissionDetails',
+            path: 'problem/:problemID/submission-detail/:submitID',
+            component: SubmissionDetails,
+            meta: { title: 'Group Contest Submission Details', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestAdminMossDetails',
+            path: 'moss/:mossID/',
+            component: ContestAdminMossDetails,
+            meta: { title: 'Group Contest Moss Details', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestProblemList',
+            path: 'problems',
+            component: ContestProblemList,
+            meta: { title: 'Group Contest Problem', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestProblemDetails',
+            path: 'problem/:problemID',
+            component: Problem,
+            meta: { title: 'Group Contest Problem Details', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestAnnouncementList',
+            path: 'announcement/:announcementID?',
+            component: Announcements,
+            meta: { title: 'Group Contest Announcement', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestRank',
+            path: 'rank',
+            component: ContestRank,
+            meta: { title: 'Group Contest Rank', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestACInfo',
+            path: 'ac-info',
+            component: ACMInfoAdmin,
+            meta: { title: 'Group Contest AC Info', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestRejudgeAdmin',
+            path: 'rejudge',
+            component: ContestRejudgeAdmin,
+            meta: { title: 'Group Contest Rejudge', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestComment',
+            path: 'comment',
+            component: ContestComment,
+            meta: { title: 'Group Contest Comment', access: 'contestComment', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestPrint',
+            path: 'print',
+            component: ContestPrint,
+            meta: { title: 'Group Contest Print', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestAdminPrint',
+            path: 'admin-print',
+            component: ContestAdminPrint,
+            meta: { title: 'Group Contest Admin Print', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestAdminSign',
+            path: 'admin-sign',
+            component: ContestAdminSign,
+            meta: { title: 'Group Contest Admin Sign', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestAdminMoss',
+            path: 'admin-moss',
+            component: ContestAdminMoss,
+            meta: { title: 'Group Contest Admin Moss', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupScrollBoard',
+            path: 'scroll-board',
+            component: ScrollBoard,
+            meta: { title: 'Group Contest Scroll Board', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestSession',
+            path: 'contest-session',
+            component: ContestSession,
+            meta: { title: 'Group Contest Session', requireAuth: true, fullScreenSource: 'group' },
+          },
+          {
+            name: 'GroupContestResetIP',
+            path: 'contest-reset-ip',
+            component: ContestResetIP,
+            meta: { title: 'Group Contest Reset IP', requireAuth: true, fullScreenSource: 'group' },
+          },
+        ],
+      },
+      {
+        name: 'GroupUserHome',
+        path: 'user-home',
+        component: UserHome,
+        meta: { title: 'Group User Home', fullScreenSource: 'group' },
       },
     ],
   },

@@ -198,9 +198,11 @@ export default {
       downloadDialogVisible: false,
       excludeAdmin: true,
       splitType: "user",
+      keyword: null,
     };
   },
   mounted() {
+    this.keyword = this.$route.query.keyword;
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
     this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
@@ -230,7 +232,8 @@ export default {
         .getGroupAdminContestList(
           this.currentPage,
           this.limit,
-          this.$route.params.groupID
+          this.$route.params.groupID,
+          this.keyword
         )
         .then(
           (res) => {

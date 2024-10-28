@@ -461,22 +461,49 @@ export default {
   },
   methods: {
     getUserACSubmit(username) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionList"
+      );
+
       this.$router.push({
-        name: "ContestSubmissionList",
+        name: routeName,
         query: { username: username, status: 0 },
       });
     },
     getUserHomeByUsername(uid, username, synchronous) {
       if (!synchronous) {
+        const routeName = this.$route.params.groupID
+          ? "GroupUserHome"
+          : "UserHome";
         this.$router.push({
-          name: "UserHome",
+          name: routeName,
           query: { username: username, uid: uid },
         });
       }
     },
     getContestProblemById(pid) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "ProblemDetails"
+      );
+
       this.$router.push({
-        name: "ContestProblemDetails",
+        name: routeName,
         params: {
           contestID: this.contestID,
           problemID: pid,
@@ -492,8 +519,20 @@ export default {
         column.property != "realname" &&
         column.property != "school"
       ) {
+        this.contestID = this.$route.params.contestID;
+        this.trainingID = this.$route.params.trainingID;
+        this.groupID = this.$route.params.groupID;
+
+        const routeName = utils.getRouteRealName(
+          this.$route.path,
+          this.contestID,
+          this.trainingID,
+          this.groupID,
+          "SubmissionList"
+        );
+
         this.$router.push({
-          name: "ContestSubmissionList",
+          name: routeName,
           query: {
             username: row.username,
             problemID: column.property,

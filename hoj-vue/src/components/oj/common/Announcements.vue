@@ -186,16 +186,16 @@ export default {
       this.$router.push({ name: router_name });
     },
     goEditAnnouncement() {
+      let contestId = this.$route.params.contestID;
       if (this.contestGid != null) {
         this.$router.push({
           name: "GroupContestList",
           params: {
             groupID: this.contestGid,
           },
-          query: { adminPage: true },
+          query: { adminPage: true, keyword: contestId },
         });
       } else {
-        let contestId = this.$route.params.contestID;
         const params = this.isContest ? { contestId } : {};
         this.$router.push({
           name: this.edit_route_name,
@@ -222,6 +222,10 @@ export default {
       return this.$route.params.announcementID;
     },
     route_name() {
+      let name = this.$route.name;
+      if (name === "ContestFullAnnouncement") {
+        return "ContestFullAnnouncement";
+      }
       return this.isContest ? "ContestAnnouncementList" : "Announcements";
     },
     edit_route_name() {

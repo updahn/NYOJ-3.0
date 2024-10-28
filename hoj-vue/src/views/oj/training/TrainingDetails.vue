@@ -266,9 +266,12 @@ export default {
       );
     },
     goUserHome(username) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        name: "UserHome",
-        query: { username: username },
+        name: routeName,
+        query: { username: username, uid: uid },
       });
     },
     getAcProblemPercent() {

@@ -716,11 +716,18 @@ export default {
 
       if (!equal) {
         // 避免重复同个路径请求导致报错
-        let routeName = queryParams.contestID
-          ? "ContestSubmissionList"
-          : this.groupID
-          ? "GroupSubmissionList"
-          : "SubmissionList";
+        this.contestID = this.$route.params.contestID;
+        this.trainingID = this.$route.params.trainingID;
+        this.groupID = this.$route.params.groupID;
+
+        let routeName = utils.getRouteRealName(
+          this.$route.path,
+          this.contestID,
+          this.trainingID,
+          this.groupID,
+          "SubmissionList"
+        );
+
         this.$router.push({
           name: routeName,
           query: queryParams,
@@ -731,9 +738,13 @@ export default {
       this.$router.push(route);
     },
     goUserHome(username, uid, remote) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
+
       if (!remote) {
         this.$router.push({
-          path: "/user-home",
+          name: routeName,
           query: { uid, username },
         });
       }
@@ -805,53 +816,60 @@ export default {
     ...mapActions(["changeModalStatus"]),
 
     showSubmitDetail(row) {
-      if (this.contestID != null) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionDetails"
+      );
+
+      let params = { submitID: row.submitId };
+
+      if (row.cid != 0) {
         // 比赛提交详情
-        this.$router.push({
-          name: "ContestSubmissionDetails",
-          params: {
-            contestID: this.contestID,
-            problemID: row.displayId,
-            submitID: row.submitId,
-          },
-        });
-      } else if (this.groupID != null) {
-        this.$router.push({
-          name: "GroupSubmissionDetails",
-          params: { submitID: row.submitId },
-        });
-      } else {
-        this.$router.push({
-          name: "SubmissionDetails",
-          params: { submitID: row.submitId },
-        });
+        params = {
+          contestID: this.contestID,
+          problemID: row.displayId,
+          submitID: row.submitId,
+        };
       }
+
+      this.$router.push({
+        name: routeName,
+        params,
+      });
     },
     getProblemUri(pid) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "ProblemDetails"
+      );
+
+      let params = { problemID: pid };
+
       if (this.contestID) {
-        this.$router.push({
-          name: "ContestProblemDetails",
-          params: {
-            contestID: this.$route.params.contestID,
-            problemID: pid,
-          },
-        });
-      } else if (this.groupID) {
-        this.$router.push({
-          name: "GroupProblemDetails",
-          params: {
-            problemID: pid,
-            groupID: this.groupID,
-          },
-        });
-      } else {
-        this.$router.push({
-          name: "ProblemDetails",
-          params: {
-            problemID: pid,
-          },
-        });
+        params.contestID = this.contestID;
       }
+      if (this.groupID) {
+        params.groupID = this.groupID;
+      }
+
+      this.$router.push({
+        name: routeName,
+        params,
+      });
     },
     getStatusColor(status) {
       return "el-tag el-tag--medium status-" + JUDGE_STATUS[status]["color"];

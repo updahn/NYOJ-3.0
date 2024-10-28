@@ -252,9 +252,12 @@ export default {
     },
 
     getInfoByUsername(uid, username) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        path: "/user-home",
-        query: { uid, username },
+        name: routeName,
+        query: { username: username, uid: uid },
       });
     },
 

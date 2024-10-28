@@ -26,9 +26,9 @@ public class GroupContestServiceImpl implements GroupContestService {
     private GroupContestManager groupContestManager;
 
     @Override
-    public CommonResult<IPage<ContestVO>> getContestList(Integer limit, Integer currentPage, Long gid) {
+    public CommonResult<IPage<ContestVO>> getContestList(Integer limit, Integer currentPage, Long gid, String keyword) {
         try {
-            return CommonResult.successResponse(groupContestManager.getContestList(limit, currentPage, gid));
+            return CommonResult.successResponse(groupContestManager.getContestList(limit, currentPage, gid, keyword));
         } catch (StatusForbiddenException e) {
             return CommonResult.errorResponse(e.getMessage(), ResultStatus.FORBIDDEN);
         } catch (StatusNotFoundException e) {
@@ -37,9 +37,11 @@ public class GroupContestServiceImpl implements GroupContestService {
     }
 
     @Override
-    public CommonResult<IPage<Contest>> getAdminContestList(Integer limit, Integer currentPage, Long gid) {
+    public CommonResult<IPage<Contest>> getAdminContestList(Integer limit, Integer currentPage, Long gid,
+            String keyword) {
         try {
-            return CommonResult.successResponse(groupContestManager.getAdminContestList(limit, currentPage, gid));
+            return CommonResult
+                    .successResponse(groupContestManager.getAdminContestList(limit, currentPage, gid, keyword));
         } catch (StatusForbiddenException e) {
             return CommonResult.errorResponse(e.getMessage(), ResultStatus.FORBIDDEN);
         } catch (StatusNotFoundException e) {

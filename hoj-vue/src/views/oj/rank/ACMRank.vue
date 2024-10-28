@@ -301,7 +301,7 @@ export default {
     },
     goUserACStatus(username) {
       this.$router.push({
-        path: "/status",
+        path: "/submissions",
         query: { username, status: 0 },
       });
     },

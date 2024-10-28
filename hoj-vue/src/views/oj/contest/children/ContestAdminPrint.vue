@@ -105,6 +105,24 @@ export default {
     this.getContestPrint(1);
   },
   methods: {
+    getUserTotalSubmit(username) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionList"
+      );
+
+      this.$router.push({
+        name: routeName,
+        query: { username: username },
+      });
+    },
     updateStatus(id) {
       let params = {
         id: id,

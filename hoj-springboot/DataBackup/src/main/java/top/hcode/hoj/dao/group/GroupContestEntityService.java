@@ -12,8 +12,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface GroupContestEntityService extends IService<Contest> {
 
-    IPage<ContestVO> getContestList(int limit, int currentPage, Long gid);
+    IPage<ContestVO> getContestList(int limit, int currentPage, Long gid, String keyword);
 
-    IPage<Contest> getAdminContestList(int limit, int currentPage, Long gid);
+    IPage<Contest> getAdminContestList(int limit, int currentPage, Long gid, String keyword);
 
 }

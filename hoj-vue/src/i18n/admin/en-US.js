@@ -218,6 +218,8 @@ export const m = {
   Account: 'Account',
   Super_Account: 'Super Account',
   Add_Account: 'Add Account',
+  Collapse_Group_Info: 'Collapse Group Info',
+  Expand_Group_Info: 'Expand Group Info',
 
   // /views/admin/problem/ProblemList.vue
   Contest_Problem_List: 'Contest Problem List',

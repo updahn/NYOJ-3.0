@@ -94,8 +94,20 @@ export default {
   },
   methods: {
     getUserTotalSubmit(username) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionList"
+      );
+
       this.$router.push({
-        name: "ContestSubmissionList",
+        name: routeName,
         query: { username: username },
       });
     },

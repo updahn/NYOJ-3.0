@@ -186,7 +186,10 @@ export default {
       });
     },
     goUserHome(username) {
-      window.open("/user-home?username=" + username);
+      this.$router.push({
+        name: "GroupUserHome",
+        query: { username: username },
+      });
     },
     goEdit(problemId) {
       this.$router.push({

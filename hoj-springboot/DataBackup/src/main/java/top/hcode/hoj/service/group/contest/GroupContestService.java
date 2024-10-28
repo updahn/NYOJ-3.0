@@ -13,9 +13,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
  */
 public interface GroupContestService {
 
-    public CommonResult<IPage<ContestVO>> getContestList(Integer limit, Integer currentPage, Long gid);
+    public CommonResult<IPage<ContestVO>> getContestList(Integer limit, Integer currentPage, Long gid, String keyword);
 
-    public CommonResult<IPage<Contest>> getAdminContestList(Integer limit, Integer currentPage, Long gid);
+    public CommonResult<IPage<Contest>> getAdminContestList(Integer limit, Integer currentPage, Long gid,
+            String keyword);
 
     public CommonResult<AdminContestVO> getContest(Long cid);
 

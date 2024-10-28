@@ -42,16 +42,18 @@ public class GroupContestController {
     @GetMapping("/get-contest-list")
     public CommonResult<IPage<ContestVO>> getContestList(@RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "currentPage", required = false) Integer currentPage,
-            @RequestParam(value = "gid", required = true) Long gid) {
-        return groupContestService.getContestList(limit, currentPage, gid);
+            @RequestParam(value = "gid", required = true) Long gid,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+        return groupContestService.getContestList(limit, currentPage, gid, keyword);
     }
 
     @GetMapping("/get-admin-contest-list")
     public CommonResult<IPage<Contest>> getAdminContestList(
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "currentPage", required = false) Integer currentPage,
-            @RequestParam(value = "gid", required = true) Long gid) {
-        return groupContestService.getAdminContestList(limit, currentPage, gid);
+            @RequestParam(value = "gid", required = true) Long gid,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+        return groupContestService.getAdminContestList(limit, currentPage, gid, keyword);
     }
 
     @GetMapping("/contest")

@@ -19,8 +19,8 @@ import java.util.List;
 @Repository
 public interface GroupContestMapper extends BaseMapper<Contest> {
 
-    List<ContestVO> getContestList(IPage iPage, @Param("gid") Long gid);
+    List<ContestVO> getContestList(IPage iPage, @Param("gid") Long gid, @Param("keyword") String keyword);
 
-    List<Contest> getAdminContestList(IPage iPage, @Param("gid") Long gid);
+    List<Contest> getAdminContestList(IPage iPage, @Param("gid") Long gid, @Param("keyword") String keyword);
 
 }

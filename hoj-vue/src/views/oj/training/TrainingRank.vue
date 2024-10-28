@@ -195,6 +195,7 @@ const Pagination = () => import("@/components/oj/common/Pagination");
 import api from "@/common/api";
 import { mapState } from "vuex";
 import time from "@/common/time";
+import utils from "@/common/utils";
 
 export default {
   name: "TrainingRank",
@@ -250,44 +251,62 @@ export default {
     },
 
     getUserACSubmit(username) {
-      if (!this.groupID) {
-        this.$router.push({
-          name: "SubmissionList",
-          query: { username: username, status: 0 },
-        });
-      } else {
-        this.$router.push({
-          name: "GroupSubmissionList",
-          params: { groupID: this.groupID },
-          query: { username: username, status: 0 },
-        });
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionList"
+      );
+
+      let params = {};
+
+      if (this.groupID) {
+        params.groupID = this.groupID;
       }
+
+      this.$router.push({
+        name: routeName,
+        params,
+        query: { username: username, status: 0 },
+      });
     },
     getUserHomeByUsername(uid, username) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        name: "UserHome",
+        name: routeName,
         query: { username: username, uid: uid },
       });
     },
     getTrainingProblemById(pid) {
-      if (!this.groupID) {
-        this.$router.push({
-          name: "TrainingProblemDetails",
-          params: {
-            trainingID: this.trainingID,
-            problemID: pid,
-          },
-        });
-      } else {
-        this.$router.push({
-          name: "GroupTrainingProblemDetails",
-          params: {
-            trainingID: this.trainingID,
-            groupID: this.groupID,
-            problemID: pid,
-          },
-        });
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "ProblemDetails"
+      );
+
+      let params = { problemID: pid, trainingID: this.trainingID };
+
+      if (this.groupID) {
+        params.groupID = this.groupID;
       }
+
+      this.$router.push({
+        name: routeName,
+        params,
+      });
     },
     getUserProblemSubmission({ row, column }) {
       if (
@@ -296,18 +315,29 @@ export default {
         column.property !== "realname" &&
         column.property !== "rating"
       ) {
-        if (!this.groupID) {
-          this.$router.push({
-            name: "SubmissionList",
-            query: { username: row.username, problemID: column.property },
-          });
-        } else {
-          this.$router.push({
-            name: "GroupSubmissionList",
-            params: { groupID: this.groupID },
-            query: { username: row.username, problemID: column.property },
-          });
+        this.contestID = this.$route.params.contestID;
+        this.trainingID = this.$route.params.trainingID;
+        this.groupID = this.$route.params.groupID;
+
+        const routeName = utils.getRouteRealName(
+          this.$route.path,
+          this.contestID,
+          this.trainingID,
+          this.groupID,
+          "SubmissionList"
+        );
+
+        let params = {};
+
+        if (this.groupID) {
+          params.groupID = this.groupID;
         }
+
+        this.$router.push({
+          name: routeName,
+          params,
+          query: { username: row.username, problemID: column.property },
+        });
       }
     },
     cellClassName({ row, rowIndex, column, columnIndex }) {

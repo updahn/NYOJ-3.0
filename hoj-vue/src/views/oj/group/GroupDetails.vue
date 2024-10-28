@@ -1,107 +1,8 @@
 <template>
   <div>
     <el-row :gutter="20">
-      <el-col :span="24" style="margin-top: 10px;">
-        <div class="sub-menu">
-          <el-tabs @tab-click="tabClick" v-model="route_name">
-            <el-tab-pane name="GroupDetails" lazy>
-              <span slot="label">
-                <i class="el-icon-s-home"></i>
-                &nbsp;{{ $t('m.Group_Home') }}
-              </span>
-            </el-tab-pane>
-            <el-tab-pane lazy name="GroupProblemList" :disabled="groupMenuDisabled">
-              <span slot="label">
-                <i class="fa fa-list"></i>
-                &nbsp;{{ $t('m.Group_Problem') }}
-              </span>
-            </el-tab-pane>
-            <el-tab-pane lazy name="GroupTrainingList" :disabled="groupMenuDisabled">
-              <span slot="label">
-                <i class="el-icon-s-flag"></i>
-                &nbsp;{{ $t('m.Group_Training') }}
-              </span>
-            </el-tab-pane>
-
-            <el-tab-pane lazy name="GroupContestList" :disabled="groupMenuDisabled">
-              <span slot="label">
-                <i class="el-icon-s-data"></i>
-                &nbsp;{{ $t('m.Group_Contest') }}
-              </span>
-            </el-tab-pane>
-
-            <el-tab-pane lazy name="GroupSubmissionList" :disabled="groupMenuDisabled">
-              <span slot="label">
-                <i class="el-icon-s-marketing"></i>
-                &nbsp;{{
-                $t('m.Group_Submission')
-                }}
-              </span>
-            </el-tab-pane>
-
-            <el-tab-pane
-              lazy
-              name="GroupDiscussionList"
-              :disabled="groupMenuDisabled"
-              v-if="websiteConfig.openGroupDiscussion"
-            >
-              <span slot="label">
-                <i class="el-icon-share"></i>
-                &nbsp;{{
-                $t('m.Group_Discussion')
-                }}
-              </span>
-            </el-tab-pane>
-            <el-tab-pane lazy name="GroupMemberList" :disabled="groupMenuDisabled">
-              <span slot="label">
-                <i class="el-icon-user-solid"></i>
-                &nbsp;{{
-                $t('m.Group_Member')
-                }}
-              </span>
-            </el-tab-pane>
-            <el-tab-pane lazy name="GroupAnnouncementList" v-if="isGroupAdmin">
-              <span slot="label">
-                <i class="fa fa-bullhorn"></i>
-                &nbsp;{{
-                $t('m.Group_Announcement')
-                }}
-              </span>
-            </el-tab-pane>
-            <el-tab-pane lazy name="GroupSetting" v-if="isMainAdminRole">
-              <span slot="label">
-                <i class="el-icon-s-tools"></i>
-                &nbsp;{{ $t("m.Group_Setting") }}
-              </span>
-            </el-tab-pane>
-            <el-tab-pane lazy name="GroupRank" :disabled="groupMenuDisabled">
-              <span slot="label">
-                <i class="el-icon-medal-1"></i>
-                &nbsp;{{ $t('m.Group_Rank') }}
-              </span>
-            </el-tab-pane>
-          </el-tabs>
-        </div>
-      </el-col>
-
-      <template
-        v-if="
-          $route.name === 'GroupSubmissionList' ||
-          $route.name === 'GroupSubmissionDetails' ||
-            $route.name === 'GroupProblemDetails' ||
-            ($route.name != 'GroupTrainingList'
-             && $route.name.startsWith('GroupTraining'))
-        "
-      >
-        <el-col :span="24" style=" margin-bottom: 10px;">
-          <transition name="el-fade-in-linear">
-            <router-view></router-view>
-          </transition>
-        </el-col>
-      </template>
-
-      <template v-else>
-        <el-col :md="18" :xs="24" style=" margin-bottom: 10px;">
+      <template>
+        <el-col :md="isOpen ? 18 : 24" :xs="24" style="margin-bottom: 10px;">
           <transition name="el-fade-in-linear">
             <router-view></router-view>
           </transition>
@@ -129,7 +30,8 @@
             </el-row>
           </el-card>
         </el-col>
-        <el-col :md="6" :xs="24" style="margin-bottom: 10px;">
+
+        <el-col v-show="isOpen" :md="6" :xs="24" style="margin-bottom: 10px;">
           <el-card>
             <div slot="header" style="text-align: center">
               <avatar
@@ -236,6 +138,19 @@
             </div>
           </el-card>
         </el-col>
+
+        <!-- 折叠按钮 -->
+        <footer
+          @click="changeVisible"
+          :class="[!mobileNar ? 'collapse-footer collapse-footer-right' : 'collapse-footer collapse-footer-bottom']"
+        >
+          <span v-if="isOpen">{{ $t('m.Collapse_Group_Info') }}</span>
+          <span v-else>{{ $t('m.Expand_Group_Info') }}</span>
+          <i
+            :class="[!mobileNar ? (!isOpen ? 'el-icon-caret-left' : 'el-icon-caret-right') : (isOpen ? 'el-icon-caret-bottom' : 'el-icon-caret-top')]"
+            style="color: #2d8cf0;"
+          ></i>
+        </footer>
       </template>
     </el-row>
     <el-dialog
@@ -354,6 +269,8 @@ export default {
           },
         ],
       },
+      isOpen: true,
+      mobileNar: false,
     };
   },
   created() {
@@ -375,15 +292,15 @@ export default {
         this.changeDomTitle({ title });
       }
     });
+    let screenWidth = window.screen.width;
+    if (screenWidth < 992) {
+      this.mobileNar = true;
+    } else {
+      this.mobileNar = false;
+    }
   },
   methods: {
     ...mapActions(["changeDomTitle"]),
-    tabClick(tab) {
-      let name = tab.name;
-      if (name !== this.$route.name) {
-        this.$router.push({ name: name });
-      }
-    },
     handleApply() {
       if (this.group.auth === 1) {
         this.addMember();
@@ -465,10 +382,16 @@ export default {
         });
     },
     toUserHome(username) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        name: "UserHome",
+        name: routeName,
         query: { username: username },
       });
+    },
+    changeVisible() {
+      this.isOpen = !this.isOpen; // 切换折叠状态
     },
   },
   computed: {
@@ -592,5 +515,43 @@ export default {
 }
 .info-rows > :last-child {
   margin-bottom: 0;
+}
+
+.collapse-footer {
+  font-size: 16px;
+  border-top: none;
+  height: 100%;
+  box-sizing: border-box;
+  width: 25px;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  transform: translateX(30px);
+}
+
+.collapse-footer-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.collapse-footer-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 25px;
+  transform: translateY(20px);
+}
+
+.collapse-footer:hover {
+  background-color: #ebeef5;
+}
+
+.rotate {
+  transform: rotate(180deg);
 }
 </style>

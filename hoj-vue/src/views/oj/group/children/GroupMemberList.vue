@@ -98,8 +98,8 @@ export default {
     },
     goUserHome(username) {
       this.$router.push({
-        path: "/user-home",
-        query: { username },
+        name: "GroupUserHome",
+        query: { username: username },
       });
     },
     getGroupMemberList() {

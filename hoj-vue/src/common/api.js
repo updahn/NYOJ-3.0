@@ -1297,15 +1297,15 @@ const ojApi = {
   },
 
   //Group Contest
-  getGroupContestList(currentPage, limit, gid) {
+  getGroupContestList(currentPage, limit, gid, keyword) {
     return ajax('/api/group/get-contest-list', 'get', {
-      params: { currentPage, limit, gid },
+      params: { currentPage, limit, gid, keyword },
     });
   },
 
-  getGroupAdminContestList(currentPage, limit, gid) {
+  getGroupAdminContestList(currentPage, limit, gid, keyword) {
     return ajax('/api/group/get-admin-contest-list', 'get', {
-      params: { currentPage, limit, gid },
+      params: { currentPage, limit, gid, keyword },
     });
   },
 

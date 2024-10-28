@@ -17,16 +17,6 @@
           </el-input>
         </span>
       </div>
-      <div class="swtich-type">
-        <el-switch
-          v-model="query.type"
-          :active-value="0"
-          :inactive-value="1"
-          :active-text="$t('m.Group_ACM_Rank_Type')"
-          :inactive-text="$t('m.Group_OI_Rank_Type')"
-          @change="filterByUserOrType"
-        ></el-switch>
-      </div>
     </el-card>
     <vxe-table
       :data="dataRank"
@@ -186,7 +176,7 @@ export default {
     },
     getInfoByUsername(uid, username) {
       this.$router.push({
-        path: "/user-home",
+        name: "GroupUserHome",
         query: { uid, username },
       });
     },

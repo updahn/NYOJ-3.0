@@ -29,6 +29,7 @@ export default {
       number: 0,
       timer: null,
       length: 5,
+      refreshInterval: null, // 添加刷新间隔的定时器
     };
   },
   computed: {
@@ -43,11 +44,16 @@ export default {
       return !!this.$route.params.contestID;
     },
     route_name() {
+      let name = this.$route.name;
+      if (name === "ContestFullProblemDetails") {
+        return "ContestFullAnnouncement";
+      }
       return this.isContest ? "ContestAnnouncementList" : "Announcements";
     },
   },
   mounted() {
     this.init();
+    this.startRefreshInterval(); // 启动定时器
   },
   methods: {
     init() {
@@ -95,9 +101,18 @@ export default {
         this.startMove();
       }, 2500);
     },
+    startRefreshInterval() {
+      // 每1分钟调用init
+      this.refreshInterval = setInterval(() => {
+        this.init(); // 重新初始化
+        clearTimeout(this.timer); // 清除当前的移动定时器
+        this.startMove(); // 重新开始移动
+      }, 60000);
+    },
   },
   beforeDestroy() {
     clearTimeout(this.timer);
+    clearInterval(this.refreshInterval); // 清除刷新定时器
   },
 };
 </script>

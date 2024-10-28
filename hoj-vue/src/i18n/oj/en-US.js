@@ -44,8 +44,15 @@ export const m = {
   NavBar_Contest_Home: 'Contest Home',
   NavBar_Contest_Own_Submission: 'My Submission',
   NavBar_Contest_Rank: 'Contest Rank',
-  NavBar_Group_Home: 'Group Home',
+  NavBar_Group_Home: 'Group',
   NavBar_Honor: 'Honor',
+  NavBar_Contest_Comment: 'Contest Comment',
+  NavBar_Contest_Problem: 'Contest Problem',
+  NavBar_Contest_Submission: 'Contest Submission',
+  NavBar_Contest_Announcement: 'Contest Announcement',
+  NavBar_Training_Rank: 'Training Rank',
+  NavBar_Training_Problem: 'Training Problem',
+  NavBar_Training_Submission: 'Training Submission',
 
   //  /components/oj/common/Login.vue 登录弹窗
   Login_Username: 'Username',
@@ -329,7 +336,7 @@ export const m = {
   Copied_successfully: 'Copied successfully',
   Copied_failed: 'Copied failed',
   View_as_PDF: 'View PDF',
-  Get_PDF_Failed: "Don\'t Have PDF",
+  Get_PDF_Failed: "Don't Have PDF",
   Problem_Descriptions: 'Problem Descriptions',
 
   // /views/oj/status/SubmissionList.vue

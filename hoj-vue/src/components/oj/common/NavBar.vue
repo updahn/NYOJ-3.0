@@ -1,7 +1,13 @@
 <template>
-  <div>
+  <div :key="modeKey">
     <template v-if="!mobileNar">
-      <div id="header">
+      <div id="header" :class="{ 'fixed-header': mode === 'training' || mode === 'contest' }">
+        <div class="nyoj_logo">
+          <router-link to="/" v-if="mode == 'defalut' || mode == 'group'">
+            <el-image :src="big_imgUrl" style="width:100%;"></el-image>
+          </router-link>
+        </div>
+
         <el-menu
           :default-active="activeMenuName"
           mode="horizontal"
@@ -9,14 +15,17 @@
           active-text-color="#2196f3"
           class="custom-menu"
         >
-          <router-link to="/" v-if="mode == 'defalut'">
-            <el-image :src="big_imgUrl" style="width:100%;"></el-image>
-          </router-link>
           <div class="logo">
-            <router-link to="/">
-              <el-image style="width: 139px; height: 50px" :src="imgUrl" fit="scale-down"></el-image>
-            </router-link>
+            <el-tooltip :content="$t('m.Click_To_Home')" placement="bottom">
+              <router-link to="/">
+                <div class="group-title" v-if="mode == 'group'">{{ groupTitle }}</div>
+                <div v-else>
+                  <el-image style="width: 139px; height: 50px" :src="imgUrl" fit="scale-down"></el-image>
+                </div>
+              </router-link>
+            </el-tooltip>
           </div>
+
           <template v-if="mode == 'defalut'">
             <el-menu-item index="/">
               <i class="el-icon-s-home"></i>
@@ -38,7 +47,7 @@
               <i class="el-icon-trophy"></i>
               {{ $t("m.NavBar_Contest") }}
             </el-menu-item>
-            <el-menu-item index="/status">
+            <el-menu-item index="/submissions">
               <i class="el-icon-s-marketing"></i>
               {{ $t("m.NavBar_Status") }}
             </el-menu-item>
@@ -81,68 +90,121 @@
               </el-menu-item>
             </el-submenu>
           </template>
-          <template v-else-if="mode == 'training'">
-            <el-menu-item index="/">
-              <i class="el-icon-s-home"></i>
-              {{ $t("m.NavBar_Back_Home") }}
+          <template v-else-if="mode == 'group'">
+            <el-menu-item :index="'/group/' + $route.params.groupID">
+              <i class="fa fa-users navbar-icon"></i>
+              {{ $t("m.NavBar_Group_Home") }}
             </el-menu-item>
-            <template v-if="$route.params.groupID">
-              <el-menu-item :index="'/group/' + $route.params.groupID">
-                <i class="fa fa-users navbar-icon"></i>
-                {{ $t("m.NavBar_Group_Home") }}
-              </el-menu-item>
-            </template>
-            <el-menu-item :index="getTrainingHomePath()">
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/announcement'"
+              :disabled="groupMenuDisabled"
+              v-if="isGroupAdmin"
+            >
+              <i class="el-icon-s-flag"></i>
+              {{ $t("m.Announcement") }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/problem'"
+              :disabled="groupMenuDisabled"
+            >
+              <i class="el-icon-s-grid"></i>
+              {{ $t("m.NavBar_Problem") }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/training'"
+              :disabled="groupMenuDisabled"
+            >
+              <i class="el-icon-s-claim"></i>
+              {{ $t("m.NavBar_Training") }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/contest'"
+              :disabled="groupMenuDisabled"
+            >
+              <i class="el-icon-trophy"></i>
+              {{ $t("m.NavBar_Contest") }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/submissions'"
+              :disabled="groupMenuDisabled"
+            >
+              <i class="el-icon-s-marketing"></i>
+              {{ $t("m.NavBar_Status") }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/discussion'"
+              v-if="websiteConfig.openPublicDiscussion"
+              :disabled="groupMenuDisabled"
+            >
+              <i class="el-icon-s-comment"></i>
+              {{ $t("m.NavBar_Discussion") }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/member'"
+              :disabled="groupMenuDisabled"
+            >
+              <i class="el-icon-user-solid"></i>
+              {{ $t('m.Group_Member') }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/setting'"
+              :disabled="groupMenuDisabled"
+              v-if="isGroupAdmin"
+            >
+              <i class="el-icon-s-tools"></i>
+              {{ $t("m.Group_Setting") }}
+            </el-menu-item>
+            <el-menu-item
+              :index="'/group/' + $route.params.groupID + '/rank'"
+              :disabled="groupMenuDisabled"
+            >
+              <i class="el-icon-medal-1"></i>
+              {{ $t('m.Group_Rank') }}
+            </el-menu-item>
+          </template>
+
+          <template v-else-if="mode == 'training'">
+            <el-menu-item :index="getTrainingHomePath">
               <i class="el-icon-s-claim"></i>
               {{ $t("m.NavBar_Training_Home") }}
             </el-menu-item>
-            <el-menu-item :index="getTrainingProblemListPath()">
+            <el-menu-item :index="getTrainingProblemListPath">
               <i class="fa fa-list navbar-icon"></i>
-              {{ $t("m.Problem_List") }}
+              {{ $t("m.NavBar_Training_Problem") }}
+            </el-menu-item>
+            <el-menu-item :index="getTrainingSubmissionsPath">
+              <i class="el-icon-menu"></i>
+              {{ $t("m.NavBar_Training_Submission") }}
+            </el-menu-item>
+            <el-menu-item :index="getTrainingRankPath">
+              <i class="fa fa-bar-chart navbar-icon"></i>
+              {{ $t("m.NavBar_Training_Rank") }}
             </el-menu-item>
           </template>
           <template v-else-if="mode == 'contest'">
-            <el-menu-item index="/">
-              <i class="el-icon-s-home"></i>
-              {{ $t("m.NavBar_Back_Home") }}
-            </el-menu-item>
-            <el-menu-item :index="'/contest/' + $route.params.contestID">
+            <el-menu-item :index="getContestHomePath">
               <i class="el-icon-trophy"></i>
               {{ $t("m.NavBar_Contest_Home") }}
             </el-menu-item>
-            <el-menu-item :index="'/contest/' + $route.params.contestID + '/problems'">
+            <el-menu-item :index="getContestProblemPath">
               <i class="fa fa-list navbar-icon"></i>
-              {{ $t("m.Problem_List") }}
+              {{ $t("m.NavBar_Contest_Problem") }}
             </el-menu-item>
-            <el-menu-item
-              :index="
-                '/contest/' +
-                $route.params.contestID +
-                '/submissions?onlyMine=true'
-              "
-            >
+            <el-menu-item :index="getContestSubmissionsPath">
               <i class="el-icon-menu"></i>
-              {{ $t("m.NavBar_Contest_Own_Submission") }}
+              {{ $t("m.NavBar_Contest_Submission") }}
             </el-menu-item>
-            <el-menu-item :index="'/contest/' + $route.params.contestID + '/rank'">
+            <el-menu-item :index="getContestRankPath">
               <i class="fa fa-bar-chart navbar-icon"></i>
               {{ $t("m.NavBar_Contest_Rank") }}
             </el-menu-item>
-          </template>
-          <template v-else-if="mode == 'group'">
-            <el-menu-item index="/">
-              <i class="el-icon-s-home"></i>
-              {{ $t("m.NavBar_Back_Home") }}
+            <el-menu-item :index="getContestAnnouncementPath">
+              <i class="el-icon-s-flag navbar-icon"></i>
+              {{ $t("m.NavBar_Contest_Announcement") }}
             </el-menu-item>
-            <template v-if="$route.params.groupID">
-              <el-menu-item :index="'/group/' + $route.params.groupID">
-                <i class="fa fa-users navbar-icon"></i>
-                {{ $t("m.NavBar_Group_Home") }}
-              </el-menu-item>
-            </template>
-            <el-menu-item :index="'/group/' + $route.params.groupID + '/problem'">
-              <i class="fa fa-list navbar-icon"></i>
-              {{ $t("m.Problem_List") }}
+            <el-menu-item :index="getContestCommentPath">
+              <i class="fa fa-commenting navbar-icon"></i>
+              {{ $t("m.NavBar_Contest_Comment") }}
             </el-menu-item>
           </template>
 
@@ -164,7 +226,7 @@
                 >{{ $t("m.NavBar_Register") }}</el-button>
               </div>
             </template>
-            <template v-else>
+            <template v-else-if="mode == 'defalut'">
               <el-dropdown
                 class="drop-menu"
                 @command="handleRoute"
@@ -272,6 +334,14 @@
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
+            </template>
+            <template v-else-if="mode == 'contest'">
+              <el-tag class="drop-avatar" size="large" :style="countdownColor()">
+                <i class="fa fa-hourglass-end" aria-hidden="true"></i>
+                <span
+                  style="font-weight: bold; font-size: 15px;"
+                >{{ " " + $t('m.EndAt') }}：{{ contest.endTime | localtime }}</span>
+              </el-tag>
             </template>
           </div>
         </el-menu>
@@ -459,7 +529,7 @@
         </mu-appbar>
 
         <mu-drawer :open.sync="opendrawer" :docked="false" :right="false">
-          <mu-list toggle-nested>
+          <mu-list toggle-nested v-if="mode == 'defalut'">
             <mu-list-item
               button
               to="/"
@@ -471,6 +541,7 @@
               </mu-list-item-action>
               <mu-list-item-title>{{ $t("m.NavBar_Home") }}</mu-list-item-title>
             </mu-list-item>
+
             <mu-list-item
               button
               to="/announcement"
@@ -483,21 +554,6 @@
               <mu-list-item-title>
                 {{
                 $t("m.Announcement")
-                }}
-              </mu-list-item-title>
-            </mu-list-item>
-            <mu-list-item
-              button
-              to="/honor"
-              @click="opendrawer = !opendrawer"
-              active-class="mobile-menu-active"
-            >
-              <mu-list-item-action>
-                <mu-icon value=":el-icon-medal" size="24"></mu-icon>
-              </mu-list-item-action>
-              <mu-list-item-title>
-                {{
-                $t("m.NavBar_Honor")
                 }}
               </mu-list-item-title>
             </mu-list-item>
@@ -551,7 +607,7 @@
 
             <mu-list-item
               button
-              to="/status"
+              to="/submissions"
               @click="opendrawer = !opendrawer"
               active-class="mobile-menu-active"
             >
@@ -565,6 +621,54 @@
               </mu-list-item-title>
             </mu-list-item>
 
+            <mu-list-item
+              button
+              to="/group"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":fa fa-users" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Group")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
+
+            <mu-list-item
+              v-if="websiteConfig.openPublicDiscussion"
+              button
+              to="/discussion"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":fa fa-comments" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Discussion")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
+
+            <mu-list-item
+              button
+              to="/honor"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":el-icon-medal" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Honor")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
             <mu-list-item
               button
               :ripple="false"
@@ -636,13 +740,113 @@
                 </mu-list-item-title>
               </mu-list-item>
             </mu-list-item>
+          </mu-list>
+
+          <mu-list toggle-nested v-if="mode == 'group'">
+            <mu-list-item
+              button
+              :to="'/group/' + $route.params.groupID"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":fa fa-users navbar-icon" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>{{ $t("m.NavBar_Group_Home") }}</mu-list-item-title>
+            </mu-list-item>
+
+            <mu-list-item
+              button
+              :to="'/group/' + $route.params.groupID + '/announcement'"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
+              v-if="isGroupAdmin"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":el-icon-s-flag" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.Announcement")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
+
+            <mu-list-item
+              button
+              :to="'/group/' + $route.params.groupID + '/problem'"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":el-icon-s-grid" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Problem")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
+            <mu-list-item
+              button
+              :to="'/group/' + $route.params.groupID + '/training'"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":el-icon-s-claim" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Training")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
+
+            <mu-list-item
+              button
+              :to="'/group/' + $route.params.groupID + '/contest'"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":el-icon-trophy" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Contest")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
+
+            <mu-list-item
+              button
+              :to="'/group/' + $route.params.groupID + '/submissions'"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":el-icon-s-marketing" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Status")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
 
             <mu-list-item
               v-if="websiteConfig.openPublicDiscussion"
               button
-              to="/discussion"
+              :to="'/group/' + $route.params.groupID + '/discussion'"
               @click="opendrawer = !opendrawer"
               active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
             >
               <mu-list-item-action>
                 <mu-icon value=":fa fa-comments" size="24"></mu-icon>
@@ -656,66 +860,53 @@
 
             <mu-list-item
               button
-              to="/group"
+              :to="'/group/' + $route.params.groupID + '/member'"
               @click="opendrawer = !opendrawer"
               active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
             >
               <mu-list-item-action>
-                <mu-icon value=":fa fa-users" size="24"></mu-icon>
+                <mu-icon value=":el-icon-user-solid" size="24"></mu-icon>
               </mu-list-item-action>
               <mu-list-item-title>
                 {{
-                $t("m.NavBar_Group")
+                $t("m.Group_Member")
                 }}
               </mu-list-item-title>
             </mu-list-item>
 
             <mu-list-item
               button
-              :ripple="false"
-              nested
-              :open="openSideMenu === 'about'"
-              @toggle-nested="openSideMenu = arguments[0] ? 'about' : ''"
+              :to="'/group/' + $route.params.groupID + '/setting'"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
             >
               <mu-list-item-action>
-                <mu-icon value=":el-icon-info" size="24"></mu-icon>
+                <mu-icon value=":el-icon-s-tools" size="24"></mu-icon>
               </mu-list-item-action>
               <mu-list-item-title>
                 {{
-                $t("m.NavBar_About")
+                $t("m.Group_Setting")
                 }}
               </mu-list-item-title>
+            </mu-list-item>
+
+            <mu-list-item
+              button
+              :to="'/group/' + $route.params.groupID + '/rank'"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+              :disabled="groupMenuDisabled"
+            >
               <mu-list-item-action>
-                <mu-icon class="toggle-icon" size="24" value=":el-icon-arrow-down"></mu-icon>
+                <mu-icon value=":el-icon-medal-1" size="24"></mu-icon>
               </mu-list-item-action>
-              <mu-list-item
-                button
-                :ripple="false"
-                slot="nested"
-                to="/introduction"
-                @click="opendrawer = !opendrawer"
-                active-class="mobile-menu-active"
-              >
-                <mu-list-item-title>
-                  {{
-                  $t("m.NavBar_Introduction")
-                  }}
-                </mu-list-item-title>
-              </mu-list-item>
-              <mu-list-item
-                button
-                :ripple="false"
-                slot="nested"
-                to="/developer"
-                @click="opendrawer = !opendrawer"
-                active-class="mobile-menu-active"
-              >
-                <mu-list-item-title>
-                  {{
-                  $t("m.NavBar_Developer")
-                  }}
-                </mu-list-item-title>
-              </mu-list-item>
+              <mu-list-item-title>
+                {{
+                $t("m.Group_Rank")
+                }}
+              </mu-list-item-title>
             </mu-list-item>
           </mu-list>
         </mu-drawer>
@@ -743,6 +934,8 @@ import MsgSvg from "@/components/oj/msg/msgSvg";
 import { mapGetters, mapActions } from "vuex";
 import Avatar from "vue-avatar";
 import api from "@/common/api";
+import { CONTEST_STATUS_REVERSE } from "@/common/constants";
+
 export default {
   components: {
     Login,
@@ -758,6 +951,7 @@ export default {
       this.page_width();
       this.setHiddenHeaderHeight();
     };
+    this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
   },
   mounted() {
     this.switchMode();
@@ -790,6 +984,9 @@ export default {
       imgUrl: require("@/assets/logo.png"),
       avatarStyle:
         "display: inline-flex;width: 30px;height: 30px;border-radius: 50%;align-items: center;justify-content: center;text-align: center;user-select: none;",
+      CONTEST_STATUS_REVERSE: {},
+      contest: {},
+      groupTitle: null,
     };
   },
   methods: {
@@ -897,34 +1094,35 @@ export default {
       } else {
         this.mode = "defalut";
       }
-    },
-    getTrainingHomePath() {
-      let tid = this.$route.params.trainingID;
-      let gid = this.$route.params.groupID;
-      if (gid) {
-        return `/group/${gid}/training/${tid}`;
-      } else {
-        return `/training/${tid}`;
+      this.contestID = this.$route.params.contestID;
+
+      if (this.contestID) {
+        this.$store.dispatch("getContest").then((res) => {
+          this.contest = res.data.data;
+        });
       }
-    },
-    getTrainingProblemListPath() {
-      let tid = this.$route.params.trainingID;
-      let gid = this.$route.params.groupID;
-      if (gid) {
-        return `/group/${gid}/training/${tid}/problems`;
-      } else {
-        return `/training/${tid}/problems`;
+      this.groupID = this.$route.params.groupID;
+      if (this.groupID) {
+        this.$store.dispatch("getGroup").then((res) => {
+          this.groupTitle = res.data.data.name;
+        });
       }
     },
     goUserHome() {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        path: "/user-home",
+        name: routeName,
       });
     },
     goRank() {
       this.$router.push({
         name: "ACM Rank",
       });
+    },
+    countdownColor() {
+      return "color:" + this.CONTEST_STATUS_REVERSE[this.contest.status].color;
     },
   },
   computed: {
@@ -937,17 +1135,43 @@ export default {
       "websiteConfig",
       "unreadMessage",
       "webLanguage",
+      "groupMenuDisabled",
+      "isGroupAdmin",
     ]),
     avatar() {
       return this.$store.getters.userInfo.avatar;
     },
     activeMenuName() {
-      if (this.$route.path.split("/")[1] == "submission-detail") {
-        return "/status";
-      } else if (this.$route.path.split("/")[1] == "discussion-detail") {
-        return "/discussion";
+      let path = this.$route.path;
+      const { contestID, trainingID, groupID } = this.$route.params;
+
+      const isContest = path.includes("/contest");
+      const isTraining = path.includes("/training");
+      const isGroup = path.startsWith("/group");
+
+      const groupPrefix = isGroup ? `/group/${groupID}` : "";
+
+      path = path
+        .replace(/\/submission-detail.*$/, "/submissions")
+        .replace(/\/discussion-detail.*$/, "/discussion");
+
+      if (path.includes("/full-screen/problem")) {
+        if (isContest)
+          return `${groupPrefix}/contest/${contestID}/full-screen/problem`;
+        if (isTraining)
+          return `${groupPrefix}/training/${trainingID}/full-screen/problem`;
       }
-      return "/" + this.$route.path.split("/")[1];
+
+      if (path.includes("/full-screen")) {
+        return path;
+      }
+
+      return isGroup
+        ? path.split("/").slice(0, 4).join("/")
+        : "/" + path.split("/")[1];
+    },
+    modeKey() {
+      return `mode-${this.mode}`; // 用mode的值作为key
     },
     modalVisible: {
       get() {
@@ -970,6 +1194,106 @@ export default {
           );
         }
       },
+    },
+    getTrainingHomePath() {
+      let tid = this.$route.params.trainingID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/training/${tid}`;
+      } else {
+        return `/training/${tid}`;
+      }
+    },
+    getTrainingProblemListPath() {
+      let tid = this.$route.params.trainingID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/training/${tid}/full-screen/problem`;
+      } else {
+        return `/training/${tid}/full-screen/problem`;
+      }
+    },
+    getTrainingSubmissionDetailPath() {
+      let tid = this.$route.params.trainingID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/training/${tid}/full-screen/submission-detail`;
+      } else {
+        return `/training/${tid}/full-screen/submission-detail`;
+      }
+    },
+    getTrainingSubmissionsPath() {
+      let tid = this.$route.params.trainingID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/training/${tid}/full-screen/submissions`;
+      } else {
+        return `/training/${tid}/full-screen/submissions`;
+      }
+    },
+    getTrainingRankPath() {
+      let tid = this.$route.params.trainingID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/training/${tid}/full-screen/rank`;
+      } else {
+        return `/training/${tid}/full-screen/rank`;
+      }
+    },
+
+    getContestHomePath() {
+      let cid = this.$route.params.contestID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/contest/${cid}`;
+      } else {
+        return `/contest/${cid}`;
+      }
+    },
+    getContestProblemPath() {
+      let cid = this.$route.params.contestID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/contest/${cid}/full-screen/problem`;
+      } else {
+        return `/contest/${cid}/full-screen/problem`;
+      }
+    },
+    getContestSubmissionsPath() {
+      let cid = this.$route.params.contestID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/contest/${cid}/full-screen/submissions`;
+      } else {
+        return `/contest/${cid}/full-screen/submissions`;
+      }
+    },
+    getContestRankPath() {
+      let cid = this.$route.params.contestID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/contest/${cid}/full-screen/rank`;
+      } else {
+        return `/contest/${cid}/full-screen/rank`;
+      }
+    },
+    getContestAnnouncementPath() {
+      let cid = this.$route.params.contestID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/contest/${cid}/full-screen/announcement`;
+      } else {
+        return `/contest/${cid}/full-screen/announcement`;
+      }
+    },
+    getContestCommentPath() {
+      let cid = this.$route.params.contestID;
+      let gid = this.$route.params.groupID;
+      if (gid) {
+        return `/group/${gid}/contest/${cid}/full-screen/comment`;
+      } else {
+        return `/contest/${cid}/full-screen/comment`;
+      }
     },
   },
   watch: {
@@ -995,13 +1319,30 @@ export default {
         clearInterval(this.msgTimer2);
       }
     },
-    $route() {
-      this.switchMode();
+    $route: {
+      immediate: true,
+      handler() {
+        this.switchMode();
+      },
     },
   },
 };
 </script>
 <style scoped>
+.fixed-header {
+  min-width: 300px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
+  z-index: 2000;
+  background-color: #fff;
+  box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+}
+
 @media screen and (min-width: 1050px) {
   #header {
     min-width: 300px;
@@ -1056,12 +1397,15 @@ export default {
     0px 0px 0px rgb(255, 255, 255), 1px 1px 0px rgb(218, 218, 218); */
 }
 
+.nyoj_logo {
+  width: 100%;
+}
 .logo {
   cursor: pointer;
-  margin-left: 2%;
+  margin-left: 1%;
   margin-right: 2%;
   float: left;
-  width: 139px;
+  width: 110px;
   height: 42px;
   margin-top: 5px;
 }
@@ -1157,5 +1501,22 @@ export default {
   margin-right: 5px !important;
   width: 24px !important;
   text-align: center !important;
+}
+.group-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #555555;
+  font-weight: bold;
+  font-style: italic;
+  letter-spacing: 0.1em;
+  text-shadow: -1px -1px 1px #111111, 2px 2px 1px #363636, -2px -2px 1px #ffffff,
+    2px 2px 1px #000000, 3px 3px 2px rgba(0, 0, 0, 0.6),
+    5px 5px 4px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  font-size: 1.2vw;
+  line-height: 1;
 }
 </style>

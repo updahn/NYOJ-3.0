@@ -124,6 +124,8 @@
 import { mapState, mapGetters } from "vuex";
 import { JUDGE_STATUS, RULE_TYPE } from "@/common/constants";
 import api from "@/common/api";
+import utils from "@/common/utils";
+
 export default {
   name: "ContestProblemList",
   data() {
@@ -174,8 +176,20 @@ export default {
       });
     },
     goContestProblem(event) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "ProblemDetails"
+      );
+
       this.$router.push({
-        name: "ContestProblemDetails",
+        name: routeName,
         params: {
           contestID: this.$route.params.contestID,
           problemID: event.row.displayId,

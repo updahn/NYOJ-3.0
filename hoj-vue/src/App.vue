@@ -7,7 +7,10 @@
       <Back id="back"></Back>
       <div v-if="!isAdminView" class="full-height flex-column">
         <NavBar></NavBar>
-        <div id="oj-content">
+        <div
+          id="oj-content"
+          :style="{ marginTop: $route.path.includes('full-screen') ? '120px' : '20px' }"
+        >
           <transition name="el-zoom-in-bottom">
             <router-view></router-view>
           </transition>
@@ -30,7 +33,7 @@
               <el-col :md="6" :xs="24">
                 <h1>{{ $t("m.Service") }}</h1>
                 <p>
-                  <a @click="goRoute('/status')">{{ $t("m.Judging_Queue") }}</a>
+                  <a @click="goRoute('/submissions')">{{ $t("m.Judging_Queue") }}</a>
                 </p>
                 <p>
                   <a @click="goRoute('/developer')">
@@ -247,8 +250,8 @@ export default {
         this.isAdminView = false;
       }
       if (
-        newVal.name == "ProblemDetails" ||
-        utils.isFocusModePage(newVal.name)
+        utils.isFocusModePage(newVal.name) ||
+        newVal.path.includes("full-screen")
       ) {
         this.showFooter = false;
       } else {
@@ -280,10 +283,15 @@ export default {
       this.$store.dispatch("refreshUserAuthInfo");
     }
 
-    this.showFooter = !(
-      this.$route.name == "ProblemDetails" ||
-      utils.isFocusModePage(this.$route.name)
-    );
+    if (
+      utils.isFocusModePage(this.$route.path) ||
+      this.$route.path.includes("full-screen")
+    ) {
+      this.showFooter = false;
+    } else {
+      this.showFooter = true;
+    }
+
     //解决跨域报错
     setFetch(window.fetch);
     enableDarkMode();
@@ -587,7 +595,6 @@ a:hover {
   #oj-content {
     width: 86%;
     margin: 0 auto;
-    margin-top: 20px;
     padding: 0 3%;
     margin-bottom: 1.5rem;
   }
@@ -602,7 +609,6 @@ a:hover {
   #oj-content {
     width: 100%;
     margin: 0 auto;
-    margin-top: 20px;
     padding: 0 5px;
     margin-bottom: 1.5rem;
   }

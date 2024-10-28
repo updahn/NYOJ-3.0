@@ -1,7 +1,7 @@
 <template>
   <div :class="bodyClass">
     <!-- 滚动公告 -->
-    <div v-if="showProblemHorizontalMenu">
+    <div v-if="showProblemHorizontalMenu && this.contestID">
       <Announcement></Announcement>
     </div>
     <div id="problem-main">
@@ -973,7 +973,7 @@ export default {
     this.PROBLEM_LEVEL = Object.assign({}, PROBLEM_LEVEL);
     this.RULE_TYPE = Object.assign({}, RULE_TYPE);
     let isFocusModePage = utils.isFocusModePage(this.$route.name);
-    if (this.$route.name === "ProblemDetails" || isFocusModePage) {
+    if (isFocusModePage) {
       this.bodyClass = "problem-body";
     }
     if (
@@ -1091,29 +1091,33 @@ export default {
     },
 
     showSubmitDetail(row) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      let routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionDetails"
+      );
+
+      let params = { submitID: row.submitId };
+
       if (row.cid != 0) {
         // 比赛提交详情
-        this.$router.push({
-          name: "ContestSubmissionDetails",
-          params: {
-            contestID: this.$route.params.contestID,
-            problemID: row.displayId,
-            submitID: row.submitId,
-          },
-        });
-      } else if (this.groupID) {
-        this.$router.push({
-          name: "GroupSubmissionDetails",
-          params: {
-            submitID: row.submitId,
-          },
-        });
-      } else {
-        this.$router.push({
-          name: "SubmissionDetails",
-          params: { submitID: row.submitId },
-        });
+        params = {
+          contestID: this.contestID,
+          problemID: row.displayId,
+          submitID: row.submitId,
+        };
       }
+
+      this.$router.push({
+        name: routeName,
+        params,
+      });
     },
 
     dragControllerDiv() {
@@ -1354,9 +1358,29 @@ export default {
       if (this.$route.params.descriptionID) {
         this.descriptionID = this.$route.params.descriptionID;
       }
+
+      if (this.contestID || this.trainingID) {
+        api
+          .getFullScreenProblemList(this.trainingID, this.contestID)
+          .then((res) => {
+            if (!this.problemID) {
+              this.problemID = res.data.data[0].problemId;
+            }
+            this.fetchProblemData();
+          });
+      } else {
+        this.fetchProblemData();
+      }
+    },
+    async fetchProblemData() {
+      if (this.problemID === null || this.problemID === undefined) {
+        this.problemID = res.data.data[0].problemId;
+      }
       let func =
         this.$route.name === "ContestProblemDetails" ||
-        this.$route.name === "ContestFullProblemDetails"
+        this.$route.name === "ContestFullProblemDetails" ||
+        this.$route.name === "GroupContestProblemDetails" ||
+        this.$route.name === "GroupContestFullProblemDetails"
           ? "getContestProblem"
           : "getProblem";
       this.loading = true;
@@ -1491,30 +1515,36 @@ export default {
     },
 
     goProblemSubmission() {
-      if (this.contestID) {
-        this.$router.push({
-          name: "ContestSubmissionList",
-          params: { contestID: this.contestID },
-          query: { problemID: this.problemID, completeProblemID: true },
-        });
-      } else if (this.groupID) {
-        this.$router.push({
-          name: "GroupSubmissionList",
-          query: {
-            problemID: this.problemID,
-            completeProblemID: true,
-            gid: this.groupID,
-          },
-        });
-      } else {
-        this.$router.push({
-          name: "SubmissionList",
-          query: {
-            problemID: this.problemID,
-            completeProblemID: true,
-          },
-        });
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionList"
+      );
+
+      let query = { problemID: this.problemID, completeProblemID: true };
+      let params = {};
+
+      if (this.groupID) {
+        query.gid = this.groupID;
       }
+      if (this.contestID) {
+        params.contestID = this.contestID;
+      }
+      if (this.trainingID) {
+        params.trainingID = this.trainingID;
+      }
+
+      this.$router.push({
+        name: routeName,
+        params,
+        query,
+      });
     },
     goProblemDiscussion() {
       if (this.groupID) {
@@ -1809,8 +1839,11 @@ export default {
       return utils.getLevelName(difficulty);
     },
     goUserHome(username) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        path: "/user-home",
+        name: routeName,
         query: { username },
       });
     },
@@ -1969,27 +2002,32 @@ export default {
       };
     },
     submissionRoute() {
-      if (this.contestID) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      let routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "SubmissionDetails"
+      );
+      let params = { submitID: this.submissionId };
+
+      if (row.cid != 0) {
         // 比赛提交详情
-        this.$router.push({
-          name: "ContestSubmissionDetails",
-          params: {
-            contestID: this.contestID,
-            problemID: this.problemID,
-            submitID: this.submissionId,
-          },
-        });
-      } else if (this.groupID) {
-        this.$router.push({
-          name: "GroupSubmissionDetails",
-          params: { submitID: this.submissionId, gid: this.groupID },
-        });
-      } else {
-        this.$router.push({
-          name: "SubmissionDetails",
-          params: { submitID: this.submissionId },
-        });
+        params = {
+          contestID: this.contestID,
+          problemID: row.displayId,
+          submitID: row.submitId,
+        };
       }
+
+      this.$router.push({
+        name: routeName,
+        params,
+      });
     },
     isCFProblem() {
       if (

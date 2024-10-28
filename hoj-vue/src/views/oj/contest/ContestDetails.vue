@@ -132,7 +132,7 @@
                 round
                 size="small"
                 slot="reference"
-                @click="toAdminContest(contest.gid)"
+                @click="toAdminContest(contest.gid, contest.title)"
               >{{$t('m.To_Admin_Background')}}</el-button>
             </div>
           </div>
@@ -726,6 +726,7 @@ import Markdown from "@/components/oj/common/Markdown";
 import Timebar from "@/components/oj/common/Timebar.vue";
 const Announcement = () => import("@/views/oj/about/Switch_Announcement.vue");
 import BoxFile from "@/components/oj/common/BoxFile";
+import utils from "@/common/utils";
 
 export default {
   name: "ContestDetails",
@@ -846,7 +847,7 @@ export default {
   },
   created() {
     this.contestID = this.$route.params.contestID;
-    this.route_name = this.$route.name;
+    this.route_name = this.$route.name.replace("Group", "");
     if (this.route_name == "ContestProblemDetails") {
       this.route_name = "ContestProblemList";
     }
@@ -956,6 +957,9 @@ export default {
         this.goToContestDiscussion();
         return;
       }
+      if (this.contest.gid) {
+        name = "Group" + name;
+      }
       if (name !== this.$route.name) {
         this.$router.push({ name: name });
       }
@@ -968,14 +972,14 @@ export default {
         },
       });
     },
-    toAdminContest(gid) {
+    toAdminContest(gid, title) {
       if (gid != null) {
         this.$router.push({
           name: "GroupContestList",
           params: {
             groupID: gid,
           },
-          query: { adminPage: true },
+          query: { adminPage: true, keyword: title },
         });
       } else {
         this.$router.push({
@@ -1035,8 +1039,11 @@ export default {
       this.getBtnLoading = false;
     },
     toUserHome(username) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        name: "UserHome",
+        name: routeName,
         query: { username: username },
       });
     },
@@ -1162,10 +1169,20 @@ export default {
       window.open(pdfDescription, "_blank");
     },
     goToContestDiscussion() {
-      let cid = this.$route.params.contestID;
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "Discussion"
+      );
       this.$router.push({
-        name: "ContestDiscussion",
-        params: { contestID: cid },
+        name: routeName,
+        params: { contestID: this.contestID },
       });
     },
   },
@@ -1236,8 +1253,8 @@ export default {
   },
   watch: {
     $route(newVal) {
-      this.route_name = newVal.name;
-      if (newVal.name == "ContestProblemDetails") {
+      this.route_name = newVal.name.replace("Group", "");
+      if (this.route_name == "ContestProblemDetails") {
         this.route_name = "ContestProblemList";
       } else if (this.route_name == "ContestSubmissionDetails") {
         this.route_name = "ContestSubmissionList";

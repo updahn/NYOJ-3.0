@@ -62,7 +62,7 @@ public class GroupContestManager {
     @Autowired
     private GroupManager groupManager;
 
-    public IPage<ContestVO> getContestList(Integer limit, Integer currentPage, Long gid)
+    public IPage<ContestVO> getContestList(Integer limit, Integer currentPage, Long gid, String keyword)
             throws StatusNotFoundException, StatusForbiddenException {
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
@@ -83,10 +83,10 @@ public class GroupContestManager {
         if (limit == null || limit < 1)
             limit = 10;
 
-        return groupContestEntityService.getContestList(limit, currentPage, gid);
+        return groupContestEntityService.getContestList(limit, currentPage, gid, keyword);
     }
 
-    public IPage<Contest> getAdminContestList(Integer limit, Integer currentPage, Long gid)
+    public IPage<Contest> getAdminContestList(Integer limit, Integer currentPage, Long gid, String keyword)
             throws StatusNotFoundException, StatusForbiddenException {
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
@@ -107,7 +107,7 @@ public class GroupContestManager {
         if (limit == null || limit < 1)
             limit = 10;
 
-        return groupContestEntityService.getAdminContestList(limit, currentPage, gid);
+        return groupContestEntityService.getAdminContestList(limit, currentPage, gid, keyword);
     }
 
     public AdminContestVO getContest(Long cid)

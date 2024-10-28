@@ -218,6 +218,8 @@ export const m = {
   Account: '账号',
   Super_Account: '超管账号',
   Add_Account: '增加账号',
+  Collapse_Group_Info: '折叠团队介绍',
+  Expand_Group_Info: '展开团队介绍',
 
   // /views/admin/problem/ProblemList.vue
   Contest_Problem_List: '比赛题目列表',

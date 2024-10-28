@@ -128,9 +128,12 @@ export default {
       this.getGroupAdminMemberList();
     },
     goUserHome(username) {
+      const routeName = this.$route.params.groupID
+        ? "GroupUserHome"
+        : "UserHome";
       this.$router.push({
-        path: "/user-home",
-        query: { username },
+        name: routeName,
+        query: { username: username },
       });
     },
     onPageSizeChange(pageSize) {

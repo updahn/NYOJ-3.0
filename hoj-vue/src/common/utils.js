@@ -300,7 +300,7 @@ function getFocusModeOriPage(routeName) {
 }
 
 function supportFocusMode(routeName) {
-  return routeName != 'ProblemDetails';
+  return routeName != 'ProblemDetails' && routeName != 'GroupProblemDetails';
 }
 function getSwitchFoceusModeRouteName(routeName) {
   for (let keyName in FOCUS_MODE_ROUTE_NAME) {
@@ -310,6 +310,20 @@ function getSwitchFoceusModeRouteName(routeName) {
       return keyName;
     }
   }
+}
+function getRouteRealName(routeName, contestID, trainingID, groupID, routeType) {
+  const isFullScreen = routeName.includes('full-screen');
+  const groupPrefix = groupID ? 'Group' : '';
+  const fullPrefix = isFullScreen ? 'Full' : '';
+
+  if (routeType == 'SubmissionList' || routeType == 'SubmissionDetails') {
+    if (trainingID) return fullPrefix ? `${groupPrefix}Training${fullPrefix}${routeType}` : `${groupPrefix}${fullPrefix}${routeType}`;
+  }
+
+  if (contestID) return `${groupPrefix}Contest${fullPrefix}${routeType}`;
+  if (trainingID) return `${groupPrefix}Training${fullPrefix}${routeType}`;
+
+  return `${groupPrefix}${fullPrefix}${routeType}`;
 }
 
 function getValidateField(field, fieldName) {
@@ -346,6 +360,7 @@ export default {
   getFocusModeOriPage: getFocusModeOriPage,
   supportFocusMode: supportFocusMode,
   getSwitchFoceusModeRouteName: getSwitchFoceusModeRouteName,
+  getRouteRealName: getRouteRealName,
   getValidateField: getValidateField,
   readTestCase: readTestCase,
 };

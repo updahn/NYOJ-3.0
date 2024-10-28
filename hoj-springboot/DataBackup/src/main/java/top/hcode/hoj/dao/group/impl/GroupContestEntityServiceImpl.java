@@ -25,19 +25,19 @@ public class GroupContestEntityServiceImpl extends ServiceImpl<GroupContestMappe
     private GroupContestMapper groupContestMapper;
 
     @Override
-    public IPage<ContestVO> getContestList(int limit, int currentPage, Long gid) {
+    public IPage<ContestVO> getContestList(int limit, int currentPage, Long gid, String keyword) {
         IPage<ContestVO> iPage = new Page<>(currentPage, limit);
 
-        List<ContestVO> contestList = groupContestMapper.getContestList(iPage, gid);
+        List<ContestVO> contestList = groupContestMapper.getContestList(iPage, gid, keyword);
 
         return iPage.setRecords(contestList);
     }
 
     @Override
-    public IPage<Contest> getAdminContestList(int limit, int currentPage, Long gid) {
+    public IPage<Contest> getAdminContestList(int limit, int currentPage, Long gid, String keyword) {
         IPage<Contest> iPage = new Page<>(currentPage, limit);
 
-        List<Contest> contestList = groupContestMapper.getAdminContestList(iPage, gid);
+        List<Contest> contestList = groupContestMapper.getAdminContestList(iPage, gid, keyword);
 
         return iPage.setRecords(contestList);
     }

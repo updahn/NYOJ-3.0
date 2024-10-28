@@ -341,31 +341,28 @@ export default {
     },
 
     getProblemUri(row) {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      const routeName = utils.getRouteRealName(
+        this.$route.path,
+        this.contestID,
+        this.trainingID,
+        this.groupID,
+        "ProblemDetails"
+      );
+
+      const params = { problemID: row.displayPid };
+
       if (row.cid != 0) {
         // 比赛题目
-        this.$router.push({
-          name: "ContestProblemDetails",
-          params: {
-            contestID: row.cid,
-            problemID: row.displayPid,
-          },
-        });
+        params.contestID = row.cid;
       } else if (row.gid) {
-        this.$router.push({
-          name: "GroupProblemDetails",
-          params: {
-            problemID: row.displayPid,
-            groupID: row.gid,
-          },
-        });
-      } else {
-        this.$router.push({
-          name: "ProblemDetails",
-          params: {
-            problemID: row.displayPid,
-          },
-        });
+        params.groupID = row.gid;
       }
+
+      this.$router.push({ name: routeName, params });
     },
     getStatusColor(status) {
       return "el-tag el-tag--medium status-" + JUDGE_STATUS[status].color;

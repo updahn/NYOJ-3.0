@@ -476,8 +476,8 @@ export default {
     },
     getInfoByUsername(uid, username) {
       this.$router.push({
-        path: "/user-home",
-        query: { uid, username },
+        name: "GroupUserHome",
+        query: { username: username, uid: uid },
       });
     },
   },

@@ -648,8 +648,11 @@ export default {
     },
     getUserHomeByUsername(uid, username, synchronous = false) {
       if (!synchronous) {
+        const routeName = this.$route.params.groupID
+          ? "GroupUserHome"
+          : "UserHome";
         this.$router.push({
-          name: "UserHome",
+          name: routeName,
           query: { username: username, uid: uid },
         });
       }

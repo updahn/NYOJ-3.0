@@ -118,6 +118,18 @@
             icon="el-icon-back"
           >{{ $t('m.Back_To_Admin_Contest_List') }}</el-button>
         </el-col>
+        <div class="filter-right">
+          <span>
+            <vxe-input
+              v-model="keyword"
+              :placeholder="$t('m.Enter_keyword')"
+              type="search"
+              size="medium"
+              @keyup.enter.native="onKeywordChange"
+              @search-click="onKeywordChange"
+            ></vxe-input>
+          </span>
+        </div>
       </el-row>
     </div>
     <div v-if="!adminPage && !createPage && !problemPage">
@@ -380,10 +392,12 @@ export default {
       contestId: null,
       acmSrc: require("@/assets/acm.jpg"),
       oiSrc: require("@/assets/oi.jpg"),
+      keyword: null,
     };
   },
   mounted() {
     this.adminPage = this.$route.query.adminPage;
+    this.keyword = this.$route.query.keyword;
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
     this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
@@ -411,7 +425,8 @@ export default {
         .getGroupContestList(
           this.currentPage,
           this.limit,
-          this.$route.params.groupID
+          this.$route.params.groupID,
+          this.keyword
         )
         .then(
           (res) => {
@@ -426,7 +441,7 @@ export default {
     },
     goGroupContest(contestId) {
       this.$router.push({
-        name: "ContestDetails",
+        name: "GroupContestDetails",
         params: {
           contestID: contestId,
         },
@@ -491,6 +506,10 @@ export default {
     handleCreateAnnouncementPage() {
       this.$refs.contestAnnouncementList.openAnnouncementDialog(null);
     },
+    onKeywordChange() {
+      this.currentPage = 1;
+      this.init();
+    },
   },
   computed: {
     ...mapGetters([
@@ -518,11 +537,17 @@ export default {
     margin-left: 5px;
     margin-right: 5px;
   }
+  .filter-right span {
+    margin-right: 2px;
+  }
 }
 @media screen and (min-width: 768px) {
   .filter-row span {
     margin-left: 10px;
     margin-right: 10px;
+  }
+  .filter-right span {
+    margin-right: 20px;
   }
 }
 #no-contest {
@@ -563,5 +588,8 @@ export default {
 #contest-list .contest-main li {
   display: inline-block;
   padding: 10px 0 0 10px;
+}
+.filter-right {
+  float: right;
 }
 </style>

@@ -451,8 +451,8 @@ export const JUDGE_CASE_MODE = {
 export const FOCUS_MODE_ROUTE_NAME = {
   TrainingFullProblemDetails: 'TrainingProblemDetails',
   ContestFullProblemDetails: 'ContestProblemDetails',
-  GroupFullProblemDetails: 'GroupProblemDetails',
   GroupTrainingFullProblemDetails: 'GroupTrainingProblemDetails',
+  GroupContestFullProblemDetails: 'GroupContestProblemDetails',
 };
 
 export const STORAGE_KEY = {

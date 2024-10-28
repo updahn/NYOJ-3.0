@@ -44,8 +44,15 @@ export const m = {
   NavBar_Contest_Home: '比赛主页',
   NavBar_Contest_Own_Submission: '我的提交',
   NavBar_Contest_Rank: '比赛榜单',
-  NavBar_Group_Home: '团队主页',
+  NavBar_Group_Home: '团队',
   NavBar_Honor: '荣誉',
+  NavBar_Contest_Comment: '比赛评论',
+  NavBar_Contest_Problem: '比赛题目',
+  NavBar_Contest_Submission: '比赛提交',
+  NavBar_Contest_Announcement: '比赛公告',
+  NavBar_Training_Rank: '训练榜单',
+  NavBar_Training_Problem: '训练题目',
+  NavBar_Training_Submission: '训练提交',
 
   //  /components/oj/common/Login.vue 登录弹窗
   Login_Username: '用户名',
