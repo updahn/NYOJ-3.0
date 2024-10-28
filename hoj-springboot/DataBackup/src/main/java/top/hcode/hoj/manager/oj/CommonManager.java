@@ -75,7 +75,7 @@ public class CommonManager {
 
     public List<TrainingCategory> getTrainingCategory() {
         QueryWrapper<TrainingCategory> trainingCategoryQueryWrapper = new QueryWrapper<>();
-        trainingCategoryQueryWrapper.isNull("gid");
+        trainingCategoryQueryWrapper.isNull("gid").orderByDesc("gmt_create");
         return trainingCategoryEntityService.list(trainingCategoryQueryWrapper);
     }
 
