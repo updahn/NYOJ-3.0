@@ -624,16 +624,16 @@ a:hover {
   -ms-flex-item-align: stretch;
   align-self: stretch;
   border-style: solid;
-  background: #fafafa;
+  /* background: #fafafa; */
   border-left: 2px solid #3498db;
 }
 
 .markdown-body pre {
-  padding: 5px 10px;
+  /* padding: 5px 10px; */
   white-space: pre-wrap;
   margin-top: 15px;
   margin-bottom: 15px;
-  background: #f8f8f9;
+  /* background: #f8f8f9; */
   border: 1px dashed #e9eaec;
 }
 
@@ -819,7 +819,7 @@ footer h1 {
   position: relative !important;
   overflow-y: hidden !important;
   font-size: 1rem !important;
-  background: #f8f8f9 !important;
+  /* background: #f8f8f9 !important; */
   white-space: pre !important;
   margin: 1em;
 }
@@ -835,7 +835,7 @@ footer h1 {
   padding: 0;
   list-style-type: none;
   counter-reset: sectioncounter;
-  background: #f1f1f1;
+  /* background: #f1f1f1; */
   color: #777;
   font-size: 12px;
 }
@@ -967,5 +967,45 @@ footer h1 {
 }
 #oj-content {
   min-height: 90vh;
+}
+
+.vjudge_sample {
+  border: 1px solid #222;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+
+table.vjudge_sample td,
+table.vjudge_sample th {
+  border: 1px solid #222;
+  padding: 5px !important;
+  vertical-align: top;
+}
+
+.vjudge_sample th span.copier {
+  border: 1px solid #b9b9b9;
+  color: #888 !important;
+  cursor: pointer;
+  float: right;
+  font-family: monospace;
+  font-size: 0.8rem;
+  line-height: 1.1rem;
+  margin: 1px;
+  padding: 3px;
+  text-transform: none;
+}
+
+.vjudge_sample td {
+  background: hsla(0, 0%, 100%, 0.5);
+}
+
+.vjudge_sample pre {
+  font-family: monospace;
+  font-size: 0.875em;
+  line-height: 1.25em;
+  margin: 0;
+  overflow-y: auto;
 }
 </style>

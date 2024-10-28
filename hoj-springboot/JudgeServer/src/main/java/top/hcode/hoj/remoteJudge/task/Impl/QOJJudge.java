@@ -102,7 +102,7 @@ public class QOJJudge extends RemoteJudgeStrategy {
                     .header("Cookie", cookie_)
                     .header("Connection", "keep-alive")
                     .data("_token", remoteJudgeDTO.getCsrfToken())
-                    .data("answer_answer_language", getLanguage(remoteJudgeDTO.getLanguage()))
+                    .data("answer_answer_language", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                     .data("answer_answer_upload_type", "editor")
                     .data("answer_answer_editor", remoteJudgeDTO.getUserCode())
                     .data("answer_answer_file", "")
@@ -133,7 +133,8 @@ public class QOJJudge extends RemoteJudgeStrategy {
                         .header("Cookie", cookie_)
                         .header("Connection", "keep-alive")
                         .data("_token", remoteJudgeDTO.getCsrfToken())
-                        .data("answer_answer_language", getLanguage(remoteJudgeDTO.getLanguage()))
+                        .data("answer_answer_language",
+                                getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                         .data("answer_answer_upload_type", "editor")
                         .data("answer_answer_editor", remoteJudgeDTO.getUserCode())
                         .data("answer_answer_file", "")
@@ -372,7 +373,10 @@ public class QOJJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         return languageMap.get(language).trim();
     }
 

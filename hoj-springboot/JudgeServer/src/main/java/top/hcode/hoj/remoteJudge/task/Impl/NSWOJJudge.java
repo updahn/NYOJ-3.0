@@ -132,7 +132,7 @@ public class NSWOJJudge extends RemoteJudgeStrategy {
             Connection.Response response = Jsoup.connect(submit_url)
                     .header("Cookie", cookie_)
                     .header("Connection", "keep-alive")
-                    .data("lang", getLanguage(remoteJudgeDTO.getLanguage()))
+                    .data("lang", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                     .data("code", remoteJudgeDTO.getUserCode())
                     .method(Connection.Method.POST)
                     .ignoreContentType(true)
@@ -161,7 +161,7 @@ public class NSWOJJudge extends RemoteJudgeStrategy {
                 Connection.Response response2 = Jsoup.connect(submit_url)
                         .header("Cookie", cookie_)
                         .header("Connection", "keep-alive")
-                        .data("lang", getLanguage(remoteJudgeDTO.getLanguage()))
+                        .data("lang", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                         .data("code", remoteJudgeDTO.getUserCode())
                         .method(Connection.Method.POST)
                         .ignoreContentType(true)
@@ -333,7 +333,10 @@ public class NSWOJJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         return languageMap.get(language).trim();
     }
 

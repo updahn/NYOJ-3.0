@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @Author: Himit_ZH
  * @Date: 2022/1/28 23:20
@@ -113,7 +115,7 @@ public class AtCoderJudge extends RemoteJudgeStrategy {
         HttpRequest request = HttpUtil.createPost(submitUrl);
         HttpRequest httpRequest = request.form(MapUtil.builder(new HashMap<String, Object>())
                 .put("data.TaskScreenName", remoteJudgeDTO.getCompleteProblemId())
-                .put("data.LanguageId", getLanguage(remoteJudgeDTO.getLanguage()))
+                .put("data.LanguageId", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                 .put("sourceCode", remoteJudgeDTO.getUserCode())
                 .put("csrf_token", csrfToken).map());
         httpRequest.cookie(cookies);
@@ -176,7 +178,10 @@ public class AtCoderJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         return languageMap.get(language);
     }
 

@@ -500,29 +500,29 @@ public class ScheduleServiceImpl implements ScheduleService {
         log.info("获取Leetcode成功！");
     }
 
-    /**
-     * 每隔1小时获取用户所有的代码量
-     */
-    @Scheduled(cron = "0 0 0/1 * * *")
-    // @Scheduled(cron = "0 * * * * *")
-    @Override
-    public void getCodeLines() {
-        QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
+    // /**
+    //  * 每隔1小时获取用户所有的代码量
+    //  */
+    // @Scheduled(cron = "0 0 0/1 * * *")
+    // // @Scheduled(cron = "0 * * * * *")
+    // @Override
+    // public void getCodeLines() {
+    //     QueryWrapper<UserInfo> userInfoQueryWrapper = new QueryWrapper<>();
 
-        // 所有用户
-        List<String> uidList = userInfoEntityService.list(userInfoQueryWrapper)
-                .stream()
-                .map(UserInfo::getUuid)
-                .collect(Collectors.toList());
+    //     // 所有用户
+    //     List<String> uidList = userInfoEntityService.list(userInfoQueryWrapper)
+    //             .stream()
+    //             .map(UserInfo::getUuid)
+    //             .collect(Collectors.toList());
 
-        try {
-            clocUtils.getUserCodeLines(uidList, null, null, true);
-        } catch (Exception e) {
-            log.error("用户每日代码异常----------------------->{}", e.getMessage());
-        }
+    //     try {
+    //         clocUtils.getUserCodeLines(uidList, null, null, true);
+    //     } catch (Exception e) {
+    //         log.error("用户每日代码异常----------------------->{}", e.getMessage());
+    //     }
 
-        log.info("获取用户每日代码统计成功！");
-    }
+    //     log.info("获取用户每日代码统计成功！");
+    // }
 
     @Retryable(value = Exception.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 1.4))
     public JSONObject getCFUserInfo(String url) throws Exception {

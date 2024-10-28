@@ -40,4 +40,8 @@ public class ProblemInfoVO {
      * 题目默认模板
      */
     private HashMap<String, String> codeTemplate;
+    /**
+     * 题目编程语言对应的判题key
+     */
+    private HashMap<String, String> languageKey;
 }

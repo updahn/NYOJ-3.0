@@ -367,7 +367,10 @@ public class AdminContestProblemManager {
             throws StatusFailException {
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
 
-        queryWrapper.eq("problem_id", name.toUpperCase() + "-" + problemId);
+        String upperName = name.toUpperCase();
+        queryWrapper.like("problem_id",
+                upperName.equals("VJ") ? problemId.toUpperCase() : upperName + "-" + problemId.toUpperCase());
+
         if (gid == null) {
             queryWrapper.isNull("gid");
         } else {

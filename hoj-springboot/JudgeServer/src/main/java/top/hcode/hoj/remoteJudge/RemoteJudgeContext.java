@@ -38,9 +38,12 @@ public class RemoteJudgeContext {
 
     @Async
     public void judge(ToJudgeDTO toJudgeDTO) {
-        String[] source = toJudgeDTO.getRemoteJudgeProblem().split("-");
-        String remoteOj = source[0];
-        String remoteProblemId = source[1];
+        String remoteJudgeProblem = toJudgeDTO.getRemoteJudgeProblem();
+        String[] source = remoteJudgeProblem.split("-");
+        String remoteOj = remoteJudgeProblem.startsWith("VJ-") ? "VJ" : source[0];
+        String remoteProblemId = remoteJudgeProblem.startsWith("VJ-")
+                ? remoteJudgeProblem.replace("VJ-", "")
+                : source[1];
         RemoteJudgeDTO remoteJudgeDTO = RemoteJudgeDTO.builder()
                 .judgeId(toJudgeDTO.getJudge().getSubmitId())
                 .uid(toJudgeDTO.getJudge().getUid())
@@ -53,6 +56,7 @@ public class RemoteJudgeContext {
                 .completeProblemId(remoteProblemId)
                 .userCode(toJudgeDTO.getJudge().getCode())
                 .language(toJudgeDTO.getJudge().getLanguage())
+                .key(toJudgeDTO.getJudge().getKey())
                 .serverIp(toJudgeDTO.getJudgeServerIp())
                 .serverPort(toJudgeDTO.getJudgeServerPort())
                 .submitId(toJudgeDTO.getJudge().getVjudgeSubmitId())
@@ -130,6 +134,19 @@ public class RemoteJudgeContext {
                 break;
             case "NEWOJ":
                 remoteJudgeDTO.setProblemNum(remoteJudgeDTO.getCompleteProblemId());
+                break;
+            case "VJ":
+                // vj oj 题目展示和实际提交id不一样，例如Gym-454161J(4126772)
+                String problemNum = ReUtil.get("(\\d+)\\(([^)]+)\\)",
+                        remoteJudgeDTO.getCompleteProblemId(), 1);
+                String completeProblemId2 = ReUtil.get("(\\d+)\\(([^)]+)\\)",
+                        remoteJudgeDTO.getCompleteProblemId(), 2);
+                if (problemNum != null) {
+                    remoteJudgeDTO.setProblemNum(problemNum);
+                }
+                if (completeProblemId2 != null) {
+                    remoteJudgeDTO.setCompleteProblemId(completeProblemId2);
+                }
                 break;
         }
     }

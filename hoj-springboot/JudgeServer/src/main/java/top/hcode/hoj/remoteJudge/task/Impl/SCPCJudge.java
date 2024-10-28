@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.alibaba.druid.util.StringUtils;
+
 /**
  *
  * @Date: 2021/6/24 21:19
@@ -111,7 +113,7 @@ public class SCPCJudge extends RemoteJudgeStrategy {
         request.addHeaders(headers);
 
         request.body(new JSONObject(MapUtil.builder(new HashMap<String, Object>())
-                .put("language", getLanguage(remoteJudgeDTO.getLanguage()))
+                .put("language", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                 .put("code", remoteJudgeDTO.getUserCode())
                 .put("isRemote", false)
                 .put("cid", Long.valueOf(remoteJudgeDTO.getContestId()))
@@ -195,7 +197,10 @@ public class SCPCJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         return language;
     }
 

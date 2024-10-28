@@ -14,10 +14,12 @@ import javax.validation.constraints.NotBlank;
 @Accessors(chain = true)
 public class SubmitJudgeDTO {
     @NotBlank(message = "题目id不能为空")
-    private String pid;
+    private String problemId;
 
     @NotBlank(message = "代码语言选择不能为空")
     private String language;
+
+    private String key;
 
     @NotBlank(message = "提交的代码不能为空")
     private String code;

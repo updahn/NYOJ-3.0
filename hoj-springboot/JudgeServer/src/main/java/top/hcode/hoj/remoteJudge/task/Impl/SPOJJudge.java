@@ -7,6 +7,9 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.Validate;
+
+import com.alibaba.druid.util.StringUtils;
+
 import top.hcode.hoj.remoteJudge.entity.RemoteJudgeDTO;
 import top.hcode.hoj.remoteJudge.entity.RemoteJudgeRes;
 import top.hcode.hoj.remoteJudge.task.RemoteJudgeStrategy;
@@ -60,7 +63,7 @@ public class SPOJJudge extends RemoteJudgeStrategy {
 
         HttpResponse response = request.form(MapUtil
                 .builder(new HashMap<String, Object>())
-                .put("lang", getLanguage(remoteJudgeDTO.getLanguage()))
+                .put("lang", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                 .put("problemcode", remoteJudgeDTO.getCompleteProblemId())
                 .put("file", remoteJudgeDTO.getUserCode())
                 .map())
@@ -159,7 +162,11 @@ public class SPOJJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
+
         if (language.equals("Perl (perl 2018.12)")) {
             return languageMap.get(language);
         }

@@ -2449,5 +2449,62 @@ CALL add_TrainingProblem_peid ;
 
 DROP PROCEDURE add_TrainingProblem_peid;
 
+/*
+* languge 添加 key
+*/
+DROP PROCEDURE
+IF EXISTS add_Language_Key;
+DELIMITER $$
+
+CREATE PROCEDURE add_Language_Key ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'language'
+	AND column_name = 'key'
+) THEN
+	ALTER TABLE language ADD COLUMN `key` varchar(255) DEFAULT NULL COMMENT '语言提交key';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_Language_Key ;
+
+DROP PROCEDURE add_Language_Key;
+
+
+/*
+* judge 添加 key
+*/
+DROP PROCEDURE
+IF EXISTS add_Judge_Key;
+DELIMITER $$
+
+CREATE PROCEDURE add_Judge_Key ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'judge'
+	AND column_name = 'key'
+) THEN
+	ALTER TABLE judge ADD COLUMN `key` varchar(255) DEFAULT NULL COMMENT '语言提交key';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_Judge_Key ;
+
+DROP PROCEDURE add_Judge_Key;
+
 
 

@@ -8,6 +8,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
 import org.jsoup.helper.Validate;
 import top.hcode.hoj.remoteJudge.entity.RemoteJudgeDTO;
 import top.hcode.hoj.remoteJudge.entity.RemoteJudgeRes;
@@ -59,7 +61,7 @@ public class HDUJudge extends RemoteJudgeStrategy {
                 .form(MapUtil
                         .builder(new HashMap<String, Object>())
                         .put("check", "0")
-                        .put("language", getLanguage(remoteJudgeDTO.getLanguage()))
+                        .put("language", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                         .put("problemid", remoteJudgeDTO.getCompleteProblemId())
                         .put("_usercode",
                                 Base64.encode(URLEncoder.encode(remoteJudgeDTO.getUserCode() + getRandomBlankString())))
@@ -170,7 +172,10 @@ public class HDUJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         switch (language) {
             case "G++":
                 return "0";

@@ -191,7 +191,7 @@ public class LibreJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
         return null;
     }
 

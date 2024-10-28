@@ -1203,4 +1203,9 @@ $body$
 
 2024 年 7 月 14 日 16 点
 
+# 增加 Vjudge 远程评测
 
+1. 增加 Vjudge 远程评测
+   ![image.png](docs/docs/.vuepress/public/65555be4a0524b08a035a33073a6942d.png)
+   ![image.png](docs/docs/.vuepress/public/fadcdfb4e72e46e6b669c5546ea02624.png)
+2024 年 10 月 7 日 24 点

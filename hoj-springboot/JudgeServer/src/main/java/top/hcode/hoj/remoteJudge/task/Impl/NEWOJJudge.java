@@ -90,7 +90,7 @@ public class NEWOJJudge extends RemoteJudgeStrategy {
                     .header("Cookie", cookie_)
                     .header("Connection", "keep-alive")
                     .data("id", remoteJudgeDTO.getProblemNum())
-                    .data("language", getLanguage(remoteJudgeDTO.getLanguage()))
+                    .data("language", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                     .data("source", remoteJudgeDTO.getUserCode())
                     .data("vcode", "")
                     .method(Connection.Method.POST)
@@ -119,7 +119,7 @@ public class NEWOJJudge extends RemoteJudgeStrategy {
                         .header("Cookie", cookie_)
                         .header("Connection", "keep-alive")
                         .data("id", remoteJudgeDTO.getProblemNum())
-                        .data("language", getLanguage(remoteJudgeDTO.getLanguage()))
+                        .data("language", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                         .data("source", remoteJudgeDTO.getUserCode())
                         .data("vcode", "")
                         .method(Connection.Method.POST)
@@ -260,7 +260,10 @@ public class NEWOJJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         return languageMap.get(language).trim();
     }
 

@@ -250,7 +250,9 @@ public class AdminProblemManager {
     public void importRemoteOJProblem(String name, String problemId, Long gid) throws StatusFailException {
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
 
-        queryWrapper.eq("problem_id", name.toUpperCase() + "-" + problemId);
+        String upperName = name.toUpperCase();
+        queryWrapper.like("problem_id",
+                upperName.equals("VJ") ? problemId.toUpperCase() : upperName + "-" + problemId.toUpperCase());
         if (gid == null) {
             queryWrapper.isNull("gid");
         } else {

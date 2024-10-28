@@ -2,6 +2,7 @@ package top.hcode.hoj.crawler.language;
 
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.http.HtmlUtil;
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.entity.problem.Language;
 
 import java.util.Collection;
@@ -18,7 +19,13 @@ import java.util.regex.Pattern;
 public class AtCoderLanguageStrategy extends LanguageStrategy {
 
     @Override
-    public String getLanguageNameById(String id) {
+    public String getLanguageNameById(String id, String oj) {
+        return null;
+    }
+
+    @Override
+    public List<Language> buildAddLanguageList(List<Language> allLanguageList, List<Pair_<String, String>> langList,
+            String oj) {
         return null;
     }
 

@@ -157,14 +157,14 @@
 
     <el-dialog
       :title="$t('m.Add_Rmote_OJ_Problem')"
-      width="350px"
+      width="950px"
       :visible.sync="AddRemoteOJProblemDialogVisible"
       :close-on-click-modal="false"
       z-index="3000"
     >
       <el-form>
         <el-form-item :label="$t('m.Remote_OJ')">
-          <el-select v-model="otherOJName" size="small">
+          <el-select v-model="otherOJName" style="width:100%;">
             <el-option
               :label="remoteOj.name"
               :value="remoteOj.key"
@@ -173,6 +173,12 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <p style="text-align: left; white-space: pre-wrap; color: #66b1ff; font-size: 18px;">
+          <!-- 使用 pre-wrap 保留换行符并且可复制 -->
+          {{ $t('m.Remote_Tips_' + otherOJName) }}
+          <br />
+          {{ $t('m.Remote_Tips') }}
+        </p>
         <el-form-item :label="$t('m.Problem_ID')" required>
           <el-input v-model="otherOJProblemId" size="small"></el-input>
         </el-form-item>

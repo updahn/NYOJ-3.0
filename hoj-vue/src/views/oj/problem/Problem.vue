@@ -924,6 +924,7 @@ export default {
         tags: [],
         languages: [],
         codeTemplate: {},
+        languageKey: {},
       },
       pie: pie,
       largePie: largePie,
@@ -1689,7 +1690,7 @@ export default {
       }
 
       let data = {
-        pid: this.problemID, // 如果是比赛题目就为display_id
+        problemId: this.problemID,
         language: this.language,
         code: this.code,
         cid: this.contestID,
@@ -1697,6 +1698,12 @@ export default {
         gid: this.groupID,
         isRemote: this.isRemote,
       };
+
+      // 添加语言对应的提交代码
+      let key = this.problemData.languageKey[this.language];
+      if (key) {
+        data.key = key;
+      }
       if (this.captchaRequired) {
         data.captcha = this.captchaCode;
       }

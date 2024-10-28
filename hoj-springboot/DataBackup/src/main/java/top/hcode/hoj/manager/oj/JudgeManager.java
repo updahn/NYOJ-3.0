@@ -179,6 +179,7 @@ public class JudgeManager {
                 .setCid(judgeDto.getCid())
                 .setGid(judgeDto.getGid())
                 .setLanguage(judgeDto.getLanguage())
+                .setKey(judgeDto.getKey()) // 查询语言对应的key
                 .setLength(judgeDto.getCode().length())
                 .setUid(accountProfile.getUid())
                 .setUsername(accountProfile.getUsername())
@@ -189,13 +190,13 @@ public class JudgeManager {
 
         // 如果比赛id不等于0，则说明为比赛提交
         if (isContestSubmission) {
-            beforeDispatchInitManager.initContestSubmission(judgeDto.getCid(), judgeDto.getPid(), accountProfile,
+            beforeDispatchInitManager.initContestSubmission(judgeDto.getCid(), judgeDto.getProblemId(), accountProfile,
                     judge);
         } else if (isTrainingSubmission) {
-            beforeDispatchInitManager.initTrainingSubmission(judgeDto.getTid(), judgeDto.getPid(), accountProfile,
+            beforeDispatchInitManager.initTrainingSubmission(judgeDto.getTid(), judgeDto.getProblemId(), accountProfile,
                     judge);
         } else { // 如果不是比赛提交和训练提交
-            beforeDispatchInitManager.initCommonSubmission(judgeDto.getPid(), judgeDto.getGid(), judge);
+            beforeDispatchInitManager.initCommonSubmission(judgeDto.getProblemId(), judgeDto.getGid(), judge);
 
         }
 

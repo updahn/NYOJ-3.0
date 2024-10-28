@@ -93,6 +93,7 @@ public class Constants {
         QOJ("QOJ"),
         NSWOJ("NSWOJ"),
         NEWOJ("NEWOJ"),
+        VJ("VJ"),
         MOSS("MOSS");
 
         private final String name;

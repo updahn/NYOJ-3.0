@@ -12,6 +12,7 @@ public class Constants {
      */
     public enum Judge {
         // 提交失败
+        STATUS_DUPLICATE_CODE(-12, "Duplicate Code"),
         STATUS_NOT_SUBMITTED(-10, "Not Submitted"),
         STATUS_CANCELLED(-4, "Cancelled"),
         STATUS_PRESENTATION_ERROR(-3, "Presentation Error"),
@@ -96,6 +97,8 @@ public class Constants {
         NSWOJ_JUDGE("NSWOJ"),
 
         NEWOJ_JUDGE("NEWOJ"),
+
+        VJ_JUDGE("VJ"),
 
         HDU_REMOTE_JUDGE_ACCOUNT("Hdu Remote Judge Account"),
 

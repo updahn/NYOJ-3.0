@@ -83,6 +83,11 @@ public class RemoteJudgeDTO implements Serializable {
     private String language;
 
     /**
+     * 远程测评的语言提交key
+     */
+    private String key;
+
+    /**
      * 远程评测的用户代码
      */
     private String userCode;
@@ -151,4 +156,9 @@ public class RemoteJudgeDTO implements Serializable {
      * 当前评测的服务器端口号
      */
     private Integer serverPort;
+
+    /**
+     * 当前评测的提交方式 (bot 0, account 1)
+     */
+    private String method;
 }

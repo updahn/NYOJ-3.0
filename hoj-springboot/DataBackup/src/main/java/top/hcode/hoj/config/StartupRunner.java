@@ -199,6 +199,12 @@ public class StartupRunner implements CommandLineRunner {
     @Value("${newoj-password-list}")
     private List<String> newojPasswordList;
 
+    @Value("${vj-username-list}")
+    private List<String> vjUsernameList;
+
+    @Value("${vj-password-list}")
+    private List<String> vjPasswordList;
+
     @Value("${moss-username-list}")
     private List<String> mossUsernameList;
 
@@ -445,6 +451,20 @@ public class StartupRunner implements CommandLineRunner {
             isChanged = true;
         }
 
+        if ((CollectionUtils.isEmpty(switchConfig.getVjUsernameList())
+                && !CollectionUtils.isEmpty(vjUsernameList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setVjUsernameList(vjUsernameList);
+            isChanged = true;
+        }
+
+        if ((CollectionUtils.isEmpty(switchConfig.getVjPasswordList())
+                && !CollectionUtils.isEmpty(vjPasswordList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setVjPasswordList(vjPasswordList);
+            isChanged = true;
+        }
+
         if ((CollectionUtils.isEmpty(switchConfig.getMossUsernameList())
                 && !CollectionUtils.isEmpty(mossUsernameList))
                 || forcedUpdateRemoteJudgeAccount) {
@@ -489,10 +509,13 @@ public class StartupRunner implements CommandLineRunner {
             addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.NEWOJ.getName(),
                     switchConfig.getNewojUsernameList(),
                     switchConfig.getNewojPasswordList());
+            addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.VJ.getName(),
+                    switchConfig.getVjUsernameList(),
+                    switchConfig.getVjPasswordList());
             addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.MOSS.getName(),
                     switchConfig.getMossUsernameList(),
                     null);
-            checkRemoteOJLanguage(Constants.RemoteOJ.SPOJ, Constants.RemoteOJ.ATCODER);
+            checkRemoteOJLanguage(Constants.RemoteOJ.SPOJ, Constants.RemoteOJ.ATCODER, Constants.RemoteOJ.VJ);
         }
     }
 
@@ -730,7 +753,11 @@ public class StartupRunner implements CommandLineRunner {
     private void checkRemoteOJLanguage(Constants.RemoteOJ... remoteOJList) {
         for (Constants.RemoteOJ remoteOJ : remoteOJList) {
             QueryWrapper<Language> languageQueryWrapper = new QueryWrapper<>();
-            languageQueryWrapper.eq("oj", remoteOJ.getName());
+            if (!Objects.equals(remoteOJ, Constants.RemoteOJ.VJ)) {
+                languageQueryWrapper.eq("oj", remoteOJ.getName());
+            } else {
+                languageQueryWrapper.like("oj", remoteOJ.getName());
+            }
             if (Objects.equals(remoteOJ, Constants.RemoteOJ.ATCODER)) {
                 // 2023.09.24 由于atcoder官网废弃之前全部的语言，所以根据新语言来判断是否需要重新清空，添加最新的语言
                 languageQueryWrapper.eq("name", "なでしこ (cnako3 3.4.20)");

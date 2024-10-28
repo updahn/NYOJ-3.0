@@ -530,6 +530,8 @@ public class ContestManager {
         // 记录 languageId对应的name
         HashMap<Long, String> tmpMap = new HashMap<>();
 
+        // 题目编程语言对应的判题key
+        HashMap<String, String> languageKey = new HashMap<>();
         // 获取题目提交的代码支持的语言
         List<String> languagesStr = new LinkedList<>();
         QueryWrapper<ProblemLanguage> problemLanguageQueryWrapper = new QueryWrapper<>();
@@ -543,6 +545,7 @@ public class ContestManager {
         languages.forEach(language -> {
             languagesStr.add(language.getName());
             tmpMap.put(language.getId(), language.getName());
+            languageKey.put(language.getName(), language.getKey());
         });
 
         Date sealRankTime = null;
@@ -578,7 +581,8 @@ public class ContestManager {
             }
         }
         // 将数据统一写入到一个Vo返回数据实体类中
-        return new ProblemInfoVO(problem, problemDescriptionList, tags, languagesStr, problemCount, LangNameAndCode);
+        return new ProblemInfoVO(problem, problemDescriptionList, tags, languagesStr, problemCount, LangNameAndCode,
+                languageKey);
     }
 
     public IPage<JudgeVO> getContestSubmissionList(Integer limit,

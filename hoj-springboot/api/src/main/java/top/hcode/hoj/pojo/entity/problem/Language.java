@@ -40,6 +40,10 @@ public class Language {
     @ApiModelProperty(value = "语言名字")
     private String name;
 
+    @ApiModelProperty(value = "语言提交key")
+    @TableField("`key`")
+    private String key;
+
     @ApiModelProperty(value = "编译指令")
     private String compileCommand;
 

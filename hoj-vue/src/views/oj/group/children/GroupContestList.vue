@@ -313,7 +313,7 @@
     </el-dialog>
     <el-dialog
       :title="$t('m.Add_Rmote_OJ_Problem')"
-      width="350px"
+      width="950px"
       :visible.sync="remotePage"
       :close-on-click-modal="false"
       z-index="3000"

@@ -5,6 +5,8 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.http.*;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 import top.hcode.hoj.remoteJudge.entity.RemoteJudgeDTO;
 import top.hcode.hoj.remoteJudge.entity.RemoteJudgeRes;
@@ -57,7 +59,7 @@ public class POJJudge extends RemoteJudgeStrategy {
                 .cookie(cookies);
 
         HttpResponse response = request.form(MapUtil.builder(new HashMap<String, Object>())
-                .put("language", getLanguage(remoteJudgeDTO.getLanguage()))
+                .put("language", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()))
                 .put("submit", "Submit")
                 .put("problem_id", remoteJudgeDTO.getCompleteProblemId())
                 .put("source", Base64.encode(remoteJudgeDTO.getUserCode() + getRandomBlankString()))
@@ -175,7 +177,10 @@ public class POJJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         switch (language) {
             case "G++":
                 return "0";

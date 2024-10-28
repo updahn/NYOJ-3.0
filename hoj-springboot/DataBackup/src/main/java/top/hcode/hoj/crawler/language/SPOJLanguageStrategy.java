@@ -2,6 +2,7 @@ package top.hcode.hoj.crawler.language;
 
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.http.HttpUtil;
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.entity.problem.Language;
 
 import java.util.Collection;
@@ -106,14 +107,21 @@ public class SPOJLanguageStrategy extends LanguageStrategy {
     }
 
     @Override
-    public String getLanguageNameById(String id) {
+    public String getLanguageNameById(String id, String oj) {
         return languageMap.get(id);
+    }
+
+    @Override
+    public List<Language> buildAddLanguageList(List<Language> allLanguageList, List<Pair_<String, String>> langIdList,
+            String oj) {
+        return null;
     }
 
     @Override
     public List<Language> buildLanguageListByIds(List<Language> allLanguageList, List<String> langIdList) {
 
-        List<String> langNameList = langIdList.stream().map(this::getLanguageNameById).collect(Collectors.toList());
+        List<String> langNameList = langIdList.stream().map(id -> getLanguageNameById(id, null))
+                .collect(Collectors.toList());
 
         return allLanguageList.stream().filter(language -> langNameList.contains(language.getName()))
                 .collect(Collectors.toList());

@@ -1,5 +1,6 @@
 package top.hcode.hoj.crawler.language;
 
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.entity.problem.Language;
 import top.hcode.hoj.utils.Constants;
 
@@ -26,20 +27,28 @@ public class LanguageContext {
             case ATCODER:
                 languageStrategy = new AtCoderLanguageStrategy();
                 break;
+            case VJ:
+                languageStrategy = new VJLanguageStrategy();
+                break;
             default:
                 throw new RuntimeException("未知的OJ的名字，暂时不支持！");
         }
     }
 
-    public List<Language> buildLanguageList(){
+    public List<Language> buildLanguageList() {
         return languageStrategy.buildLanguageList();
     }
 
-    public String getLanguageNameById(String id) {
-        return languageStrategy.getLanguageNameById(id);
+    public String getLanguageNameById(String id, String oj) {
+        return languageStrategy.getLanguageNameById(id, oj);
     }
 
     public List<Language> buildLanguageListByIds(List<Language> allLanguageList, List<String> langIdList) {
         return languageStrategy.buildLanguageListByIds(allLanguageList, langIdList);
+    }
+
+    public List<Language> buildAddLanguageList(List<Language> allLanguageList, List<Pair_<String, String>> langList,
+            String oj) {
+        return languageStrategy.buildAddLanguageList(allLanguageList, langList, oj);
     }
 }

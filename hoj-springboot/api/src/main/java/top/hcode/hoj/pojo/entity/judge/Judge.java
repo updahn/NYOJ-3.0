@@ -79,6 +79,10 @@ public class Judge implements Serializable {
     @ApiModelProperty(value = "代码语言")
     private String language;
 
+    @ApiModelProperty(value = "语言提交key")
+    @TableField("`key`")
+    private String key;
+
     @ApiModelProperty(value = "比赛id，非比赛提交默认为0")
     private Long cid;
 

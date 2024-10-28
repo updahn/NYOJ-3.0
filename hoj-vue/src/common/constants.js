@@ -1,4 +1,11 @@
 export const JUDGE_STATUS = {
+  '-12': {
+    name: 'Duplicate Code',
+    color: 'yellow',
+    short: 'DC',
+    type: 'warning',
+    rgb: '#f90',
+  },
   '-10': {
     name: 'Not Submitted',
     short: 'NS',
@@ -115,6 +122,13 @@ export const JUDGE_STATUS = {
     type: 'info',
     rgb: '#909399',
   },
+  '15': {
+    name: 'No Status',
+    color: 'gray',
+    short: 'NS',
+    type: 'info',
+    rgb: '#909399',
+  },
 };
 
 export const JUDGE_STATUS_RESERVE = {
@@ -135,6 +149,8 @@ export const JUDGE_STATUS_RESERVE = {
   pa: 8,
   Submitting: 9,
   sf: 10,
+  dc: 12,
+  ns: 15,
 };
 
 export const PROBLEM_LEVEL = {
@@ -243,6 +259,10 @@ export const REMOTE_OJ = [
   {
     name: 'NEWOJ',
     key: 'NEWOJ',
+  },
+  {
+    name: 'VJ',
+    key: 'VJ',
   },
 ];
 

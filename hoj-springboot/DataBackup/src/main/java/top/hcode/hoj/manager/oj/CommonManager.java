@@ -1,6 +1,8 @@
 package top.hcode.hoj.manager.oj;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ReUtil;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.wf.captcha.ArithmeticCaptcha;
 import com.wf.captcha.base.Captcha;
@@ -166,14 +168,17 @@ public class CommonManager {
         if (pid != null) {
             ProblemRes problem = problemEntityService.getProblemRes(pid, null, null, null);
             if (problem.getIsRemote()) {
-                oj = problem.getProblemId().split("-")[0];
+                if (problem.getProblemId().startsWith("VJ_")) {
+                    oj = "VJ_" + ReUtil.get("VJ-(\\d+)\\(([^-]+)-", problem.getProblemId(), 2);
+                } else {
+                    oj = problem.getProblemId().split("-")[0];
+                }
             }
         }
 
         if (oj.equals("GYM")) { // GYM用与CF一样的编程语言列表
             oj = "CF";
         }
-
         QueryWrapper<Language> queryWrapper = new QueryWrapper<>();
         // 获取对应OJ支持的语言列表
         queryWrapper.eq(all != null && !all, "oj", oj);

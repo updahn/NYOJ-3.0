@@ -432,7 +432,7 @@ public class CodeForcesJudge extends RemoteJudgeStrategy {
         paramMap.put("action", "submitSolutionFormSubmitted");
         paramMap.put("submittedProblemIndex", remoteJudgeDTO.getProblemNum());
         paramMap.put("contestId", remoteJudgeDTO.getContestId());
-        paramMap.put("programTypeId", getLanguage(remoteJudgeDTO.getLanguage()));
+        paramMap.put("programTypeId", getLanguage(remoteJudgeDTO.getLanguage(), remoteJudgeDTO.getKey()));
         paramMap.put("tabsize", 4);
         paramMap.put("source", remoteJudgeDTO.getUserCode() + getRandomBlankString());
         paramMap.put("sourceCodeConfirmed", true);
@@ -462,7 +462,10 @@ public class CodeForcesJudge extends RemoteJudgeStrategy {
     }
 
     @Override
-    public String getLanguage(String language) {
+    public String getLanguage(String language, String languageKey) {
+        if (!StringUtils.isEmpty(languageKey)) {
+            return languageKey;
+        }
         if (language.startsWith("GNU GCC C11")) {
             return "43";
         } else if (language.startsWith("Clang++17 Diagnostics")) {

@@ -320,7 +320,9 @@ public class AdminTrainingProblemManager {
         }
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("problem_id", name.toUpperCase() + "-" + problemId.toUpperCase());
+        String upperName = name.toUpperCase();
+        queryWrapper.like("problem_id",
+                upperName.equals("VJ") ? problemId.toUpperCase() : upperName + "-" + problemId.toUpperCase());
 
         Problem problem = problemEntityService.getOne(queryWrapper, false);
 

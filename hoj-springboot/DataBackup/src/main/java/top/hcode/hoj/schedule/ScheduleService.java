@@ -21,7 +21,7 @@ public interface ScheduleService {
 
     void getLeetcodeInfo();
 
-    void getCodeLines();
+    // void getCodeLines();
 
     void deleteUserSession();
 

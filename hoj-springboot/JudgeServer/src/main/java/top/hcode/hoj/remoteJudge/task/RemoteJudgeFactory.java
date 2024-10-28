@@ -30,6 +30,8 @@ public class RemoteJudgeFactory {
                 return new NSWOJJudge();
             case NEWOJ_JUDGE:
                 return new NEWOJJudge();
+            case VJ_JUDGE:
+                return new VJJudge();
             default:
                 return null;
         }

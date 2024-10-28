@@ -1,6 +1,8 @@
 package top.hcode.hoj.manager.admin.problem;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ReUtil;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import top.hcode.hoj.dao.judge.RemoteJudgeAccountEntityService;
 import top.hcode.hoj.pojo.entity.judge.RemoteJudgeAccount;
 import top.hcode.hoj.pojo.entity.problem.*;
 import top.hcode.hoj.dao.problem.*;
+import top.hcode.hoj.utils.Constants;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -93,6 +96,9 @@ public class RemoteProblemManager {
             case "NEWOJ":
                 problemStrategy = new NEWOJProblemStrategy();
                 break;
+            case "VJ":
+                problemStrategy = new VJProblemStrategy();
+                break;
             default:
                 throw new Exception("未知的OJ的名字，暂时不支持！");
         }
@@ -143,33 +149,15 @@ public class RemoteProblemManager {
         List<ProblemDescription> problemDescriptionList = remoteProblemInfo.getProblemDescriptionList();
 
         boolean addProblemDescriptionResult = problemDescriptionList.stream()
-                .anyMatch(problemDescription -> {
-                    problemDescription.setPid(problem.getId()).setAuthor(problem.getAuthor());
-                    return problemDescriptionEntityService.save(problemDescription);
-                });
+                .peek(problemDescription -> {
+                    problemDescription.setPid(problem.getId());
+                    if (problemDescription.getAuthor() == null) {
+                        problemDescription.setAuthor(problem.getAuthor());
+                    }
+                })
+                .allMatch(problemDescriptionEntityService::save);
 
-        // 为新的其它oj题目添加对应的language
-        QueryWrapper<Language> languageQueryWrapper = new QueryWrapper<>();
-        if (OJName.equals("GYM")) {
-            languageQueryWrapper.eq("oj", "CF");
-        } else {
-            languageQueryWrapper.eq("oj", OJName);
-        }
-        List<Language> OJLanguageList = languageEntityService.list(languageQueryWrapper);
-        List<ProblemLanguage> problemLanguageList = new LinkedList<>();
-        if (!CollectionUtil.isEmpty(remoteProblemInfo.getLangIdList())) {
-            LanguageContext languageContext = new LanguageContext(remoteProblemInfo.getRemoteOJ());
-            List<Language> languageList = languageContext.buildLanguageListByIds(OJLanguageList,
-                    remoteProblemInfo.getLangIdList());
-            for (Language language : languageList) {
-                problemLanguageList.add(new ProblemLanguage().setPid(problem.getId()).setLid(language.getId()));
-            }
-        } else {
-            for (Language language : OJLanguageList) {
-                problemLanguageList.add(new ProblemLanguage().setPid(problem.getId()).setLid(language.getId()));
-            }
-        }
-        boolean addProblemLanguageResult = problemLanguageEntityService.saveOrUpdateBatch(problemLanguageList);
+        boolean addProblemLanguageResult = addProblemLanguage(remoteProblemInfo, OJName, problem);
 
         boolean addProblemTagResult = true;
         List<Tag> addTagList = remoteProblemInfo.getTagList();
@@ -222,4 +210,59 @@ public class RemoteProblemManager {
             return null;
         }
     }
+
+    public Boolean addProblemLanguage(ProblemStrategy.RemoteProblemInfo remoteProblemInfo, String OJName,
+            Problem problem) {
+        String oj = OJName.equals("VJ")
+                ? "VJ_" + ReUtil.get("VJ-(\\d+)\\(([^-]+)-", problem.getProblemId(), 2)
+                : OJName;
+
+        QueryWrapper<Language> languageQueryWrapper = new QueryWrapper<>();
+        if (OJName.equals("GYM")) {
+            languageQueryWrapper.eq("oj", "CF");
+        } else {
+            languageQueryWrapper.eq("oj", oj);
+        }
+
+        List<Language> OJLanguageList = languageEntityService.list(languageQueryWrapper);
+
+        List<ProblemLanguage> problemLanguageList = new LinkedList<>();
+        // 构建语言列表并批量保存
+        List<Language> languageList = buildProblemLanguageList(remoteProblemInfo, oj, OJLanguageList);
+
+        if (languageList != null) {
+            for (Language language : languageList) {
+                problemLanguageList.add(new ProblemLanguage().setPid(problem.getId()).setLid(language.getId()));
+            }
+        } else {
+            for (Language language : OJLanguageList) {
+                problemLanguageList.add(new ProblemLanguage().setPid(problem.getId()).setLid(language.getId()));
+            }
+        }
+
+        return problemLanguageEntityService.saveOrUpdateBatch(problemLanguageList);
+    }
+
+    private List<Language> buildProblemLanguageList(ProblemStrategy.RemoteProblemInfo remoteProblemInfo, String oj,
+            List<Language> OJLanguageList) {
+        if (CollectionUtil.isEmpty(remoteProblemInfo.getLangIdList())) {
+            return null;
+        }
+
+        LanguageContext languageContext = new LanguageContext(remoteProblemInfo.getRemoteOJ());
+        if (remoteProblemInfo.getRemoteOJ().equals(Constants.RemoteOJ.VJ)) {
+            List<Language> addLanguageList = languageContext.buildAddLanguageList(OJLanguageList,
+                    remoteProblemInfo.getLangList(), oj);
+            if (!CollectionUtils.isEmpty(addLanguageList)) {
+                languageEntityService.saveOrUpdateBatch(addLanguageList);
+
+                OJLanguageList.addAll(addLanguageList);
+
+                return languageContext.buildLanguageListByIds(OJLanguageList, remoteProblemInfo.getLangIdList());
+            }
+        }
+
+        return languageContext.buildLanguageListByIds(OJLanguageList, remoteProblemInfo.getLangIdList());
+    }
+
 }

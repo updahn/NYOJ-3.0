@@ -1,5 +1,6 @@
 package top.hcode.hoj.crawler.language;
 
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.entity.problem.Language;
 
 import java.util.ArrayList;
@@ -14,9 +15,12 @@ import java.util.List;
  */
 public abstract class LanguageStrategy {
 
-    public abstract String getLanguageNameById(String id);
+    public abstract String getLanguageNameById(String id, String oj);
 
     public abstract List<Language> buildLanguageListByIds(List<Language> allLanguageList, List<String> langIdList);
+
+    public abstract List<Language> buildAddLanguageList(List<Language> allLanguageList,
+            List<Pair_<String, String>> langList, String oj);
 
     public abstract Collection<String> getLangList();
 
@@ -110,6 +114,64 @@ public abstract class LanguageStrategy {
 
         if (lowerName.contains("ocaml")) {
             return "text/x-ocaml";
+        }
+
+        if (lowerName.contains("assembly")) {
+            return "text/x-asm";
+        }
+        if (lowerName.contains("erlang")) {
+            return "text/x-erlang";
+        }
+        if (lowerName.contains("swift")) {
+            return "text/x-swift";
+        }
+        if (lowerName.contains("kotlin")) {
+            return "text/x-kotlin";
+        }
+        if (lowerName.contains("julia")) {
+            return "text/x-julia";
+        }
+        if (lowerName.contains("smalltalk")) {
+            return "text/x-smalltalk";
+        }
+        if (lowerName.contains("ada")) {
+            return "text/x-ada";
+        }
+        if (lowerName.contains("bash")) {
+            return "application/x-sh";
+        }
+        if (lowerName.contains("lua")) {
+            return "text/x-lua";
+        }
+        if (lowerName.contains("elixir")) {
+            return "text/x-elixir";
+        }
+        if (lowerName.contains("sql")) {
+            return "text/x-sql";
+        }
+        if (lowerName.contains("dart")) {
+            return "text/x-dart";
+        }
+        if (lowerName.contains("groovy")) {
+            return "text/x-groovy";
+        }
+        if (lowerName.contains("vb")) {
+            return "text/x-vb";
+        }
+        if (lowerName.contains("bf")) {
+            return "text/x-brainfuck";
+        }
+        if (lowerName.contains("r")) {
+            return "text/x-rsrc";
+        }
+        if (lowerName.contains("awk")) {
+            return "text/x-awk";
+        }
+        if (lowerName.contains("plain text")) {
+            return "text/plain";
+        }
+        if (lowerName.contains("openjdk")) {
+            return "text/x-java";
         }
 
         return null;

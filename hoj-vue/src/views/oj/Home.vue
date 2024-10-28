@@ -424,6 +424,12 @@ export default {
           status: true,
         },
         {
+          url: "https://vjudge.net",
+          name: "VJ",
+          logo: require("@/assets/vj-logo.png"),
+          status: true,
+        },
+        {
           url: "https://acm.nyist.edu.cn",
           name: "NSWOJ",
           logo: require("@/assets/nswoj-logo.png"),
