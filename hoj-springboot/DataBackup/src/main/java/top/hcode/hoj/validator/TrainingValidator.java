@@ -59,7 +59,7 @@ public class TrainingValidator {
 
         if (training.getIsGroup()) {
             Boolean isGroupRoot = groupManager.getGroupAuthAdmin(training.getGid());
-            if (!isGroupRoot) {
+            if (!isGroupRoot && !groupValidator.isGroupMember(userRolesVo.getUid(), training.getGid())) {
                 throw new StatusForbiddenException("对不起，您并非该团队内的成员，无权操作！");
             }
         }
