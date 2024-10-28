@@ -4,6 +4,7 @@ import mMessage from '@/common/message';
 import router from '@/router';
 import store from '@/store';
 import utils from '@/common/utils';
+import aes from '@/common/aes';
 import i18n from '@/i18n';
 // import NProgress from 'nprogress' // nprogress插件
 // import 'nprogress/nprogress.css' // nprogress样式
@@ -33,6 +34,30 @@ axios.interceptors.request.use(
       config.headers['Url-Type'] = type;
     } else {
       config.headers['Url-Type'] = 'general';
+    }
+
+    let white_url = [];
+
+    // 检查是否是 POST 或 PUT 请求
+    if ((config.method.toLowerCase() === 'post' || config.method.toLowerCase() === 'put') && config.url && !config.url.startsWith('/api/file') && !white_url.includes(config.url)) {
+      let secretKey = '5A8F3C6B1D9E2F7A4B0C9D6E7F3B8A1C';
+
+      // 如果 config.data 存在，且不是字符串，则将其转换为字符串并加密
+      if (config.data) {
+        const jsonData = typeof config.data === 'string' ? config.data : JSON.stringify(config.data);
+        const encryptedData = aes.methods.encrypt(jsonData, secretKey); // 调用 aes 的加密方法进行加密
+        config.data = encryptedData; // 将加密后的字符串赋值给 config.data
+      }
+
+      // 如果 config.params 存在，且不是字符串，则将其转换为字符串并加密
+      if (config.params) {
+        const jsonParams = typeof config.params === 'string' ? config.params : JSON.stringify(config.params);
+        const encryptedParams = aes.methods.encrypt(jsonParams, secretKey); // 加密参数
+        config.params = encryptedParams; // 将加密后的字符串赋值给 config.params
+      }
+
+      // 保持 Content-Type 为 application/json
+      config.headers['Content-Type'] = 'application/json';
     }
 
     return config;
