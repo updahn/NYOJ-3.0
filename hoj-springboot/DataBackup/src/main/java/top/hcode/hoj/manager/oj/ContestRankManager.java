@@ -268,31 +268,12 @@ public class ContestRankManager {
     public List<ACMContestRankVO> getStatisticRankList(StatisticVO statisticVo)
             throws StatusFailException, StatusForbiddenException, Exception {
         List<Contest> contestList = statisticVo.getContestList();
+        List<Integer> percentList = statisticVo.getPercentList();
         String keyword = statisticVo.getKeyword();
 
         List<ACMContestRankVO> result = contestCalculateRankManager.calcStatisticRank(statisticVo);
-        // 筛选关键词
-        if (StrUtil.isNotBlank(keyword)) {
-            String finalKeyword = keyword.trim().toLowerCase();
-            List<ACMContestRankVO> filteredResult = result.stream()
-                    .filter(rankVo -> contestList.stream()
-                            .anyMatch(contest -> filterBySchoolORRankShowName(
-                                    finalKeyword,
-                                    rankVo.getSchool(),
-                                    "default".equals(contest.getOj())
-                                            ? getUserRankShowName(contest.getRankShowName(), rankVo.getUsername(),
-                                                    rankVo.getRealname(), rankVo.getNickname())
-                                            : rankVo.getRealname())))
-                    .collect(Collectors.toList());
 
-            // 如果筛选结果不为空，则更新对应的result
-            if (!CollectionUtils.isEmpty(filteredResult)) {
-                result = filteredResult;
-            }
-        }
-
-        // 重新排序
-        return contestCalculateRankManager.getSortedRankList(result);
+        return getDealList(percentList, contestList, keyword, result);
     }
 
     /**
@@ -472,4 +453,102 @@ public class ContestRankManager {
         return StrUtil.isNotEmpty(rankShowName) && rankShowName.toLowerCase().contains(keyword);
     }
 
+    public List<ACMContestRankVO> getDealList(List<Integer> percentList, List<Contest> contestList, String keyword,
+            List<ACMContestRankVO> result) {
+        // 筛选关键词
+        result = getKeywordedList(keyword, contestList, result);
+        // 添加比例
+        result = getPercentedList(percentList, contestList, result);
+        // 重新排序
+        result = getPercentedList(result);
+
+        return result;
+    }
+
+    public List<ACMContestRankVO> getPercentedList(List<Integer> percentList, List<Contest> contestList,
+            List<ACMContestRankVO> result) {
+        // 计算比例
+        if (!CollectionUtils.isEmpty(percentList)) {
+            // 判断是否存在不是100的元素
+            boolean hasNot100 = percentList.stream().anyMatch(percent -> percent != 100);
+            if (hasNot100) {
+                for (ACMContestRankVO acmContestRankVO : result) {
+                    double totalAc = 0.0;
+                    double totalTime = 0.0;
+
+                    HashMap<String, HashMap<String, Object>> submissionInfo = acmContestRankVO.getSubmissionInfo();
+
+                    for (int j = 0; j < contestList.size(); j++) {
+                        Contest contest = contestList.get(j); // 提取 contestList.get(j) 为局部变量
+                        String key = contest.getOj().equals("default")
+                                ? contest.getId().toString()
+                                : contest.getOj() + contest.getTitle(); // 简化 key 生成
+
+                        HashMap<String, Object> contestInfo = submissionInfo.get(key);
+
+                        if (contestInfo == null) {
+                            continue;
+                        }
+
+                        // 使用正则表达式去除原有的可能的 " * xx%" 后缀
+                        String acString = String.valueOf(contestInfo.get("ac")).replaceAll("\\s\\*\\s\\d+%", "");
+                        String totalTimeString = String.valueOf(contestInfo.get("totalTime"))
+                                .replaceAll("\\s\\*\\s\\d+%", "");
+
+                        // 先将字符串转换为数字，确保是可以转换的
+                        double acValue = Double.parseDouble(acString);
+                        double totalTimeValue = Double.parseDouble(totalTimeString);
+
+                        int percentValue = percentList.get(j);
+
+                        // 进行累加
+                        totalAc += acValue * percentValue / 100.0;
+                        totalTime += totalTimeValue * percentValue / 100.0;
+
+                        if (percentValue != 100) {
+                            String suffix = " * " + percentValue + "%";
+
+                            // 重新添加新的后缀
+                            contestInfo.put("ac", acString + suffix);
+                            contestInfo.put("totalTime", totalTimeString + suffix);
+                        }
+
+                    }
+
+                    // 保留三位小数
+                    acmContestRankVO.setAc(Double.parseDouble(String.format("%.3f", totalAc)));
+                    acmContestRankVO.setTotalTime(Double.parseDouble(String.format("%.3f", totalTime)));
+                }
+            }
+        }
+        return result;
+    }
+
+    public List<ACMContestRankVO> getPercentedList(List<ACMContestRankVO> result) {
+        return contestCalculateRankManager.getSortedRankList(result);
+    }
+
+    public List<ACMContestRankVO> getKeywordedList(String keyword, List<Contest> contestList,
+            List<ACMContestRankVO> result) {
+        // 筛选关键词
+        if (StrUtil.isNotBlank(keyword)) {
+            String finalKeyword = keyword.trim().toLowerCase();
+            List<ACMContestRankVO> filteredResult = result.stream()
+                    .filter(rankVo -> contestList.stream()
+                            .anyMatch(contest -> filterBySchoolORRankShowName(
+                                    finalKeyword,
+                                    rankVo.getSchool(),
+                                    "default".equals(contest.getOj())
+                                            ? getUserRankShowName(contest.getRankShowName(), rankVo.getUsername(),
+                                                    rankVo.getRealname(), rankVo.getNickname())
+                                            : rankVo.getRealname())))
+                    .collect(Collectors.toList());
+
+            // 如果筛选结果不为空，则更新对应的result
+            if (!CollectionUtils.isEmpty(filteredResult)) {
+                result = filteredResult;
+            }
+        }
+        return result;
+    }
 }

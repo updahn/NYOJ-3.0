@@ -52,40 +52,46 @@ public class CFScraperStrategy extends ScraperStrategy {
     }
 
     @Override
-    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, String loginUsername, String loginPassword,
-            String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
+            String password, Map<String, String> usernameToUidMap) throws Exception {
         List<ACMContestRankVO> rankDatas = new ArrayList<>();
-        // 登录
-        Connection.Response loginResponse = login(loginUsername, loginPassword);
 
-        if (loginResponse.statusCode() != 200) {
+        if (cookies != null) {
             // 获取排名信息
-            String rankHtml = getRankInfo(cid, keyword, loginResponse);
+            String rankHtml = getRankInfo(cid, cookies);
 
             // 处理排名数据
             rankDatas = dealRank(rankHtml, cid, usernameToUidMap, false);
 
         } else {
-            String msg = "[CF] Scraper Login Error：" + loginResponse.body();
-            throw new Exception(msg);
+            throw new Exception("[CF] Scraper Login Error");
         }
 
         return rankDatas;
     }
 
     @Override
-    public List<ACMContestRankVO> getScraperInfo(String cid, String keyword, Map<String, String> usernameToUidMap)
+    public List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap)
             throws Exception {
         List<ACMContestRankVO> rankDatas = new ArrayList<>();
 
         // 获取排名信息
-        String rankHtml = getRankInfo(cid, keyword, null);
+        String rankHtml = getRankInfo(cid, null);
 
         // 处理排名数据
         rankDatas = dealRank(rankHtml, cid, usernameToUidMap, true);
 
         return rankDatas;
+    }
+
+    @Override
+    public Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception {
+        Connection.Response loginResponse = login(loginUsername, loginPassword);
+
+        if (loginResponse.statusCode() != 200) {
+            return loginResponse.cookies();
+        }
+        return null;
     }
 
     public Connection.Response login(String username, String password) throws IOException {
@@ -115,8 +121,8 @@ public class CFScraperStrategy extends ScraperStrategy {
         return null;
     }
 
-    public String getRankInfo(String cid, String keyword, Connection.Response loginResponse) throws IOException {
-        if (loginResponse == null) {
+    public String getRankInfo(String cid, Map<String, String> cookies) throws IOException {
+        if (cookies == null) {
             String url = IMAGE_HOST + RANK_API;
 
             HttpURLConnection connection = (HttpURLConnection) new URL(String.format(url, cid))
@@ -139,7 +145,7 @@ public class CFScraperStrategy extends ScraperStrategy {
         } else {
             // 复制 cookies
             Connection.Response response = Jsoup.connect(String.format(RANK_URL, cid))
-                    .cookies(loginResponse.cookies()) // 使用登录时获得的 cookies
+                    .cookies(cookies) // 使用登录时获得的 cookies
                     .execute();
             return response.body();
         }

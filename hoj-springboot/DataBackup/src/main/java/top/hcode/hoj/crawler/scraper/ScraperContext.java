@@ -16,16 +16,19 @@ public class ScraperContext {
     }
 
     // 上下文接口
-    public List<ACMContestRankVO> getScraperInfo(String cid, String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
-        return scraperStrategy.getScraperInfo(cid, keyword, usernameToUidMap);
+    public List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap) throws Exception {
+        return scraperStrategy.getScraperInfo(cid, usernameToUidMap);
     }
 
     // 上下文接口
-    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, String keyword, String loginUsername,
-            String loginPassword, Map<String, String> usernameToUidMap)
-            throws Exception {
-        return scraperStrategy.getScraperInfoByLogin(cid, loginUsername, loginPassword, keyword, usernameToUidMap);
+    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
+            String password, Map<String, String> usernameToUidMap) throws Exception {
+        return scraperStrategy.getScraperInfoByLogin(cid, cookies, username, password, usernameToUidMap);
+    }
+
+    // 上下文接口
+    public Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception {
+        return scraperStrategy.getLoginCookies(loginUsername, loginPassword);
     }
 
 }

@@ -9,13 +9,13 @@ import top.hcode.hoj.pojo.vo.ACMContestRankVO;
 
 public abstract class ScraperStrategy {
 
-	public abstract List<ACMContestRankVO> getScraperInfo(String cid, String keyword,
-			Map<String, String> usernameToUidMap)
+	public abstract List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap)
 			throws Exception;
 
-	public abstract List<ACMContestRankVO> getScraperInfoByLogin(String cid, String loginUsername,
-			String loginPassword, String keyword, Map<String, String> usernameToUidMap)
-			throws Exception;
+	public abstract List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies,
+			String username, String password, Map<String, String> usernameToUidMap) throws Exception;
+
+	public abstract Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception;
 
 	public static String getOrderNumber(List<String> handles) {
 		// 对 handles 进行排序并用 '-' 连接

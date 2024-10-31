@@ -34,9 +34,6 @@ public class StatisticRankDTO {
     @ApiModelProperty(value = "爬取使用账号")
     private HashMap<String, String> account;
 
-    @ApiModelProperty(value = "是否重新爬取")
-    private Boolean refresh;
-
     @ApiModelProperty(value = "系列比赛的标题")
     private String title;
 

@@ -170,12 +170,6 @@ public class StatisticManager {
         updateWrapper.eq("scid", scid);
         statisticRankEntityService.remove(updateWrapper);
 
-        // 重新爬取信息
-        statisticRankDto.setRefresh(true);
-        List<ACMContestRankVO> acmContestRankList = getStatisticRankList(statisticRankDto);
-
-        statisticRankDto.setAcmContestRankVoList(acmContestRankList);
-
         addStatisticRank(statisticRankDto);
     }
 
@@ -188,6 +182,29 @@ public class StatisticManager {
         UpdateWrapper<StatisticContest> queryWrapper = new UpdateWrapper<>();
         queryWrapper.eq("scid", scid).set("visible", show);
         statisticContestEntityService.update(queryWrapper);
+    }
+
+    public IPage<ACMContestRankVO> dealStatisticRankList(StatisticRankDTO statisticRankDTO)
+            throws StatusFailException, StatusForbiddenException {
+
+        List<Contest> contestList = contestValidator.validateContestList(statisticRankDTO.getCids());
+        List<Integer> percentList = contestValidator.validatePercentList(statisticRankDTO.getPercents());
+        List<ACMContestRankVO> result = statisticRankDTO.getAcmContestRankVoList();
+        String keyword = statisticRankDTO.getKeyword();
+        Integer currentPage = statisticRankDTO.getCurrentPage();
+        Integer limit = statisticRankDTO.getLimit();
+
+        // 页数，每页题数若为空，设置默认值
+        if (currentPage == null || currentPage < 1)
+            currentPage = 1;
+        if (limit == null || limit < 1)
+            limit = 30;
+
+        // 静态处理结果
+        List<ACMContestRankVO> acmContestRankList = contestRankManager.getDealList(percentList, contestList, keyword,
+                result);
+
+        return contestRankManager.getPagingRankList(acmContestRankList, currentPage, limit);
     }
 
     private String getLoginPassword(String loginUsername, List<String> usernameList, List<String> passwordList) {
@@ -223,13 +240,11 @@ public class StatisticManager {
 
         Integer currentPage = statisticRankDto.getCurrentPage();
         Integer limit = statisticRankDto.getLimit();
-        String keyword = statisticRankDto.getKeyword();
         String scid = statisticRankDto.getScid();
         String cids = statisticRankDto.getCids();
         String percents = statisticRankDto.getPercents();
         HashMap<String, String> data = statisticRankDto.getData();
         HashMap<String, String> account = statisticRankDto.getAccount();
-        Boolean refresh = statisticRankDto.getRefresh() != null ? statisticRankDto.getRefresh() : false;
 
         // 页数，每页题数若为空，设置默认值
         if (currentPage == null || currentPage < 1)
@@ -243,7 +258,7 @@ public class StatisticManager {
         StatisticContest statisticContest = statisticContestEntityService.getOne(
                 new QueryWrapper<StatisticContest>().eq("scid", scid), false);
 
-        if (statisticContest != null && !refresh) {
+        if (statisticContest != null) {
 
             List<StatisticRank> statisticRankList = statisticRankEntityService.list(
                     new QueryWrapper<StatisticRank>().in("scid", statisticContest.getScid()));
@@ -297,6 +312,12 @@ public class StatisticManager {
                         loginPassword = getLoginPassword(loginUsername, switchConfig.getHduUsernameList(),
                                 switchConfig.getHduPasswordList());
                         break;
+                    case "vj":
+                        // 获取 hdu 账号，可能为 null
+                        loginUsername = account.get("vj");
+                        loginPassword = getLoginPassword(loginUsername, switchConfig.getVjUsernameList(),
+                                switchConfig.getVjPasswordList());
+                        break;
                     default:
                         loginUsername = "";
                         loginPassword = "";
@@ -306,7 +327,6 @@ public class StatisticManager {
 
             // 处理传入信息
             StatisticVO statisticVo = new StatisticVO()
-                    .setKeyword(keyword)
                     .setContestList(contestList)
                     .setPercentList(percentList)
                     .setAccountList(accountList)

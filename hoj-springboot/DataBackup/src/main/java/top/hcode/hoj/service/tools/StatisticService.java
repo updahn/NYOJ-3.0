@@ -8,22 +8,24 @@ import top.hcode.hoj.pojo.vo.*;
 
 public interface StatisticService {
 
-    public CommonResult<IPage<StatisticContest>> getStatisticList(Integer currentPage, Integer limit,
-            String keyword);
+        public CommonResult<IPage<StatisticContest>> getStatisticList(Integer currentPage, Integer limit,
+                        String keyword);
 
-    public CommonResult<IPage<ACMContestRankVO>> getStatisticRank(StatisticRankDTO statisticRankDTO);
+        public CommonResult<IPage<ACMContestRankVO>> getStatisticRank(StatisticRankDTO statisticRankDTO);
 
-    public CommonResult<String> getStatisticRankCids(String scid);
+        public CommonResult<String> getStatisticRankCids(String scid);
 
-    public CommonResult<IPage<StatisticContest>> getAdminStatisticList(Integer currentPage, Integer limit,
-            String keyword);
+        public CommonResult<IPage<StatisticContest>> getAdminStatisticList(Integer currentPage, Integer limit,
+                        String keyword);
 
-    public CommonResult<Void> addStatisticRank(StatisticRankDTO statisticRankDTO);
+        public CommonResult<Void> addStatisticRank(StatisticRankDTO statisticRankDTO);
 
-    public CommonResult<Void> updateStatisticRank(StatisticRankDTO statisticRankDTO);
+        public CommonResult<Void> updateStatisticRank(StatisticRankDTO statisticRankDTO);
 
-    public CommonResult<Void> deleteStatisticRank(String scid);
+        public CommonResult<Void> deleteStatisticRank(String scid);
 
-    public CommonResult<Void> changeStatisticVisible(String scid, Boolean show);
+        public CommonResult<Void> changeStatisticVisible(String scid, Boolean show);
+
+        public CommonResult<IPage<ACMContestRankVO>> dealStatisticRankList(StatisticRankDTO statisticRankDTO);
 
 }

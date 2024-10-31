@@ -436,29 +436,48 @@ public class ContestCalculateRankManager {
 
     public List<ACMContestRankVO> calcStatisticRank(StatisticVO statisticVo) throws Exception {
         List<Contest> contestList = statisticVo.getContestList();
-        List<Integer> percentList = statisticVo.getPercentList();
         List<Pair_<String, String>> accountList = statisticVo.getAccountList();
         HashMap<String, String> data = statisticVo.getData();
-        String keyword = statisticVo.getKeyword();
+
+        // 暂存所有登录所需的cookies
+        HashMap<String, Map<String, String>> cookies = new HashMap<>();
+        // 使用 parallelStream 进行并行处理
+        for (Contest contest : contestList) {
+            try {
+                String key = contest.getOj();
+
+                // 如果 cookies 已经包含 key，跳过处理
+                if (cookies.containsKey(key))
+                    continue;
+
+                // 获取账户信息并执行 scraperManager.getLoginCookies
+                Pair_<String, String> account = accountList.get(contestList.indexOf(contest));
+                Map<String, String> loginCookies = scraperManager.getLoginCookies(key, account.getKey(),
+                        account.getValue());
+
+                // 将获取到的 cookies 放入 map 中
+                cookies.put(key, loginCookies);
+            } catch (Exception e) {
+                e.printStackTrace(); // 处理异常并打印堆栈信息
+            }
+        }
 
         HashMap<String, Integer> uidMapIndex = new HashMap<>();
         HashMap<String, Boolean> uidOjMapIndex = new HashMap<>();
 
         List<ACMContestRankVO> resultList = new ArrayList<>();
-
         AtomicInteger index = new AtomicInteger(0);
-
         Map<String, String> usernameToUidMap = new HashMap<>();
         try {
             contestList.parallelStream().forEach(contest -> {
                 List<ACMContestRankVO> orderResultList = new ArrayList<>();
 
                 if (!contest.getOj().equals("default")) {
-                    Pair_<String, String> account = accountList.get(contestList.indexOf(contest));
-
                     try {
-                        orderResultList = scraperManager.getScraperInfo(contest.getTitle(), keyword, contest.getOj(),
-                                account.getKey(), account.getValue(), usernameToUidMap);
+                        String key = contest.getOj();
+                        Pair_<String, String> account = accountList.get(contestList.indexOf(contest));
+                        orderResultList = scraperManager.getScraperInfo(contest.getOj(), contest.getTitle(),
+                                cookies.get(key), account.getKey(), account.getValue(), usernameToUidMap);
 
                     } catch (Exception e) {
                         // 将异常封装为 RuntimeException 以便抛出
@@ -573,52 +592,6 @@ public class ContestCalculateRankManager {
                 throw (Exception) cause;
             } else {
                 throw e; // 不应该到达这里
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(percentList)) {
-            // 判断是否存在不是100的元素
-            boolean hasNot100 = percentList.stream().anyMatch(percent -> percent != 100);
-            if (hasNot100) {
-                for (ACMContestRankVO acmContestRankVO : resultList) {
-                    double totalAc = 0.0;
-                    double totalTime = 0.0;
-
-                    HashMap<String, HashMap<String, Object>> submissionInfo = acmContestRankVO.getSubmissionInfo();
-
-                    for (int j = 0; j < contestList.size(); j++) {
-                        Contest contest = contestList.get(j); // 提取 contestList.get(j) 为局部变量
-                        String key = contest.getOj().equals("default")
-                                ? contest.getId().toString()
-                                : contest.getOj() + contest.getTitle(); // 简化 key 生成
-
-                        HashMap<String, Object> contestInfo = submissionInfo.get(key);
-
-                        if (contestInfo == null) {
-                            continue;
-                        }
-
-                        // 先将字符串转换为数字，确保是可以转换的
-                        double acValue = Double.parseDouble(contestInfo.get("ac").toString());
-                        double totalTimeValue = Double.parseDouble(contestInfo.get("totalTime").toString());
-
-                        int percentValue = percentList.get(j);
-
-                        // 进行累加
-                        totalAc += acValue * percentValue / 100.0;
-                        totalTime += totalTimeValue * percentValue / 100.0;
-
-                        if (percentValue != 100) {
-                            String suffix = " * " + percentValue + "%";
-                            contestInfo.put("ac", String.valueOf(contestInfo.get("ac")) + suffix);
-                            contestInfo.put("totalTime", String.valueOf(contestInfo.get("totalTime")) + suffix);
-                        }
-                    }
-
-                    // 保留三位小数
-                    acmContestRankVO.setAc(Double.parseDouble(String.format("%.3f", totalAc)));
-                    acmContestRankVO.setTotalTime(Double.parseDouble(String.format("%.3f", totalTime)));
-                }
             }
         }
 
@@ -1371,18 +1344,24 @@ public class ContestCalculateRankManager {
     }
 
     public String getValueForKey(Map<String, String> data, String username, String realname) {
-        if (CollectionUtils.isEmpty(data)) {
+
+        // 如果 data 为空，直接返回 realname
+        if (data == null) {
             return realname;
         }
 
-        // 遍历 data 的 entrySet
-        for (Map.Entry<String, String> entry : data.entrySet()) {
-            String mapKey = entry.getKey().trim();
-            if (mapKey.equals(username)) {
-                return entry.getValue();
-            }
+        // 获取 username 对应的值
+        String value = data.get(username);
+
+        // 如果 value 不为空且包含 "-", 则分割、排序并重新连接
+        if (value != null && value.contains("-")) {
+            return Arrays.stream(value.split("-"))
+                    .sorted()
+                    .collect(Collectors.joining("-"));
         }
-        return realname; // 如果找不到对应的 key
+
+        // 返回找到的 value 或 realname
+        return value != null ? value : realname;
     }
 
 }

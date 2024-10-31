@@ -32,15 +32,13 @@ public class XCPCcraperStrategy extends ScraperStrategy {
     private static final String RANK_URL = "https://board.xcpcio.com/%s";
 
     @Override
-    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, String loginUsername, String loginPassword,
-            String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
+            String password, Map<String, String> usernameToUidMap) throws Exception {
         return null;
     }
 
     @Override
-    public List<ACMContestRankVO> getScraperInfo(String cid, String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap) throws Exception {
 
         List<ACMContestRankVO> rankDatas = new ArrayList<>();
 
@@ -56,6 +54,11 @@ public class XCPCcraperStrategy extends ScraperStrategy {
         rankDatas = dealRank(rankHtml, teamHtml, configHtml, cid, usernameToUidMap);
 
         return rankDatas;
+    }
+
+    @Override
+    public Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception {
+        return null;
     }
 
     public static String getRankInfo(String cid, String json) throws IOException {

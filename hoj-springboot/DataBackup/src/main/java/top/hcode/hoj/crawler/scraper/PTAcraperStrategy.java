@@ -26,15 +26,13 @@ public class PTAcraperStrategy extends ScraperStrategy {
     private static final String RANK_URL = "https://pintia.cn/rankings/%s";
 
     @Override
-    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, String loginUsername, String loginPassword,
-            String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
+            String password, Map<String, String> usernameToUidMap) throws Exception {
         return null;
     }
 
     @Override
-    public List<ACMContestRankVO> getScraperInfo(String cid, String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap) throws Exception {
 
         List<ACMContestRankVO> rankDatas = new ArrayList<>();
 
@@ -45,6 +43,11 @@ public class PTAcraperStrategy extends ScraperStrategy {
         rankDatas = dealRank(rankHtml, cid, usernameToUidMap);
 
         return rankDatas;
+    }
+
+    @Override
+    public Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception {
+        return null;
     }
 
     public static String getRankInfo(String cid) throws IOException {

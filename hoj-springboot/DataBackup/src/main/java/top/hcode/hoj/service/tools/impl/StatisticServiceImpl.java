@@ -110,4 +110,17 @@ public class StatisticServiceImpl implements StatisticService {
         }
     }
 
+    @Override
+    public CommonResult<IPage<ACMContestRankVO>> dealStatisticRankList(StatisticRankDTO statisticRankDTO) {
+        try {
+            return CommonResult.successResponse(statisticManager.dealStatisticRankList(statisticRankDTO));
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
+        } catch (StatusForbiddenException e) {
+            return CommonResult.errorResponse(e.getMessage(), ResultStatus.FORBIDDEN);
+        } catch (Exception e) {
+            return CommonResult.errorResponse(e.getMessage(), ResultStatus.FAIL);
+        }
+    }
+
 }

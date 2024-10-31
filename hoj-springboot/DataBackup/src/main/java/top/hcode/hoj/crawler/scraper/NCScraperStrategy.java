@@ -35,17 +35,19 @@ public class NCScraperStrategy extends ScraperStrategy {
     private static final String RANK_URL = "https://ac.nowcoder.com/acm/contest/%s#rank";
 
     @Override
-    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, String loginUsername, String loginPassword,
-            String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
+            String password, Map<String, String> usernameToUidMap) throws Exception {
         return null;
     }
 
     @Override
-    public List<ACMContestRankVO> getScraperInfo(String cid, String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
-
+    public List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap) throws Exception {
         return fetchAllRankData(cid, usernameToUidMap);
+    }
+
+    @Override
+    public Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception {
+        return null;
     }
 
     public static List<ACMContestRankVO> fetchAllRankData(String cid, Map<String, String> usernameToUidMap)

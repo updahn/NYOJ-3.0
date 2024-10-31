@@ -2298,6 +2298,9 @@ const adminApi = {
       params: { scid, show, author },
     });
   },
+  admin_dealStatisticRankList(data) {
+    return ajax('/api/admin/deal-statistic-list', 'put', { data });
+  },
   admin_addStatisticRank(data) {
     return ajax('/api/admin/statistic-rank', 'post', { data });
   },

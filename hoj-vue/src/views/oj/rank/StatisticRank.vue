@@ -90,7 +90,7 @@
               </el-form-item>
             </el-col>
 
-            <el-col v-if="cfVisible || hduVisible">
+            <el-col v-if="cfVisible || vjVisible || hduVisible">
               <el-form-item>
                 <template #label>
                   {{ $t('m.Ranks_Account') }}
@@ -101,7 +101,7 @@
                 </template>
 
                 <div
-                  v-for="(visible, platform) in { cf: cfVisible, hdu: hduVisible }"
+                  v-for="(visible, platform) in { cf: cfVisible, vj: vjVisible, hdu: hduVisible }"
                   :key="platform"
                 >
                   <el-col v-if="visible" :xs="8" :md="8">
@@ -148,18 +148,39 @@
               </el-card>
             </el-col>
           </template>
+        </el-row>
+
+        <div v-if="isAdmin">
+          <br />
+          <el-button
+            type="primary"
+            size="small"
+            @click="getStatisticRankData(page)"
+          >{{ $t("m.Crawl") }}</el-button>
+          <br />
+          <el-col>
+            <el-divider>
+              <span class="text-top">
+                {{ $t('m.Above_Tip') }}
+                <br />
+                {{ $t('m.Follow_Tip') }}
+              </span>
+            </el-divider>
+          </el-col>
+        </div>
+        <el-row :gutter="20">
           <el-col :md="12" :xs="24">
             <div class="contest-rank-search contest-rank-filter">
               <el-input
                 :placeholder="$t('m.Contest_Rank_Search_Placeholder')"
                 v-model="keyword"
-                @keyup.enter.native="getStatisticRankData(page)"
+                @keyup.enter.native="getDealRankData(page)"
               >
                 <el-button
                   slot="append"
                   icon="el-icon-search"
                   class="search-btn"
-                  @click="getStatisticRankData(page)"
+                  @click="getDealRankData(page)"
                 ></el-button>
               </el-input>
             </div>
@@ -353,14 +374,18 @@
             :page-size.sync="limit"
             :page-sizes="[10, 30, 50, 100, 300, 500]"
             :current.sync="page"
-            @on-change="getStatisticRankData"
-            @on-page-size-change="getStatisticRankData(1)"
+            @on-change="getDealRankData"
+            @on-page-size-change="getDealRankData(1)"
             :layout="'prev, pager, next, sizes'"
           ></Pagination>
         </div>
       </el-form>
       <div v-if="isAdmin">
-        <el-button type="primary" size="small" @click="saveStatisticRank(page)">{{ $t("m.Save") }}</el-button>
+        <el-button
+          type="primary"
+          size="small"
+          @click="saveOrUpdateStatisticRank(page)"
+        >{{ $t("m.Save") }}</el-button>
       </div>
       <el-dialog :title="$t('m.Change_ContestPercent')" :visible.sync="dialogVisible" width="30%">
         <el-input v-model="currentPercent" @keyup.enter.native="confirmChange">
@@ -411,13 +436,16 @@ export default {
       title: null,
       inputVisible: false,
       cfVisible: false,
+      vjVisible: false,
       hduVisible: false,
       switchConfig: {
         cfUsernameList: [],
+        vjUsernameList: [],
         hduUsernameList: [],
       },
       account: {
         cf: null,
+        vj: null,
         hdu: null,
       },
       username_dir: {},
@@ -472,7 +500,8 @@ export default {
     addCid(out_error = true) {
       this.cid = this.cid.replace(/(^\s*)|(\s*$)/g, "");
 
-      const validCidPattern = /^(?:\d+|(?:cf|gym|hdu|nowcoder|pta)\d+|xcpc.+)$/;
+      const validCidPattern =
+        /^(?:\d+|(?:cf|gym|vj|hdu|nowcoder|pta)\d+|xcpc.+)$/;
 
       if (this.cid) {
         if (validCidPattern.test(this.cid)) {
@@ -485,6 +514,8 @@ export default {
           }
           if (this.cid.startsWith("cf") || this.cid.startsWith("gym")) {
             this.cfVisible = true;
+          } else if (this.cid.startsWith("vj")) {
+            this.vjVisible = true;
           } else if (this.cid.startsWith("hdu")) {
             this.hduVisible = true;
           }
@@ -524,49 +555,20 @@ export default {
         );
       }
       this.dialogVisible = false;
+      this.getDealRankData();
     },
-    getStatisticRankData(page = 1, refresh) {
-      this.refresh = refresh != null ? refresh : this.isEdit;
-
-      let cids = this.contestCid.join("+") + "+";
+    rankData(page = 1) {
+      let cids = this.contestCid.join("+");
       let percents = this.contestPercent.join("-");
 
       // 提前处理 keyword
       const trimmedKeyword = this.keyword ? this.keyword.trim() : null;
 
-      let data = {
+      const data = {
         currentPage: page,
         limit: this.limit,
         keyword: trimmedKeyword,
         scid: this.scid,
-        cids: cids,
-        percents: percents,
-        data: this.username_dir,
-        account: this.account,
-        refresh: this.refresh,
-      };
-
-      api.getStatisticRank(data).then(
-        (res) => {
-          this.total = res.data.data.total;
-          this.applyToTable(res.data.data.records);
-        },
-        (_) => {}
-      );
-    },
-
-    saveStatisticRank() {
-      let cids = this.contestCid.join("+");
-      let percents = this.contestPercent.join("-");
-
-      let funcName = "";
-      if (this.isCreate) {
-        funcName = "admin_addStatisticRank";
-      } else {
-        funcName = "admin_editStatistic";
-      }
-
-      const data = {
         title: this.title,
         acmContestRankVoList: this.dataRank,
         cids: cids,
@@ -578,7 +580,33 @@ export default {
       if (this.scid) {
         data.scid = this.scid;
       }
-
+      return data;
+    },
+    getStatisticRankData(page = 1) {
+      let data = this.rankData(page);
+      api.getStatisticRank(data).then(
+        (res) => {
+          this.total = res.data.data.total;
+          this.applyToTable(res.data.data.records, true);
+        },
+        (_) => {}
+      );
+    },
+    getDealRankData(page = 1) {
+      let data = this.rankData(page);
+      api.admin_dealStatisticRankList(data).then((res) => {
+        this.total = res.data.data.total;
+        this.applyToTable(res.data.data.records, false);
+      });
+    },
+    saveOrUpdateStatisticRank() {
+      let funcName = "";
+      if (this.isCreate) {
+        funcName = "admin_addStatisticRank";
+      } else {
+        funcName = "admin_editStatistic";
+      }
+      let data = this.rankData();
       api[funcName](data).then((response) => {
         myMessage.success(this.$i18n.t("m.Update_Successfully"));
         this.$router.push({ name: "admin-static-ranks-list" });
@@ -596,8 +624,7 @@ export default {
               this.addCid(out_error);
             }
           });
-          if (!this.isAdmin || !this.isCreate)
-            this.getStatisticRankData(1, false);
+          if (!this.isAdmin || !this.isCreate) this.getStatisticRankData(1);
         },
         (_) => {}
       );
@@ -685,16 +712,18 @@ export default {
       });
       return foundTitle;
     },
-    applyToTable(dataRank) {
+    applyToTable(dataRank, isCrawl) {
       dataRank.forEach((rank) => {
-        // 更新标题和其他属性
-        if (rank.title) this.title = rank.title;
-        if (rank.percents) {
-          this.percents = rank.percents;
-          this.contestPercent = this.percents.split("-");
+        if (isCrawl) {
+          // 更新标题和其他属性
+          if (rank.title) this.title = rank.title;
+          if (rank.percents) {
+            this.percents = rank.percents;
+            this.contestPercent = this.percents.split("-");
+          }
+          if (rank.data) this.username_dir = rank.data;
+          if (rank.account) this.account = rank.account;
         }
-        if (rank.data) this.username_dir = rank.data;
-        if (rank.account) this.account = rank.account;
 
         // 处理 submissionInfo
         const { submissionInfo: info, gender } = rank;
@@ -881,5 +910,11 @@ a.emphasis:hover {
 }
 .input-new-cids .el-input__inner {
   height: 60px; /* 强制修改 el-input 内部 input 的高度 */
+}
+.text-top {
+  padding: 2px 0;
+  margin: 0;
+  color: rgb(87, 163, 243);
+  font-size: 14px;
 }
 </style>

@@ -307,8 +307,8 @@ public class ContestValidator {
         return cidList;
     }
 
-    private static final String[] PREFIXES = { "cf", "gym", "hdu", "nowcoder", "pta", "xcpc" };
-    private static final String PREFIX_REGEX = "^(cf|gym|hdu|nowcoder|pta)(\\d+)$|^(xcpc)(.+)$";
+    private static final String[] PREFIXES = { "cf", "gym", "vj", "hdu", "nowcoder", "pta", "xcpc" };
+    private static final String PREFIX_REGEX = "^(cf|gym|vj|hdu|nowcoder|pta)(\\d+)$|^(xcpc)(.+)$";
 
     public Pair_<String, String> identifyString(String input) {
         // 检查是否是纯数字

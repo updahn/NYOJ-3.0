@@ -115,4 +115,16 @@ public class StatisticController {
 
         return statisticService.changeStatisticVisible(scid, show);
     }
+
+    /**
+     * @Description 更新榜单比例
+     * @Return
+     * @Since
+     */
+    @PutMapping("/admin/deal-statistic-list")
+    @RequiresAuthentication
+    @RequiresRoles(value = { "root", "admin" }, logical = Logical.OR)
+    public CommonResult<IPage<ACMContestRankVO>> dealStatisticRankList(@RequestBody StatisticRankDTO statisticRankDTO) {
+        return statisticService.dealStatisticRankList(statisticRankDTO);
+    }
 }

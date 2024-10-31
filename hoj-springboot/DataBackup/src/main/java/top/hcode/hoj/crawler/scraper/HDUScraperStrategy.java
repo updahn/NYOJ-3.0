@@ -33,18 +33,17 @@ public class HDUScraperStrategy extends ScraperStrategy {
     private static final String RANK_URL = "http://acm.hdu.edu.cn/contest/rank?cid=%s";
 
     @Override
-    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, String loginUsername, String loginPassword,
-            String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
+            String password, Map<String, String> usernameToUidMap) throws Exception {
 
         List<ACMContestRankVO> rankDatas = new ArrayList<>();
-        // 登录
-        Connection.Response loginResponse = login(cid, loginUsername, loginPassword);
+
+        Connection.Response loginResponse = login(cid, username, password);
 
         // 检查登录是否成功
         if (loginResponse.statusCode() == HttpURLConnection.HTTP_OK) {
             // 获取排名信息
-            Elements elements = getRankInfo(cid, keyword, loginResponse);
+            Elements elements = getRankInfo(cid, loginResponse.cookies());
 
             // 处理排名数据
             rankDatas = dealRank(elements, cid, usernameToUidMap);
@@ -58,8 +57,12 @@ public class HDUScraperStrategy extends ScraperStrategy {
     }
 
     @Override
-    public List<ACMContestRankVO> getScraperInfo(String cid, String keyword, Map<String, String> usernameToUidMap)
-            throws Exception {
+    public List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception {
         return null;
     }
 
@@ -73,10 +76,10 @@ public class HDUScraperStrategy extends ScraperStrategy {
         return connection.execute();
     }
 
-    public static Elements getRankInfo(String cid, String keyword, Connection.Response loginResponse)
+    public static Elements getRankInfo(String cid, Map<String, String> cookies)
             throws IOException, InterruptedException, ExecutionException {
         String url = String.format(RANK_URL, cid);
-        Connection connection = getRankConnection(url, loginResponse, keyword);
+        Connection connection = getRankConnection(url, cookies);
 
         // 获取第一页内容，解析出最大页数
         Document doc = Jsoup.parse(connection.execute().body());
@@ -93,7 +96,7 @@ public class HDUScraperStrategy extends ScraperStrategy {
             final int pageIndex = i;
             futures.add(executor.submit(() -> {
                 String pageUrl = url + (pageIndex > 1 ? "&page=" + pageIndex : "");
-                Connection pageConnection = getRankConnection(pageUrl, loginResponse, keyword);
+                Connection pageConnection = getRankConnection(pageUrl, cookies);
                 Document pageDoc = Jsoup.parse(pageConnection.execute().body());
                 return pageDoc.select("tr.page-card-row");
             }));
@@ -221,17 +224,14 @@ public class HDUScraperStrategy extends ScraperStrategy {
     }
 
     // 创建连接，封装公共逻辑
-    private static Connection getRankConnection(String url, Connection.Response loginResponse, String keyword) {
+    private static Connection getRankConnection(String url, Map<String, String> cookies) {
         Connection connection = Jsoup.connect(url)
-                .cookies(loginResponse.cookies())
+                .cookies(cookies)
                 .header("User-Agent",
                         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0")
                 .header("Referer", url)
                 .data("group", "all");
 
-        if (!StringUtils.isEmpty(keyword)) {
-            connection.data("search", keyword);
-        }
         return connection;
     }
 
