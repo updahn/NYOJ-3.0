@@ -58,4 +58,5 @@ public interface ProblemEntityService extends IService<Problem> {
 
     List<ProblemDescription> getProblemDescriptionList(Long pid, Long peid, String problemId, Long gid);
 
+    String getProblemLastId(Long gid);
 }

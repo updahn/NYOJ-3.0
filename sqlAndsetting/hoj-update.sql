@@ -2685,5 +2685,151 @@ CALL add_RemoteJudgeAccount_TitleAndLink ;
 DROP PROCEDURE add_RemoteJudgeAccount_TitleAndLink;
 
 
+/*
+* 更新 judge 表中的 submit_id
+*/
+DELIMITER $$
+
+-- 删除外键的通用存储过程
+DROP PROCEDURE IF EXISTS DropForeignKeyIfExists$$
+CREATE PROCEDURE DropForeignKeyIfExists (
+    IN tbl_name VARCHAR(64),
+    IN fk_name VARCHAR(64)
+)
+BEGIN
+    DECLARE fk_exists INT;
+
+    -- 检查外键是否存在
+    SELECT COUNT(*)
+    INTO fk_exists
+    FROM information_schema.KEY_COLUMN_USAGE
+    WHERE TABLE_NAME = tbl_name
+    AND CONSTRAINT_NAME = fk_name
+    AND TABLE_SCHEMA = DATABASE();
+
+    -- 如果外键存在，则删除它
+    IF fk_exists > 0 THEN
+        SET @sql = CONCAT('ALTER TABLE ', tbl_name, ' DROP FOREIGN KEY ', fk_name);
+        PREPARE stmt FROM @sql;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END$$
+
+-- 添加外键的通用存储过程
+DROP PROCEDURE IF EXISTS AddForeignKey$$
+CREATE PROCEDURE AddForeignKey (
+    IN tbl_name VARCHAR(64),
+    IN fk_name VARCHAR(64),
+    IN col_name VARCHAR(64),
+    IN ref_table_name VARCHAR(64),
+    IN ref_col_name VARCHAR(64)
+)
+BEGIN
+    DECLARE fk_exists INT;
+
+    -- 检查外键是否已经存在
+    SELECT COUNT(*)
+    INTO fk_exists
+    FROM information_schema.KEY_COLUMN_USAGE
+    WHERE TABLE_NAME = tbl_name
+    AND CONSTRAINT_NAME = fk_name
+    AND TABLE_SCHEMA = DATABASE();
+
+    -- 如果外键不存在，则添加它
+    IF fk_exists = 0 THEN
+        SET @sql = CONCAT(
+            'ALTER TABLE ', tbl_name,
+            ' ADD CONSTRAINT ', fk_name,
+            ' FOREIGN KEY (', col_name, ') REFERENCES ', ref_table_name, '(', ref_col_name, ')'
+        );
+        PREPARE stmt FROM @sql;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+    END IF;
+END$$
+
+-- 更新记录 submit_id 的存储过程
+DROP PROCEDURE IF EXISTS UpdateSubmitId$$
+CREATE PROCEDURE UpdateSubmitId()
+BEGIN
+    -- 更新对应的 submit_id，确保只更新匹配的行
+    UPDATE contest_record cr
+    JOIN judge j ON cr.submit_id = j.submit_id
+    SET cr.submit_id = j.sorted_id
+    WHERE cr.submit_id = j.submit_id;
+
+    UPDATE training_record tr
+    JOIN judge j ON tr.submit_id = j.submit_id
+    SET tr.submit_id = j.sorted_id
+    WHERE tr.submit_id = j.submit_id;
+
+    UPDATE user_acproblem ua
+    JOIN judge j ON ua.submit_id = j.submit_id
+    SET ua.submit_id = j.sorted_id
+    WHERE ua.submit_id = j.submit_id;
+
+    UPDATE judge_case jc
+    JOIN judge j ON jc.submit_id = j.submit_id
+    SET jc.submit_id = j.sorted_id
+    WHERE jc.submit_id = j.submit_id;
+END$$
+
+-- 整体流程的存储过程
+DROP PROCEDURE IF EXISTS UpdateJudgeTable$$
+CREATE PROCEDURE UpdateJudgeTable()
+BEGIN
+    -- 禁用外键检查
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    -- 按照时间顺序更新 sorted_id
+    SET @row_number = 0;
+
+    -- 更新 sorted_id，确保每个 judge 记录都有一个新的排序 ID
+    UPDATE judge
+    SET sorted_id = (@row_number := @row_number + 1)
+    WHERE submit_time IS NOT NULL -- 确保有时间数据
+    ORDER BY submit_time ASC;
+
+    -- 删除外键约束
+    CALL DropForeignKeyIfExists('contest_record', 'contest_record_ibfk_5');
+    CALL DropForeignKeyIfExists('training_record', 'training_record_ibfk_5');
+    CALL DropForeignKeyIfExists('user_acproblem', 'user_acproblem_ibfk_3');
+    CALL DropForeignKeyIfExists('judge_case', 'judge_case_ibfk_3');
+
+    -- 更新 submit_id
+    CALL UpdateSubmitId();
+
+    -- 创建临时表
+    CREATE TABLE judge_temp LIKE judge;
+
+    -- 删除 sorted_id 列
+    ALTER TABLE judge_temp DROP COLUMN `sorted_id`;
+
+    -- 复制数据到临时表，并替换 submit_id 为 sorted_id
+    INSERT INTO judge_temp (submit_id, pid, display_pid, uid, username, submit_time, status, share, error_message, time, memory, score, length, code, language, gid, cid, cpid, judger, ip, version, oi_rank_score, vjudge_submit_id, vjudge_username, vjudge_password, oi_rank, is_manual, synchronous, gmt_create, gmt_modified, is_reset, `key`)
+    SELECT sorted_id, pid, display_pid, uid, username, submit_time, status, share, error_message, time, memory, score, length, code, language, gid, cid, cpid, judger, ip, version, oi_rank_score, vjudge_submit_id, vjudge_username, vjudge_password, oi_rank, is_manual, synchronous, gmt_create, gmt_modified, is_reset, `key`
+    FROM judge;
+
+    -- 删除原始表
+    DROP TABLE judge;
+
+    -- 重命名新表为原来的表名
+    RENAME TABLE judge_temp TO judge;
+
+    -- 重新添加外键约束
+    CALL AddForeignKey('contest_record', 'contest_record_ibfk_5', 'submit_id', 'judge', 'submit_id');
+    CALL AddForeignKey('training_record', 'training_record_ibfk_5', 'submit_id', 'judge', 'submit_id');
+    CALL AddForeignKey('user_acproblem', 'user_acproblem_ibfk_3', 'submit_id', 'judge', 'submit_id');
+    CALL AddForeignKey('judge_case', 'judge_case_ibfk_3', 'submit_id', 'judge', 'submit_id');
+
+    -- 启用外键检查
+    SET FOREIGN_KEY_CHECKS = 1;
+END$$
+
+DELIMITER ;
+
+-- 调用主存储过程以执行所有操作
+CALL UpdateJudgeTable();
 
 

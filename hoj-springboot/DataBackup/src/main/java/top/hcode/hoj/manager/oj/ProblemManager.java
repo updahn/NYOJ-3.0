@@ -147,37 +147,6 @@ public class ProblemManager {
     }
 
     /**
-     * @MethodName getProblemLastId
-     * @Description 获取最新的题目Id
-     */
-    public ProblemLastIdVO getProblemLastId(Long gid) throws StatusFailException {
-        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-
-        queryWrapper.select("problem_id")
-                .eq("is_remote", false) // 公共题库
-                .orderByDesc("problem_id")
-                .eq(gid != null, "gid", gid)
-                .isNull(gid == null, "gid");
-        List<Problem> list = problemEntityService.list(queryWrapper);
-
-        // 默认纯数字为主题库
-        Pattern pattern = Pattern.compile("^\\d+$");
-        List<Problem> filteredList = new ArrayList<>();
-        for (Problem problem : list) {
-            String problemId = problem.getProblemId();
-            // 使用正则匹配方法判断字符串是否为纯数字
-            Matcher matcher = pattern.matcher(problemId);
-            if (matcher.matches()) {
-                filteredList.add(problem);
-            }
-        }
-
-        String problemId = !CollectionUtils.isEmpty(filteredList) ? filteredList.get(0).getProblemId() : "1000";
-        ProblemLastIdVO problemLastIdVO = new ProblemLastIdVO(problemId);
-        return problemLastIdVO;
-    }
-
-    /**
      * @MethodName getUserProblemStatus
      * @Description 获取用户对应该题目列表中各个题目的做题情况
      * @Since 2020/12/29

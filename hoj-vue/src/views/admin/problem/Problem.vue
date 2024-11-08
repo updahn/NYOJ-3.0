@@ -13,7 +13,12 @@
       >
         <el-row :gutter="20">
           <el-col :span="24">
-            <el-form-item prop="problemId" :label="$t('m.Problem_Display_ID')" required>
+            <el-form-item
+              v-if="problem.problemId"
+              prop="problemId"
+              :label="$t('m.Problem_Display_ID')"
+              required
+            >
               <el-input
                 :placeholder="$t('m.Problem_Display_ID')"
                 v-model="problem.problemId"
@@ -1240,29 +1245,8 @@ export default {
         for (let item of this.allLanguage) {
           this.problemLanguages.push(item.name);
         }
-        this.getProblemLastId();
         this.tableLoading = false;
       }
-    },
-    getProblemLastId() {
-      api.getProblemLastId().then((res) => {
-        let problemLastId = res.data.data.problemLastId;
-        let numericId;
-        let prefix = "";
-
-        if (problemLastId.includes("-")) {
-          let splitParts = problemLastId.split("-");
-          prefix = splitParts.slice(0, splitParts.length - 1).join("-") + "-";
-          let lastPart = splitParts[splitParts.length - 1];
-          numericId = parseInt(lastPart) + 1;
-        } else {
-          numericId = parseInt(problemLastId) + 1;
-        }
-
-        let newProblemId = String(numericId);
-
-        this.problem.problemId = prefix + newProblemId;
-      });
     },
 
     async getProblemCodeTemplateAndLanguage() {
@@ -1561,15 +1545,6 @@ export default {
       });
     },
     submit() {
-      if (!this.problem.problemId) {
-        myMessage.error(
-          this.$i18n.t("m.Problem_Display_ID") +
-            " " +
-            this.$i18n.t("m.is_required")
-        );
-        return;
-      }
-
       // 检查题目是否为空并且符合规范
       if (
         this.problemDescriptionList.some(
@@ -1603,15 +1578,6 @@ export default {
         ) {
           return;
         }
-      }
-
-      if (!this.problem.problemId) {
-        myMessage.error(
-          this.$i18n.t("m.Problem_Display_ID") +
-            " " +
-            this.$i18n.t("m.is_required")
-        );
-        return;
       }
 
       if (this.contestID) {

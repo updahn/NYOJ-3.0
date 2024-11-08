@@ -6,7 +6,6 @@ import top.hcode.hoj.pojo.dto.LastAcceptedCodeVO;
 import top.hcode.hoj.pojo.dto.PidListDTO;
 import top.hcode.hoj.pojo.vo.ProblemFullScreenListVO;
 import top.hcode.hoj.pojo.vo.ProblemInfoVO;
-import top.hcode.hoj.pojo.vo.ProblemLastIdVO;
 import top.hcode.hoj.pojo.vo.ProblemVO;
 import top.hcode.hoj.pojo.vo.RandomProblemVO;
 
@@ -24,8 +23,6 @@ public interface ProblemService {
             String keyword, List<Long> tagId, Integer difficulty, Integer type, String oj);
 
     public CommonResult<RandomProblemVO> getRandomProblem(String oj);
-
-    public CommonResult<ProblemLastIdVO> getProblemLastId(Long gid);
 
     public CommonResult<HashMap<Long, Object>> getUserProblemStatus(PidListDTO pidListDto);
 

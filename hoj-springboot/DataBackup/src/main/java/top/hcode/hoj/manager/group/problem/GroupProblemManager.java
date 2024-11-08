@@ -165,6 +165,12 @@ public class GroupProblemManager {
     public void addProblem(ProblemDTO problemDto)
             throws StatusForbiddenException, StatusNotFoundException, StatusFailException {
 
+        if (StringUtils.isEmpty(problemDto.getProblem().getProblemId())) {
+            String lastProblemId = problemEntityService.getProblemLastId(problemDto.getProblem().getGid());
+            // 设置题目自增的problemId
+            problemDto.getProblem().setProblemId(lastProblemId);
+        }
+
         problemValidator.validateGroupProblem(problemDto.getProblem());
         problemValidator.validateGroupProblemDescription(problemDto.getProblemDescriptionList());
 

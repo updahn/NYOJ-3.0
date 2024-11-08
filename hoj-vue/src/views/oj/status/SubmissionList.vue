@@ -103,7 +103,7 @@
           :data="submissions"
           :loading="loadingTable"
         >
-          <vxe-table-column field="sortedId" :title="$t('m.Run_ID')" width="80"></vxe-table-column>
+          <vxe-table-column field="submitId" :title="$t('m.Run_ID')" width="80"></vxe-table-column>
           <vxe-table-column field="pid" :title="$t('m.Problem')" min-width="150" show-overflow>
             <template v-slot="{ row }">
               <span

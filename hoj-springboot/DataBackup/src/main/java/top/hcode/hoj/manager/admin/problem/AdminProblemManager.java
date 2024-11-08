@@ -149,6 +149,12 @@ public class AdminProblemManager {
 
     public void addProblem(ProblemDTO problemDto) throws StatusFailException {
 
+        if (StringUtils.isEmpty(problemDto.getProblem().getProblemId())) {
+            String lastProblemId = problemEntityService.getProblemLastId(problemDto.getProblem().getGid());
+            // 设置题目自增的problemId
+            problemDto.getProblem().setProblemId(lastProblemId);
+        }
+
         problemValidator.validateProblem(problemDto.getProblem());
 
         QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();

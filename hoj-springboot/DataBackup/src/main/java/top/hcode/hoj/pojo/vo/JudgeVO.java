@@ -27,9 +27,6 @@ public class JudgeVO {
     @TableId(value = "submit_id", type = IdType.AUTO)
     private Long submitId;
 
-    @ApiModelProperty(value = "排序后的提交id")
-    private Long sortedId;
-
     @ApiModelProperty(value = "用户名")
     private String username;
 

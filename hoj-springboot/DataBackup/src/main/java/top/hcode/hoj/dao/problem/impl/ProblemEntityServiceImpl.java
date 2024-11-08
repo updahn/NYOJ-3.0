@@ -48,6 +48,7 @@ import top.hcode.hoj.utils.HtmlToPdfUtils;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -432,6 +433,7 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
     public boolean adminAddProblem(ProblemDTO problemDto) {
 
         Problem problem = problemDto.getProblem();
+
         List<ProblemDescription> problemDescriptionList = problemDto.getProblemDescriptionList();
 
         if (Constants.JudgeMode.DEFAULT.getMode().equals(problemDto.getJudgeMode())) {
@@ -990,6 +992,27 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
         }
 
         return problemDescriptionList;
+    }
+
+    @Override
+    public String getProblemLastId(Long gid) {
+        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+
+        queryWrapper.select("problem_id")
+                .eq("is_remote", false) // 公共题库
+                .orderByDesc("problem_id")
+                .eq(gid != null, "gid", gid)
+                .isNull(gid == null, "gid");
+
+        List<Problem> problemList = problemMapper.selectList(queryWrapper);
+
+        // 正则匹配纯数字
+        return problemList.stream()
+                .map(Problem::getProblemId)
+                .filter(problemId -> problemId.matches("^\\d+$")) // 过滤纯数字 ID
+                .map(id -> String.valueOf(Integer.parseInt(id) + 1)) // 转换为整数并加 1，再转回字符串
+                .findFirst() // 获取第一个符合条件的 ID
+                .orElse("1000"); // 若不存在则返回 "1000"
     }
 
     public List<ProblemDescription> getProblemDescription(Long pid, Long peid) {

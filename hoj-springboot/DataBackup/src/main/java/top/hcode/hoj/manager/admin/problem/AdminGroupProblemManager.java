@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.dao.problem.ProblemEntityService;
@@ -11,6 +12,11 @@ import top.hcode.hoj.manager.oj.ProblemManager;
 import top.hcode.hoj.pojo.dto.ChangeGroupProblemProgressDTO;
 import top.hcode.hoj.pojo.dto.ProblemResDTO;
 import top.hcode.hoj.pojo.entity.problem.Problem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
@@ -52,7 +58,7 @@ public class AdminGroupProblemManager {
         }
 
         // 更改 problem 的 problem_id
-        String lastProblemId = problemManager.getProblemLastId(null).getProblemLastId();
+        String lastProblemId = problemEntityService.getProblemLastId(null);
 
         problem.setApplyPublicProgress(progress);
         switch (progress) {

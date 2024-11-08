@@ -63,18 +63,6 @@ public class ProblemController {
     }
 
     /**
-     * @MethodName getProblemLastId
-     * @Description 获取最新的题目Id
-     * @Return CommonResult
-     * @Since 2020/10/27
-     */
-    @GetMapping("/get-last-problemId")
-    @AnonApi
-    public CommonResult<ProblemLastIdVO> getProblemLastId(@RequestParam(value = "gid", required = false) Long gid) {
-        return problemService.getProblemLastId(gid);
-    }
-
-    /**
      * @param pidListDto
      * @MethodName getUserProblemStatus
      * @Description 获取用户对应该题目列表中各个题目的做题情况

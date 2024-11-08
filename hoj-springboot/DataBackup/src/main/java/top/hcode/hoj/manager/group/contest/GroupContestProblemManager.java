@@ -1,6 +1,8 @@
 package top.hcode.hoj.manager.group.contest;
 
 import cn.hutool.core.map.MapUtil;
+
+import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.shiro.SecurityUtils;
@@ -105,6 +107,12 @@ public class GroupContestProblemManager {
 
     public Map<Object, Object> addProblem(ProblemDTO problemDto)
             throws StatusNotFoundException, StatusForbiddenException, StatusFailException {
+
+        if (StringUtils.isEmpty(problemDto.getProblem().getProblemId())) {
+            String lastProblemId = problemEntityService.getProblemLastId(problemDto.getProblem().getGid());
+            // 设置题目自增的problemId
+            problemDto.getProblem().setProblemId(lastProblemId);
+        }
 
         problemValidator.validateGroupProblem(problemDto.getProblem());
         problemValidator.validateGroupProblemDescription(problemDto.getProblemDescriptionList());
