@@ -174,6 +174,17 @@
           <vxe-table-column :title="$t('m.School')" field="school" min-width="100" show-overflow>
             <template v-slot="{ row }">{{ row[6] }}</template>
           </vxe-table-column>
+          <vxe-table-column :title="$t('m.Course')" field="course" min-width="96" show-overflow>
+            <template v-slot="{ row }">{{ row[7] }}</template>
+          </vxe-table-column>
+          <vxe-table-column
+            :title="$t('m.Student_Number')"
+            field="number"
+            min-width="96"
+            show-overflow
+          >
+            <template v-slot="{ row }">{{ row[8] }}</template>
+          </vxe-table-column>
         </vxe-table>
 
         <div class="panel-options">

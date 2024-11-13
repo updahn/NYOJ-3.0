@@ -251,6 +251,22 @@ public class AdminUserManager {
             }
         }
 
+        // 添加班级
+        if (user.size() >= 8) {
+            String course = user.get(7);
+            if (!StringUtils.isEmpty(course)) {
+                userSign.setCourse(course);
+            }
+        }
+
+        // 添加学号
+        if (user.size() >= 9) {
+            String number = user.get(8);
+            if (!StringUtils.isEmpty(number)) {
+                userSign.setNumber(number);
+            }
+        }
+
         boolean result1 = userInfoEntityService.save(userInfo);
         UserRole userRole = new UserRole()
                 .setRoleId(1002L)
