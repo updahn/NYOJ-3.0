@@ -151,6 +151,11 @@ public class ConfigManager {
                         e);
             }
         }
+
+        // 对 serviceInfoList 按 judgeName 进行排序
+        serviceInfoList.sort(
+                Comparator.comparing(o -> o.getJSONObject("service").getJSONObject("metadata").getStr("judgeName")));
+
         return serviceInfoList;
     }
 
