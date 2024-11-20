@@ -1,5 +1,6 @@
 package top.hcode.hoj.config;
 
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SecurityManager;
@@ -24,11 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * @Author: Himit_ZH
- * @Date: 2020/7/19 22:53
- * @Description: shiro启用注解拦截控制器
- */
 @Configuration
 public class ShiroConfig {
 
@@ -50,14 +46,17 @@ public class ShiroConfig {
         shiroCacheManager.setCacheKeyPrefix(ShiroConstant.SHIRO_AUTHORIZATION_CACHE);
         shiroCacheManager.setRedisUtils(redisUtils);
         securityManager.setCacheManager(shiroCacheManager);
-        /*
-         * 关闭shiro自带的session，详情见文档
-         */
+
+        // 关闭 Shiro 自带的 session
         DefaultSubjectDAO subjectDAO = new DefaultSubjectDAO();
         DefaultSessionStorageEvaluator defaultSessionStorageEvaluator = new DefaultSessionStorageEvaluator();
         defaultSessionStorageEvaluator.setSessionStorageEnabled(false);
         subjectDAO.setSessionStorageEvaluator(defaultSessionStorageEvaluator);
         securityManager.setSubjectDAO(subjectDAO);
+
+        // 手动绑定 SecurityManager 到 SecurityUtils
+        SecurityUtils.setSecurityManager(securityManager);
+
         return securityManager;
     }
 
