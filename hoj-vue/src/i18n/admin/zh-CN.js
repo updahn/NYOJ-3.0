@@ -220,6 +220,10 @@ export const m = {
   Add_Account: '增加账号',
   Collapse_Group_Info: '折叠团队介绍',
   Expand_Group_Info: '展开团队介绍',
+  Alive: '保活',
+  Alive_Tips: '注意保活账号对应的原账号将无法登录原网站',
+  Course_Title: '网课名称',
+  Course_Link: '网课网址',
 
   // /views/admin/problem/ProblemList.vue
   Contest_Problem_List: '比赛题目列表',

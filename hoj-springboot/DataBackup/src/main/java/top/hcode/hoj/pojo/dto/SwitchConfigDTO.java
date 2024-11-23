@@ -146,5 +146,29 @@ public class SwitchConfigDTO {
 
     private List<String> vjPasswordList;
 
+    private List<String> nowcoderUsernameList;
+
+    private List<String> nowcoderPasswordList;
+
+    private List<String> acwingUsernameList;
+
+    private List<String> acwingPasswordList;
+
     private List<String> mossUsernameList;
+
+    private List<Boolean> vjAliveList;
+
+    private List<Boolean> nowcoderAliveList;
+
+    private List<Boolean> acwingAliveList;
+
+    // Cookie 保活信息
+
+    private List<String> nowcoderTitleList;
+
+    private List<String> nowcoderLinkList;
+
+    private List<String> acwingTitleList;
+
+    private List<String> acwingLinkList;
 }

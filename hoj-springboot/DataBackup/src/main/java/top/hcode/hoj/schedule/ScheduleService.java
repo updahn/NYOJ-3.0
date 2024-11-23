@@ -23,6 +23,8 @@ public interface ScheduleService {
 
     // void getCodeLines();
 
+    void aliveCookies();
+
     void deleteUserSession();
 
     void syncNoticeToRecentHalfYearUser();

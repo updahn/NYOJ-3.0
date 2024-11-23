@@ -33,8 +33,17 @@ public class RemoteJudgeAccount {
     @ApiModelProperty(value = "账号密码")
     private String password;
 
+    @ApiModelProperty(value = "名称")
+    private String title;
+
+    @ApiModelProperty(value = "网址")
+    private String link;
+
     @ApiModelProperty(value = "是否可用")
     private Boolean status;
+
+    @ApiModelProperty(value = "是否更新Cookies")
+    private Boolean isAlive;
 
     @ApiModelProperty(value = "废弃")
     private Long version;

@@ -94,6 +94,8 @@ public class Constants {
         NSWOJ("NSWOJ"),
         NEWOJ("NEWOJ"),
         VJ("VJ"),
+        NOWCODER("NOWCODER"),
+        ACWING("ACWING"),
         MOSS("MOSS");
 
         private final String name;

@@ -2654,4 +2654,36 @@ CALL add_Discussion_Tid();
 DROP PROCEDURE add_Discussion_Tid;
 
 
+/*
+* remote_judge_account 添加 is_alive
+*/
+DROP PROCEDURE
+IF EXISTS add_RemoteJudgeAccount_TitleAndLink;
+DELIMITER $$
+
+CREATE PROCEDURE add_RemoteJudgeAccount_TitleAndLink ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'remote_judge_account'
+	AND column_name = 'is_alive'
+) THEN
+	ALTER TABLE remote_judge_account ADD COLUMN `is_alive` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否更新Cookies';
+	ALTER TABLE remote_judge_account ADD COLUMN `title` varchar(255) DEFAULT NULL COMMENT '名称';
+	ALTER TABLE remote_judge_account ADD COLUMN `link` varchar(255) DEFAULT NULL COMMENT '网址';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_RemoteJudgeAccount_TitleAndLink ;
+
+DROP PROCEDURE add_RemoteJudgeAccount_TitleAndLink;
+
+
+
 

@@ -59,8 +59,29 @@ public class SwitchConfig {
 
     private List<String> vjPasswordList = new ArrayList<>();
 
+    private List<String> nowcoderUsernameList = new ArrayList<>();
+
+    private List<String> nowcoderPasswordList = new ArrayList<>();
+
+    private List<String> acwingUsernameList = new ArrayList<>();
+
+    private List<String> acwingPasswordList = new ArrayList<>();
+
     private List<String> mossUsernameList = new ArrayList<>();
 
+    private List<Boolean> vjAliveList = new ArrayList<>();
+
+    private List<Boolean> nowcoderAliveList = new ArrayList<>();
+
+    private List<String> nowcoderTitleList = new ArrayList<>();
+
+    private List<String> nowcoderLinkList = new ArrayList<>();
+
+    private List<Boolean> acwingAliveList = new ArrayList<>();
+
+    private List<String> acwingTitleList = new ArrayList<>();
+
+    private List<String> acwingLinkList = new ArrayList<>();
     /**
      * SCPC 超管账号
      */
@@ -164,7 +185,20 @@ public class SwitchConfig {
         this.setNewojPasswordList(format2Unicode(this.newojPasswordList));
         this.setVjUsernameList(format2Unicode(this.vjUsernameList));
         this.setVjPasswordList(format2Unicode(this.vjPasswordList));
+        this.setNowcoderUsernameList(format2Unicode(this.nowcoderUsernameList));
+        this.setNowcoderPasswordList(format2Unicode(this.nowcoderPasswordList));
+        this.setAcwingUsernameList(format2Unicode(this.acwingUsernameList));
+        this.setAcwingPasswordList(format2Unicode(this.acwingPasswordList));
         this.setMossUsernameList(format2Unicode(this.mossUsernameList));
+
+        this.setVjAliveList(vjAliveList);
+        this.setNowcoderAliveList(nowcoderAliveList);
+        this.setAcwingAliveList(acwingAliveList);
+
+        this.setNowcoderTitleList(format2Unicode(this.nowcoderTitleList));
+        this.setNowcoderLinkList(format2Unicode(this.nowcoderLinkList));
+        this.setAcwingTitleList(format2Unicode(this.acwingTitleList));
+        this.setAcwingLinkList(format2Unicode(this.acwingLinkList));
     }
 
     public void convertUnicodeRemoteAccount2Str() {
@@ -190,7 +224,20 @@ public class SwitchConfig {
         this.setNewojPasswordList(convertUnicode2Str(this.newojPasswordList));
         this.setVjUsernameList(convertUnicode2Str(this.vjUsernameList));
         this.setVjPasswordList(convertUnicode2Str(this.vjPasswordList));
+        this.setNowcoderUsernameList(convertUnicode2Str(this.nowcoderUsernameList));
+        this.setNowcoderPasswordList(convertUnicode2Str(this.nowcoderPasswordList));
+        this.setAcwingUsernameList(convertUnicode2Str(this.acwingUsernameList));
+        this.setAcwingPasswordList(convertUnicode2Str(this.acwingPasswordList));
         this.setMossUsernameList(convertUnicode2Str(this.mossUsernameList));
+
+        this.setVjAliveList(vjAliveList);
+        this.setNowcoderAliveList(nowcoderAliveList);
+        this.setAcwingAliveList(acwingAliveList);
+
+        this.setNowcoderTitleList(convertUnicode2Str(this.nowcoderTitleList));
+        this.setNowcoderLinkList(convertUnicode2Str(this.nowcoderLinkList));
+        this.setAcwingTitleList(convertUnicode2Str(this.acwingTitleList));
+        this.setAcwingLinkList(convertUnicode2Str(this.acwingLinkList));
     }
 
     private List<String> format2Unicode(List<String> strList) {

@@ -101,9 +101,34 @@
           <RemoteJudgeAccount
             :usernameList.sync="switchConfig.vjUsernameList"
             :passwordList.sync="switchConfig.vjPasswordList"
+            :aliveList.sync="switchConfig.vjAliveList"
             :loading.sync="loading"
             @saveSwitchConfig="saveSwitchConfig"
             OJ="VJ"
+          ></RemoteJudgeAccount>
+        </el-col>
+        <el-col :xs="24" :md="12" style="margin-top: 15px;">
+          <RemoteJudgeAccount
+            :usernameList.sync="switchConfig.nowcoderUsernameList"
+            :passwordList.sync="switchConfig.nowcoderPasswordList"
+            :aliveList.sync="switchConfig.nowcoderAliveList"
+            :titleList.sync="switchConfig.nowcoderTitleList"
+            :linkList.sync="switchConfig.nowcoderLinkList"
+            :loading.sync="loading"
+            @saveSwitchConfig="saveSwitchConfig"
+            OJ="Nowcoder"
+          ></RemoteJudgeAccount>
+        </el-col>
+        <el-col :xs="24" :md="12" style="margin-top: 15px;">
+          <RemoteJudgeAccount
+            :usernameList.sync="switchConfig.acwingUsernameList"
+            :passwordList.sync="switchConfig.acwingPasswordList"
+            :aliveList.sync="switchConfig.acwingAliveList"
+            :titleList.sync="switchConfig.acwingTitleList"
+            :linkList.sync="switchConfig.acwingLinkList"
+            :loading.sync="loading"
+            @saveSwitchConfig="saveSwitchConfig"
+            OJ="Acwing"
           ></RemoteJudgeAccount>
         </el-col>
         <el-col :xs="24" :md="12" style="margin-top: 15px;">

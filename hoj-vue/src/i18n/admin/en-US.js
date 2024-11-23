@@ -220,6 +220,10 @@ export const m = {
   Add_Account: 'Add Account',
   Collapse_Group_Info: 'Collapse Group Info',
   Expand_Group_Info: 'Expand Group Info',
+  Alive: 'Alive',
+  Alive_Tips: 'Please note that maintaining these cookies for activity will prevent the associated original accounts from logging into the original websites directly.',
+  Course_Title: 'Course Title',
+  Course_Link: 'Course Link',
 
   // /views/admin/problem/ProblemList.vue
   Contest_Problem_List: 'Contest Problem List',

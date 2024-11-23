@@ -207,6 +207,17 @@
             <artifactId>onnxruntime</artifactId>
             <version>1.11.0</version>
         </dependency>
+        <!-- 导入 javacv -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>1.5.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>1.24.0</version>
+        </dependency>
 
     </dependencies>
 

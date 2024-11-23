@@ -28,6 +28,7 @@ import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.dao.user.UserRecordEntityService;
 import top.hcode.hoj.manager.admin.multiOj.MultiOjInfoManager;
 import top.hcode.hoj.manager.msg.AdminNoticeManager;
+import top.hcode.hoj.manager.oj.CookieManager;
 import top.hcode.hoj.pojo.dto.MultiOjDto;
 import top.hcode.hoj.pojo.entity.common.File;
 import top.hcode.hoj.pojo.entity.judge.Judge;
@@ -38,6 +39,7 @@ import top.hcode.hoj.pojo.entity.user.Session;
 import top.hcode.hoj.pojo.entity.user.UserInfo;
 import top.hcode.hoj.pojo.entity.user.UserMultiOj;
 import top.hcode.hoj.pojo.entity.user.UserRecord;
+import top.hcode.hoj.pojo.vo.AliveVO;
 import top.hcode.hoj.service.admin.rejudge.RejudgeService;
 import top.hcode.hoj.utils.ClocUtils;
 import top.hcode.hoj.utils.Constants;
@@ -45,6 +47,10 @@ import top.hcode.hoj.utils.JsoupUtils;
 import top.hcode.hoj.utils.RedisUtils;
 
 import javax.annotation.Resource;
+import javax.net.ssl.SSLException;
+
+import java.net.HttpCookie;
+import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -120,6 +126,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private ClocUtils clocUtils;
+
+    @Autowired
+    private CookieManager cookieManager;
 
     /**
      * @MethodName deleteAvatar
@@ -523,6 +532,31 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     //     log.info("获取用户每日代码统计成功！");
     // }
+
+    /**
+     * 每隔5分钟获取保活所有账号的Cookies
+     */
+    @Scheduled(cron = "0 */5 * * * *")
+    // @Scheduled(cron = "0 * * * * *")
+    @Override
+    public void aliveCookies() {
+        // 获取所有课程列表
+        List<AliveVO> courseVoList = cookieManager.getAliveList(null);
+
+        courseVoList.forEach(aliveVO -> {
+            try {
+                List<HttpCookie> cookies = cookieManager.getCookieList(aliveVO.getOj(), aliveVO.getUser(), true);
+
+                log.info("[Alive Cookie] Oj: {} Username: {} Cookies: {}", aliveVO.getOj(), aliveVO.getUser(),
+                        cookies.toString());
+            } catch (Exception e) {
+                if (e.getMessage().contains("timed out"))
+                    return;
+                log.error("[Alive Cookie] Oj: {} Username: {} Error: {}", aliveVO.getOj(), aliveVO.getUser(),
+                        e.getMessage());
+            }
+        });
+    }
 
     @Retryable(value = Exception.class, maxAttempts = 5, backoff = @Backoff(delay = 1000, multiplier = 1.4))
     public JSONObject getCFUserInfo(String url) throws Exception {

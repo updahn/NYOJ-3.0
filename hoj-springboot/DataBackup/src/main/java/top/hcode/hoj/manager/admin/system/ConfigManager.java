@@ -585,12 +585,52 @@ public class ConfigManager {
         }
 
         if (checkListDiff(config.getVjUsernameList(), switchConfig.getVjUsernameList()) ||
-                checkListDiff(config.getVjPasswordList(), switchConfig.getVjPasswordList())) {
+                checkListDiff(config.getVjPasswordList(), switchConfig.getVjPasswordList()) ||
+                checkListDiff2(config.getVjAliveList(), switchConfig.getVjAliveList())) {
             switchConfig.setVjUsernameList(config.getVjUsernameList());
             switchConfig.setVjPasswordList(config.getVjPasswordList());
-            changeRemoteJudgeAccount(config.getVjUsernameList(),
+            switchConfig.setVjAliveList(config.getVjAliveList());
+            changeRemoteJudgeAccount2(config.getVjUsernameList(),
                     config.getVjPasswordList(),
+                    config.getVjAliveList(),
+                    null, null,
                     Constants.RemoteOJ.VJ.getName());
+        }
+
+        if (checkListDiff(config.getNowcoderUsernameList(), switchConfig.getNowcoderUsernameList()) ||
+                checkListDiff(config.getNowcoderPasswordList(), switchConfig.getNowcoderPasswordList()) ||
+                checkListDiff2(config.getNowcoderAliveList(), switchConfig.getNowcoderAliveList()) ||
+                checkListDiff(config.getNowcoderTitleList(), switchConfig.getNowcoderTitleList()) ||
+                checkListDiff(config.getNowcoderLinkList(), switchConfig.getNowcoderLinkList())) {
+            switchConfig.setNowcoderUsernameList(config.getNowcoderUsernameList());
+            switchConfig.setNowcoderPasswordList(config.getNowcoderPasswordList());
+            switchConfig.setNowcoderAliveList(config.getNowcoderAliveList());
+            switchConfig.setNowcoderTitleList(config.getNowcoderTitleList());
+            switchConfig.setNowcoderLinkList(config.getNowcoderLinkList());
+            changeRemoteJudgeAccount2(config.getNowcoderUsernameList(),
+                    config.getNowcoderPasswordList(),
+                    config.getNowcoderAliveList(),
+                    config.getNowcoderTitleList(),
+                    config.getNowcoderLinkList(),
+                    Constants.RemoteOJ.NOWCODER.getName());
+        }
+
+        if (checkListDiff(config.getAcwingUsernameList(), switchConfig.getAcwingUsernameList()) ||
+                checkListDiff(config.getAcwingPasswordList(), switchConfig.getAcwingPasswordList()) ||
+                checkListDiff2(config.getAcwingAliveList(), switchConfig.getAcwingAliveList()) ||
+                checkListDiff(config.getAcwingTitleList(), switchConfig.getAcwingTitleList()) ||
+                checkListDiff(config.getAcwingLinkList(), switchConfig.getAcwingLinkList())) {
+            switchConfig.setAcwingUsernameList(config.getAcwingUsernameList());
+            switchConfig.setAcwingPasswordList(config.getAcwingPasswordList());
+            switchConfig.setAcwingAliveList(config.getAcwingAliveList());
+            switchConfig.setAcwingTitleList(config.getAcwingTitleList());
+            switchConfig.setAcwingLinkList(config.getAcwingLinkList());
+            changeRemoteJudgeAccount2(config.getAcwingUsernameList(),
+                    config.getAcwingPasswordList(),
+                    config.getAcwingAliveList(),
+                    config.getAcwingTitleList(),
+                    config.getAcwingLinkList(),
+                    Constants.RemoteOJ.ACWING.getName());
         }
 
         boolean isOk = nacosSwitchConfig.publishSwitchConfig();
@@ -604,6 +644,13 @@ public class ConfigManager {
             return true;
         }
         return !list1.toString().equals(list2.toString());
+    }
+
+    private boolean checkListDiff2(List<Boolean> list1, List<Boolean> list2) {
+        if (list1.size() != list2.size()) {
+            return true;
+        }
+        return !list1.equals(list2);
     }
 
     private void changeRemoteJudgeAccount(List<String> usernameList,
@@ -639,6 +686,52 @@ public class ConfigManager {
                     .setStatus(true)
                     .setVersion(0L)
                     .setOj(oj));
+        }
+
+        if (newRemoteJudgeAccountList.size() > 0) {
+            boolean addOk = remoteJudgeAccountEntityService.saveOrUpdateBatch(newRemoteJudgeAccountList);
+            if (!addOk) {
+                log.error(
+                        "Remote judge initialization failed. Failed to add account for: [{}]. Please check the configuration file and restart!",
+                        oj);
+            }
+        }
+    }
+
+    private void changeRemoteJudgeAccount2(List<String> usernameList, List<String> passwordList,
+            List<Boolean> aliveList, List<String> titleList, List<String> linkList, String oj) {
+
+        if (CollectionUtils.isEmpty(usernameList) || CollectionUtils.isEmpty(passwordList)
+                || CollectionUtils.isEmpty(aliveList)
+                || usernameList.size() != passwordList.size() || usernameList.size() != aliveList.size()) {
+            log.error("[Change by Switch] [{}]: There is no account or password or alive configured for cookie, " +
+                    "username list:{}, password list:{}, alive list:{}", oj, Arrays.toString(usernameList.toArray()),
+                    Arrays.toString(passwordList.toArray()), Arrays.toString(aliveList.toArray()));
+        }
+
+        QueryWrapper<RemoteJudgeAccount> remoteJudgeAccountQueryWrapper = new QueryWrapper<>();
+        remoteJudgeAccountQueryWrapper.eq("oj", oj);
+        remoteJudgeAccountEntityService.remove(remoteJudgeAccountQueryWrapper);
+
+        List<RemoteJudgeAccount> newRemoteJudgeAccountList = new ArrayList<>();
+
+        boolean hasTitlesAndLinks = !CollectionUtils.isEmpty(titleList) && !CollectionUtils.isEmpty(linkList)
+                && titleList.size() == linkList.size();
+
+        for (int i = 0; i < usernameList.size(); i++) {
+            RemoteJudgeAccount account = new RemoteJudgeAccount()
+                    .setUsername(usernameList.get(i))
+                    .setPassword(passwordList.get(i))
+                    .setIsAlive(aliveList.get(i))
+                    .setStatus(true)
+                    .setVersion(0L)
+                    .setOj(oj);
+
+            if (hasTitlesAndLinks) {
+                account.setTitle(titleList.get(i)).setLink(linkList.get(i));
+            }
+
+            newRemoteJudgeAccountList.add(account);
         }
 
         if (newRemoteJudgeAccountList.size() > 0) {

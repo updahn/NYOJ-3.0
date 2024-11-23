@@ -316,28 +316,25 @@ public class VJJudge extends RemoteJudgeStrategy {
         HttpRequest.getCookieManager().getCookieStore().removeAll();
 
         boolean isOnline = false;
-
-        for (int attempt = 0; attempt < MAX_TIMEOUTS; attempt++) {
-            try {
-                // 执行请求
-                HttpRequest request = HttpRequest.post(HOST + CHECK_LOGIN_STATUS_API)
-                        .headerMap(headers, false)
-                        .timeout(3000);
-
-                if (!CollectionUtils.isEmpty(cookies)) {
+        if (!CollectionUtils.isEmpty(cookies)) {
+            for (int attempt = 0; attempt < MAX_TIMEOUTS; attempt++) {
+                try {
+                    // 执行请求
+                    HttpRequest request = HttpRequest.post(HOST + CHECK_LOGIN_STATUS_API)
+                            .headerMap(headers, false)
+                            .timeout(3000);
                     request.cookie(cookies);
+                    HttpResponse response = request.execute();
+
+                    if (response.getStatus() == 200 && "true".equals(response.body())) {
+                        isOnline = true;
+                        break; // 成功获取状态后跳出循环
+                    }
+
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (cn.hutool.core.io.IORuntimeException e) {
+                    log.warn("[VJ] CheckLoginStatus attempt {} timed out. Retrying...", attempt + 1);
                 }
-
-                HttpResponse response = request.execute();
-
-                if (response.getStatus() == 200 && "true".equals(response.body())) {
-                    isOnline = true;
-                    break; // 成功获取状态后跳出循环
-                }
-
-                TimeUnit.SECONDS.sleep(2);
-            } catch (cn.hutool.core.io.IORuntimeException e) {
-                log.warn("[VJ] CheckLoginStatus attempt {} timed out. Retrying...", attempt + 1);
             }
         }
         return isOnline;

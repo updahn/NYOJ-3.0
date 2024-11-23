@@ -205,6 +205,18 @@ public class StartupRunner implements CommandLineRunner {
     @Value("${vj-password-list}")
     private List<String> vjPasswordList;
 
+    @Value("${nowcoder-username-list}")
+    private List<String> nowcoderUsernameList;
+
+    @Value("${nowcoder-password-list}")
+    private List<String> nowcoderPasswordList;
+
+    @Value("${acwing-username-list}")
+    private List<String> acwingUsernameList;
+
+    @Value("${acwing-password-list}")
+    private List<String> acwingPasswordList;
+
     @Value("${moss-username-list}")
     private List<String> mossUsernameList;
 
@@ -465,10 +477,44 @@ public class StartupRunner implements CommandLineRunner {
             isChanged = true;
         }
 
+        if ((CollectionUtils.isEmpty(switchConfig.getNowcoderUsernameList())
+                && !CollectionUtils.isEmpty(nowcoderUsernameList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setNowcoderUsernameList(nowcoderUsernameList);
+            isChanged = true;
+        }
+
+        if ((CollectionUtils.isEmpty(switchConfig.getNowcoderPasswordList())
+                && !CollectionUtils.isEmpty(nowcoderPasswordList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setNowcoderPasswordList(nowcoderPasswordList);
+            isChanged = true;
+        }
+
+        if ((CollectionUtils.isEmpty(switchConfig.getAcwingUsernameList())
+                && !CollectionUtils.isEmpty(acwingUsernameList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setAcwingUsernameList(acwingUsernameList);
+            isChanged = true;
+        }
+
+        if ((CollectionUtils.isEmpty(switchConfig.getAcwingPasswordList())
+                && !CollectionUtils.isEmpty(acwingPasswordList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setAcwingPasswordList(acwingPasswordList);
+            isChanged = true;
+        }
+
         if ((CollectionUtils.isEmpty(switchConfig.getMossUsernameList())
                 && !CollectionUtils.isEmpty(mossUsernameList))
                 || forcedUpdateRemoteJudgeAccount) {
             switchConfig.setMossUsernameList(mossUsernameList);
+            isChanged = true;
+        }
+
+        if ((CollectionUtils.isEmpty(switchConfig.getVjAliveList())) || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setVjAliveList(
+                    new ArrayList<>(Collections.nCopies(switchConfig.getVjUsernameList().size(), false)));
             isChanged = true;
         }
 
@@ -509,9 +555,23 @@ public class StartupRunner implements CommandLineRunner {
             addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.NEWOJ.getName(),
                     switchConfig.getNewojUsernameList(),
                     switchConfig.getNewojPasswordList());
-            addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.VJ.getName(),
+            addRemoteJudgeAccountToMySQL2(Constants.RemoteOJ.VJ.getName(),
                     switchConfig.getVjUsernameList(),
-                    switchConfig.getVjPasswordList());
+                    switchConfig.getVjPasswordList(),
+                    switchConfig.getVjAliveList(),
+                    null, null);
+            addRemoteJudgeAccountToMySQL2(Constants.RemoteOJ.NOWCODER.getName(),
+                    switchConfig.getNowcoderUsernameList(),
+                    switchConfig.getNowcoderPasswordList(),
+                    switchConfig.getNowcoderAliveList(),
+                    switchConfig.getNowcoderTitleList(),
+                    switchConfig.getNowcoderLinkList());
+            addRemoteJudgeAccountToMySQL2(Constants.RemoteOJ.ACWING.getName(),
+                    switchConfig.getAcwingUsernameList(),
+                    switchConfig.getAcwingPasswordList(),
+                    switchConfig.getAcwingAliveList(),
+                    switchConfig.getAcwingTitleList(),
+                    switchConfig.getAcwingLinkList());
             addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.MOSS.getName(),
                     switchConfig.getMossUsernameList(),
                     null);
@@ -601,6 +661,63 @@ public class StartupRunner implements CommandLineRunner {
 
             if (!CollectionUtils.isEmpty(passwordList)) {
                 account.setPassword(passwordList.get(i));
+            }
+
+            remoteAccountList.add(account);
+        }
+
+        if (remoteAccountList.size() > 0) {
+            boolean addOk = remoteJudgeAccountEntityService.saveOrUpdateBatch(remoteAccountList);
+            if (!addOk) {
+                log.error(
+                        "[Init System Config] Remote judge initialization failed. Failed to add account for: [{}]. Please check the configuration file and restart!",
+                        oj);
+            }
+        }
+    }
+
+    /**
+     * @param oj
+     * @param usernameList
+     * @param passwordList
+     * @param aliveList
+     * @param titleList
+     * @param linkList
+     * @MethodName addRemoteJudgeAccountToRedis
+     * @Description 将传入的对应保活账号写入到mysql
+     * @Return
+     */
+    private void addRemoteJudgeAccountToMySQL2(String oj, List<String> usernameList, List<String> passwordList,
+            List<Boolean> aliveList, List<String> titleList, List<String> linkList) {
+
+        if (CollectionUtils.isEmpty(aliveList)) {
+            aliveList = new ArrayList<>(Collections.nCopies(usernameList.size(), false));
+        }
+
+        if (CollectionUtils.isEmpty(usernameList) || CollectionUtils.isEmpty(passwordList)
+                || CollectionUtils.isEmpty(aliveList)
+                || usernameList.size() != passwordList.size() || usernameList.size() != aliveList.size()) {
+            log.error("[Init System Config] [{}]: There is no account or link or title configured for cookie, " +
+                    "username list:{}, password list:{}, alive list:{}", oj, Arrays.toString(usernameList.toArray()),
+                    Arrays.toString(passwordList.toArray()), Arrays.toString(aliveList.toArray()));
+        }
+
+        List<RemoteJudgeAccount> remoteAccountList = new LinkedList<>();
+
+        boolean hasTitlesAndLinks = !CollectionUtils.isEmpty(titleList) && !CollectionUtils.isEmpty(linkList)
+                && titleList.size() == linkList.size();
+
+        for (int i = 0; i < usernameList.size(); i++) {
+            RemoteJudgeAccount account = new RemoteJudgeAccount()
+                    .setUsername(usernameList.get(i))
+                    .setPassword(passwordList.get(i))
+                    .setIsAlive(aliveList.get(i))
+                    .setStatus(true)
+                    .setVersion(0L)
+                    .setOj(oj);
+
+            if (hasTitlesAndLinks) {
+                account.setTitle(titleList.get(i)).setLink(linkList.get(i));
             }
 
             remoteAccountList.add(account);
