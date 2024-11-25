@@ -18,6 +18,7 @@ import top.hcode.hoj.dao.judge.RemoteJudgeAccountEntityService;
 import top.hcode.hoj.judge.AbstractReceiver;
 import top.hcode.hoj.judge.ChooseUtils;
 import top.hcode.hoj.judge.Dispatcher;
+import top.hcode.hoj.manager.oj.CookieManager;
 import top.hcode.hoj.pojo.dto.ToJudgeDTO;
 import top.hcode.hoj.pojo.entity.contest.ContestRecord;
 import top.hcode.hoj.pojo.entity.judge.Judge;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.net.HttpCookie;
+import java.util.List;
 
 @Component
 public class RemoteJudgeReceiver extends AbstractReceiver {
@@ -55,6 +58,9 @@ public class RemoteJudgeReceiver extends AbstractReceiver {
 
     @Autowired
     private RemoteJudgeAccountEntityService remoteJudgeAccountEntityService;
+
+    @Autowired
+    private CookieManager cookieManager;
 
     private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
 
@@ -143,6 +149,15 @@ public class RemoteJudgeReceiver extends AbstractReceiver {
             toJudgeDTO.setIsHasSubmitIdRemoteReJudge(true);
             toJudgeDTO.setUsername(judge.getVjudgeUsername());
             toJudgeDTO.setPassword(judge.getVjudgePassword());
+
+            if (OJName.equals(Constants.RemoteOJ.VJ.getName())) {
+                try {
+                    List<HttpCookie> cookies = cookieManager.getCookieList(OJName, judge.getVjudgeUsername(), false);
+                    toJudgeDTO.setCookies(cookieManager.convertHttpCookieToString(cookies));
+                } catch (Exception e) {
+                }
+            }
+
             // 调用判题服务
             dispatcher.dispatch(Constants.TaskType.REMOTE_JUDGE, toJudgeDTO);
             return;
@@ -174,6 +189,17 @@ public class RemoteJudgeReceiver extends AbstractReceiver {
                 if (account != null) {
                     toJudgeDTO.setUsername(account.getUsername())
                             .setPassword(account.getPassword());
+
+                    if (OJName.equals(Constants.RemoteOJ.VJ.getName())) {
+
+                        try {
+                            List<HttpCookie> cookies = cookieManager.getCookieList(OJName, toJudgeDTO.getUsername(),
+                                    false);
+                            toJudgeDTO.setCookies(cookieManager.convertHttpCookieToString(cookies));
+                        } catch (Exception e) {
+                        }
+                    }
+
                     toJudgeDTO.setIsHasSubmitIdRemoteReJudge(false);
                     // 调用判题服务
                     dispatcher.dispatch(Constants.TaskType.REMOTE_JUDGE, toJudgeDTO);

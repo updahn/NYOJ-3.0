@@ -3,16 +3,24 @@ package top.hcode.hoj.remoteJudge;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ReUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import top.hcode.hoj.dao.JudgeEntityService;
 import top.hcode.hoj.pojo.dto.ToJudgeDTO;
 import top.hcode.hoj.pojo.entity.judge.Judge;
+import top.hcode.hoj.pojo.entity.judge.JudgeCookie;
 import top.hcode.hoj.remoteJudge.entity.RemoteJudgeDTO;
 import top.hcode.hoj.remoteJudge.task.RemoteJudgeFactory;
 import top.hcode.hoj.remoteJudge.task.RemoteJudgeStrategy;
 import top.hcode.hoj.util.Constants;
+
+import java.net.HttpCookie;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -62,11 +70,28 @@ public class RemoteJudgeContext {
                 .submitId(toJudgeDTO.getJudge().getVjudgeSubmitId())
                 .build();
 
+        // 添加从后端传入的cookies
+        if (toJudgeDTO.getCookies() != null) {
+            try {
+                // 使用 CustomHttpCookie 进行反序列化
+                List<JudgeCookie> customCookies = new ObjectMapper().readValue(toJudgeDTO.getCookies(),
+                        new TypeReference<List<JudgeCookie>>() {
+                        });
+                List<HttpCookie> cookies = customCookies.stream().map(JudgeCookie::toHttpCookie)
+                        .collect(Collectors.toList());
+
+                remoteJudgeDTO.setCookies(cookies);
+
+            } catch (Exception e) {
+            }
+        }
+
         initProblemId(remoteJudgeDTO);
 
         Boolean isHasSubmitIdRemoteReJudge = toJudgeDTO.getIsHasSubmitIdRemoteReJudge();
 
         RemoteJudgeStrategy remoteJudgeStrategy = buildJudgeStrategy(remoteJudgeDTO);
+
         if (remoteJudgeStrategy != null) {
             if (isHasSubmitIdRemoteReJudge != null && isHasSubmitIdRemoteReJudge) {
                 // 拥有远程oj的submitId远程判题的重判

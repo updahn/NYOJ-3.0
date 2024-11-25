@@ -1,5 +1,8 @@
 package top.hcode.hoj.crawler.problem;
 
+import java.net.HttpCookie;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,6 +37,20 @@ public class ProblemContext {
 
         try {
             return problemStrategy.getProblemInfoByLogin(problemId, author, username, password);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("获取题目详情失败---------------->{}", e);
+        }
+        return null;
+    }
+
+    // 上下文接口
+    public ProblemStrategy.RemoteProblemInfo getProblemInfoByCookie(String problemId, String author,
+            List<HttpCookie> cookies) throws Exception {
+
+        try {
+            return problemStrategy.getProblemInfoByCookie(problemId, author, cookies);
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {

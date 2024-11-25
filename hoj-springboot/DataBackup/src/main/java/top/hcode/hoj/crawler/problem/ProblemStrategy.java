@@ -8,6 +8,7 @@ import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.pojo.entity.problem.Tag;
 import top.hcode.hoj.utils.Constants;
 
+import java.net.HttpCookie;
 import java.util.List;
 
 public abstract class ProblemStrategy {
@@ -15,6 +16,11 @@ public abstract class ProblemStrategy {
     public abstract RemoteProblemInfo getProblemInfo(String problemId, String author) throws Exception;
 
     public RemoteProblemInfo getProblemInfoByLogin(String problemId, String author, String username, String password)
+            throws Exception {
+        return null;
+    }
+
+    public RemoteProblemInfo getProblemInfoByCookie(String problemId, String author, List<HttpCookie> cookies)
             throws Exception {
         return null;
     }

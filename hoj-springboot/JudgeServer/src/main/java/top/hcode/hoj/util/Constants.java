@@ -12,7 +12,6 @@ public class Constants {
      */
     public enum Judge {
         // 提交失败
-        STATUS_DUPLICATE_CODE(-12, "Duplicate Code"),
         STATUS_NOT_SUBMITTED(-10, "Not Submitted"),
         STATUS_CANCELLED(-4, "Cancelled"),
         STATUS_PRESENTATION_ERROR(-3, "Presentation Error"),

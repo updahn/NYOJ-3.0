@@ -12,6 +12,7 @@ import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.pojo.entity.problem.Tag;
 import top.hcode.hoj.utils.CodeForcesUtils;
 import top.hcode.hoj.utils.Constants;
+import top.hcode.hoj.utils.CookiesUtils;
 import top.hcode.hoj.utils.JsoupUtils;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.*;
 import java.io.*;
+import java.net.HttpCookie;
 
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -55,12 +57,15 @@ public class VJProblemStrategy extends ProblemStrategy {
 
 	public static Map<String, String> languagesMap = new HashMap<>();
 
-	/**
-	 * @param problemId String的原因是因为某些题库题号不是纯数字
-	 * @param author    导入该题目的管理员用户名
-	 * @return 返回Problem对象
-	 * @throws Exception
-	 */
+	public List<HttpCookie> cookies;
+
+	@Override
+	public RemoteProblemInfo getProblemInfoByCookie(String problemId, String author, List<HttpCookie> cookies)
+			throws Exception {
+		this.cookies = cookies;
+		return getProblemInfo(problemId, author);
+	}
+
 	@Override
 	public RemoteProblemInfo getProblemInfo(String problemId, String author) throws Exception {
 
@@ -71,6 +76,7 @@ public class VJProblemStrategy extends ProblemStrategy {
 		String url = String.format(HOST + PROBLEM_API, problemId);
 
 		Connection connection = JsoupUtils.getConnectionFromUrl(url, null, headers, false);
+		connection.cookies(CookiesUtils.convertHttpCookieListToMap(cookies));
 		Connection.Response response = connection.execute();
 
 		if (response.statusCode() == 404) {

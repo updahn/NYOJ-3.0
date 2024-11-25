@@ -1,11 +1,4 @@
 export const JUDGE_STATUS = {
-  '-12': {
-    name: 'Duplicate Code',
-    color: 'yellow',
-    short: 'DC',
-    type: 'warning',
-    rgb: '#f90',
-  },
   '-10': {
     name: 'Not Submitted',
     short: 'NS',

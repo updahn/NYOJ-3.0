@@ -66,4 +66,5 @@ public class ToJudgeDTO implements Serializable {
 
     private Integer size;
 
+    private String cookies;
 }

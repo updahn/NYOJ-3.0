@@ -1,59 +1,41 @@
 package top.hcode.hoj.crawler.scraper;
 
 import java.io.*;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
-import java.awt.image.BufferedImage;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.Cookie;
+import com.microsoft.playwright.options.WaitUntilState;
 
-import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import top.hcode.hoj.pojo.vo.ACMContestRankVO;
-import top.hcode.hoj.utils.OCREngineUtils;
+import top.hcode.hoj.utils.CookiesUtils;
 
 @Slf4j(topic = "hoj")
 @Component
 public class VJScraperStrategy extends ScraperStrategy {
 
     private static final String HOST = "https://vjudge.net";
-    private static final String LOGIN_API = "/user/login";
-    private static final String CAPTCHA_API = "/util/captcha";
     private static final String CONTEST_RANK_API = "/contest/rank/single/%s";
     private static final String RANK_API = "/contest/%s#rank";
 
-    // 熔断机制，保证尝试登录死循环不会卡死进程
-    private static final int MAX_ATTEMPTS = 5; // 最大登录尝试次数
-    private static final int MAX_TIMEOUTS = 5; // 最大超时尝试次数
-    private static final int MAX_TOTAL_ATTEMPTS = 50; // 验证码识别最大尝试次数
-
-    private static int totalAttempts = 0; // 总验证码识别尝试次数
-    private static int timeoutAttempts = 0; // 超时次数
-
-    private static Map<String, String> headers = MapUtil.builder(new HashMap<String, String>())
-            .put("Accept", "*/*")
-            .put("Content-Type", "application/x-www-form-urlencoded; application/json; application/xml; charset=UTF-8")
-            .put("User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36")
-            .put("X-Requested-With", "XMLHttpRequest")
-            .map();
+    private static final String USERNAME_INPUT_SELECTOR = "input[placeholder='Username or Email']";
+    private static final String PASSWORD_INPUT_SELECTOR = "input[placeholder='Password']";
+    private static final String PASSWORD_LOGIN_BUTTON_SELECTOR = "a.nav-link.login";
+    private static final String PASSWORD_LOGOUT_BUTTON_SELECTOR = "a.nav-link.logout";
 
     @Override
     public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
@@ -227,138 +209,53 @@ public class VJScraperStrategy extends ScraperStrategy {
         // 清除当前线程的cookies缓存
         HttpRequest.getCookieManager().getCookieStore().removeAll();
 
-        List<HttpCookie> cookies = null;
-        boolean refreshCookies = true;
+        Map<String, String> cookies = null;
 
-        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                    .setHeadless(true)
+                    .setArgs(Arrays.asList("--disable-blink-features=AutomationControlled")));
+
+            BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                    .setUserAgent(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0")
+                    .setDeviceScaleFactor(1)
+                    .setViewportSize(1366, 768));
+
+            // 隐藏自动化痕迹，避免被检测
+            String fileContent = ResourceUtil.readUtf8Str("stealth.min.js");
+            context.addInitScript(fileContent);
+
+            Page page = context.newPage();
+
+            page.navigate(HOST, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
+
+            // 点击登录
+            page.waitForSelector(PASSWORD_LOGIN_BUTTON_SELECTOR, new Page.WaitForSelectorOptions().setTimeout(3000))
+                    .click();
+
+            page.waitForSelector(USERNAME_INPUT_SELECTOR, new Page.WaitForSelectorOptions().setTimeout(3000))
+                    .fill(username);
+            page.waitForSelector(PASSWORD_INPUT_SELECTOR, new Page.WaitForSelectorOptions().setTimeout(3000))
+                    .fill(password);
+
+            page.keyboard().press("Enter");
+
             try {
-                if (refreshCookies) {
-                    totalAttempts = 0;
-                    timeoutAttempts = 0;
-                }
+                // 等待出现退出按钮
+                page.waitForSelector(PASSWORD_LOGOUT_BUTTON_SELECTOR,
+                        new Page.WaitForSelectorOptions().setTimeout(3000));
 
-                // 判断是否需要验证码
-                HttpResponse loginResponse = login(
-                        username,
-                        password,
-                        refreshCookies ? null : handleLoginCaptcha(cookies),
-                        refreshCookies ? null : cookies);
+                // 获取并输出 cookies
+                List<Cookie> cookiesSet = page.context().cookies();
+                cookies = CookiesUtils.convertCookiesToMap(cookiesSet);
 
-                // 更新 Cookies
-                if (refreshCookies) {
-                    cookies = loginResponse.getCookies();
-                    refreshCookies = false;
-                }
-
-                // 登录成功判断
-                if (loginResponse.body().contains("success")) {
-                    log.info("[VJ] Username: {} Login successful!", username);
-                    return convertHttpCookieListToMap(cookies);
-                }
-
-                TimeUnit.SECONDS.sleep(2);
-            } catch (SocketTimeoutException e) {
-                log.warn("[VJ] Username: {} Login attempt {} timed out. Retrying...", username, attempt);
-                refreshCookies = true; // 超时重试
-            } catch (Exception e) {
-                log.error("[VJ] Username: {} Login failed: {}", username, e.getMessage());
-                refreshCookies = true; // IO错误或其他异常，继续重试
-            }
-
-            // 达到最大重试次数
-            if (attempt == MAX_ATTEMPTS) {
-                log.warn("[VJ] Username: {} Reached max retry limit. Exiting.", username);
+                log.info("[VJ] Username: {} Login successful!", username);
+                return cookies;
+            } catch (TimeoutError e) {
                 throw new RuntimeException("[VJ] Username: " + username + " Failed to login!");
             }
         }
-        return null;
-    }
-
-    /**
-     * 登录方法，通过POST请求登录
-     *
-     * @param username 用户名
-     * @param password 密码
-     * @param captcha  验证码（可为空）
-     * @param cookies  Cookies信息
-     * @return 返回登录后的响应
-     */
-    public static HttpResponse login(String username, String password, String captcha, List<HttpCookie> cookies) {
-        // 清除当前线程的cookies缓存
-        HttpRequest.getCookieManager().getCookieStore().removeAll();
-
-        // 构建POST请求
-        HttpRequest request = HttpRequest.post(HOST + LOGIN_API)
-                .headerMap(headers, false)
-                .timeout(5000)
-                .form("username", username) // 添加用户名
-                .form("password", password); // 添加密码
-
-        // 如果验证码不为空，加入验证码字段
-        if (captcha != null && !captcha.isEmpty()) {
-            request.form("captcha", captcha);
-        }
-
-        // 如果 Cookies 不为空，加入 Cookies
-        if (!CollectionUtils.isEmpty(cookies)) {
-            request.cookie(cookies);
-        }
-
-        // 执行请求并返回响应
-        return request.execute();
-    }
-
-    /**
-     * 处理验证码逻辑，递归调用直到识别成功或超过最大次数
-     *
-     * @param cookies Cookies信息
-     * @return 返回识别到的验证码字符串
-     * @throws Exception 当超过最大尝试次数时抛出异常
-     */
-    public static String handleLoginCaptcha(List<HttpCookie> cookies) throws Exception {
-
-        try {
-            // 从URL获取验证码图像
-            BufferedImage image = OCREngineUtils.imgFromUrl(HOST + CAPTCHA_API, cookies);
-
-            if (image != null) {
-                // 调用OCR引擎识别验证码
-                String predict = OCREngineUtils.recognize(image);
-
-                // 判断验证码是否为全字母并且长度为7
-                if (predict != null && predict.length() == 7 && Pattern.matches("[a-zA-Z]+", predict)) {
-                    return predict.toUpperCase(); // 转换为大写后返回
-                }
-            }
-
-            // 如果验证码识别失败次数达到上限，抛出异常
-            if (++totalAttempts >= MAX_TOTAL_ATTEMPTS) {
-                throw new Exception("[VJ] Captcha recognition failed more than " + MAX_TOTAL_ATTEMPTS
-                        + " times. Stopping attempts.");
-            }
-
-            TimeUnit.SECONDS.sleep(2);
-            return handleLoginCaptcha(cookies); // 递归调用直到成功
-
-        } catch (SocketTimeoutException e) {
-            // 捕获超时异常并重试
-            if (++timeoutAttempts >= MAX_TIMEOUTS) {
-                throw new Exception(
-                        "[VJ] Captcha request timeout exceeded " + MAX_TIMEOUTS + " times. Stopping attempts.");
-            }
-
-            TimeUnit.SECONDS.sleep(2);
-            return handleLoginCaptcha(cookies); // 超时后递归重试
-        }
-    }
-
-    // 将 List<HttpCookie> 转换为 Map<String, String>
-    public static Map<String, String> convertHttpCookieListToMap(List<HttpCookie> cookies) {
-        if (CollectionUtils.isEmpty(cookies)) {
-            return null;
-        }
-        return cookies.stream()
-                .collect(Collectors.toMap(HttpCookie::getName, HttpCookie::getValue));
     }
 
 }

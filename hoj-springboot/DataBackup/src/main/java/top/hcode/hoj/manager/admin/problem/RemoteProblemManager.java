@@ -18,8 +18,10 @@ import top.hcode.hoj.dao.judge.RemoteJudgeAccountEntityService;
 import top.hcode.hoj.pojo.entity.judge.RemoteJudgeAccount;
 import top.hcode.hoj.pojo.entity.problem.*;
 import top.hcode.hoj.dao.problem.*;
+import top.hcode.hoj.manager.oj.CookieManager;
 import top.hcode.hoj.utils.Constants;
 
+import java.net.HttpCookie;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +59,9 @@ public class RemoteProblemManager {
 
     @Autowired
     private NacosSwitchConfig nacosSwitchConfig;
+
+    @Autowired
+    private CookieManager cookieManager;
 
     public ProblemStrategy.RemoteProblemInfo getOtherOJProblemInfo(String OJName, String problemId, String author)
             throws Exception {
@@ -112,9 +117,24 @@ public class RemoteProblemManager {
                 return problemContext.getProblemInfoByLogin(problemId, author, username, password);
             } else if (Objects.equals("QOJ", OJName)) {
                 SwitchConfig switchConfig = nacosSwitchConfig.getSwitchConfig();
+                if (CollectionUtils.isEmpty(switchConfig.getQojUsernameList())) {
+                    throw new Exception("未配备对应oj远程评测账号");
+                }
                 String username = switchConfig.getQojUsernameList().get(0);
                 String password = switchConfig.getQojPasswordList().get(0);
                 return problemContext.getProblemInfoByLogin(problemId, author, username, password);
+            } else if (Objects.equals("VJ", OJName)) {
+                // 获取 SwitchConfig 配置并提取默认用户名和密码
+                SwitchConfig switchConfig = nacosSwitchConfig.getSwitchConfig();
+                if (CollectionUtils.isEmpty(switchConfig.getVjUsernameList())) {
+                    throw new Exception("未配备对应oj远程评测账号");
+                }
+
+                String username = switchConfig.getVjUsernameList().get(0);
+                List<HttpCookie> cookies = cookieManager.getCookieList(OJName, username, false);
+
+                // 返回使用新 Cookies 获取的题目信息
+                return problemContext.getProblemInfoByCookie(problemId, author, cookies);
             } else {
                 return problemContext.getProblemInfo(problemId, author);
             }
