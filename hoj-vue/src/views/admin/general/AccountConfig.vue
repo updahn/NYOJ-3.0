@@ -18,6 +18,7 @@
           <RemoteJudgeAccount
             :usernameList.sync="switchConfig.cfUsernameList"
             :passwordList.sync="switchConfig.cfPasswordList"
+            :aliveList.sync="switchConfig.cfAliveList"
             :loading.sync="loading"
             @saveSwitchConfig="saveSwitchConfig"
             OJ="Codeforces"

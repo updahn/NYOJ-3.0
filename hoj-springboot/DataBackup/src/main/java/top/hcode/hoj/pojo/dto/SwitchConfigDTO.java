@@ -162,6 +162,8 @@ public class SwitchConfigDTO {
 
     private List<Boolean> acwingAliveList;
 
+    private List<Boolean> cfAliveList;
+
     // Cookie 保活信息
 
     private List<String> nowcoderTitleList;

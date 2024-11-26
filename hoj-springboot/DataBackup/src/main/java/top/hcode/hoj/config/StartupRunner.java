@@ -518,6 +518,12 @@ public class StartupRunner implements CommandLineRunner {
             isChanged = true;
         }
 
+        if ((CollectionUtils.isEmpty(switchConfig.getCfAliveList())) || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setCfAliveList(
+                    new ArrayList<>(Collections.nCopies(switchConfig.getCfUsernameList().size(), false)));
+            isChanged = true;
+        }
+
         if (isChanged) {
             nacosSwitchConfig.publishWebConfig();
         }
@@ -531,9 +537,11 @@ public class StartupRunner implements CommandLineRunner {
             addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.POJ.getName(),
                     switchConfig.getPojUsernameList(),
                     switchConfig.getPojPasswordList());
-            addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.CODEFORCES.getName(),
+            addRemoteJudgeAccountToMySQL2(Constants.RemoteOJ.CODEFORCES.getName(),
                     switchConfig.getCfUsernameList(),
-                    switchConfig.getCfPasswordList());
+                    switchConfig.getCfPasswordList(),
+                    switchConfig.getCfAliveList(),
+                    null, null);
             addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.SPOJ.getName(),
                     switchConfig.getSpojUsernameList(),
                     switchConfig.getSpojPasswordList());

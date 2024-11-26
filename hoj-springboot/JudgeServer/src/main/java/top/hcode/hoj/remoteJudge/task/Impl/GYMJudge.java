@@ -21,19 +21,24 @@ import java.util.regex.Pattern;
  * @Date: 2021/11/6 11:17
  * @Description:
  */
-public class GYMJudge extends CodeForcesJudge {
+public class GYMJudge extends CodeForcesJudge2 {
 
     private final static String JUDGE_PROTOCOL = "/data/judgeProtocol";
 
     @Override
     protected String getSubmitUrl(String contestNum) {
-        return IMAGE_HOST + "/gym/" + contestNum + "/submit";
+        return HOST + "/gym/" + contestNum + "/submit";
     }
 
     @Override
     protected String getRunIdUrl() {
         RemoteJudgeDTO remoteJudgeDTO = getRemoteJudgeDTO();
-        return IMAGE_HOST + String.format("/gym/%s/my", remoteJudgeDTO.getContestId());
+        return HOST + String.format("/gym/%s/my", remoteJudgeDTO.getContestId());
+    }
+
+    @Override
+    protected String getResultReferer(String contestId) {
+        return String.format(HOST + "/gym/%s/status", contestId);
     }
 
     // public static void main(String[] args) {
@@ -83,7 +88,7 @@ public class GYMJudge extends CodeForcesJudge {
         final Matcher matcher = pattern.matcher(homeResponse.body());
 
         if (matcher.find()) {
-            String csrfToken = ReUtil.get("data-csrf='(\\w+)'", homeResponse.body(), 1);
+            String csrfToken = ReUtil.get("data-csrf=\"([a-f0-9]+)\"", homeResponse.body(), 1);
             String statusStr = matcher.group(1);
             Constants.Judge statusType = statusMap.get(statusStr);
             if (statusType == Constants.Judge.STATUS_JUDGING) {

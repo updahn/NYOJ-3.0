@@ -3,16 +3,15 @@ package top.hcode.hoj.crawler.scraper;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,14 +21,18 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.alibaba.excel.util.CollectionUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.Cookie;
+import com.microsoft.playwright.options.WaitUntilState;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ReUtil;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import top.hcode.hoj.pojo.vo.ACMContestRankVO;
-import top.hcode.hoj.utils.CodeForcesUtils;
+import top.hcode.hoj.utils.CookiesUtils;
 
 @Slf4j(topic = "hoj")
 public class CFScraperStrategy extends ScraperStrategy {
@@ -41,7 +44,12 @@ public class CFScraperStrategy extends ScraperStrategy {
     private static final String GYM_RANK_URL = "/gym/%s/standings";
     private String RANK_URL;
 
-    private List<HttpCookie> cookies = null;
+    private Map<String, String> cookies;
+
+    // 模拟浏览器操作
+    private static final String USERNAME_INPUT_SELECTOR = "#handleOrEmail";
+    private static final String PASSWORD_INPUT_SELECTOR = "#password";
+    private static final String PASSWORD_LOGOUT_BUTTON_SELECTOR = "a[href*='/logout']";
 
     public CFScraperStrategy(String scraperType) {
         if ("cf".equals(scraperType)) {
@@ -54,18 +62,15 @@ public class CFScraperStrategy extends ScraperStrategy {
     @Override
     public List<ACMContestRankVO> getScraperInfoByLogin(String cid, Map<String, String> cookies, String username,
             String password, Map<String, String> usernameToUidMap) throws Exception {
+        this.cookies = cookies;
+
         List<ACMContestRankVO> rankDatas = new ArrayList<>();
 
-        if (cookies != null) {
-            // 获取排名信息
-            String rankHtml = getRankInfo(cid, cookies);
+        // 获取排名信息
+        String rankHtml = getRankInfo(cid);
 
-            // 处理排名数据
-            rankDatas = dealRank(rankHtml, cid, usernameToUidMap, false);
-
-        } else {
-            throw new Exception("[CF] Scraper Login Error");
-        }
+        // 处理排名数据
+        rankDatas = dealRank(rankHtml, cid, usernameToUidMap);
 
         return rankDatas;
     }
@@ -73,89 +78,124 @@ public class CFScraperStrategy extends ScraperStrategy {
     @Override
     public List<ACMContestRankVO> getScraperInfo(String cid, Map<String, String> usernameToUidMap)
             throws Exception {
-        List<ACMContestRankVO> rankDatas = new ArrayList<>();
-
-        // 获取排名信息
-        String rankHtml = getRankInfo(cid, null);
-
-        // 处理排名数据
-        rankDatas = dealRank(rankHtml, cid, usernameToUidMap, true);
-
-        return rankDatas;
+        return null;
     }
 
     @Override
     public Map<String, String> getLoginCookies(String loginUsername, String loginPassword) throws Exception {
-        Connection.Response loginResponse = login(loginUsername, loginPassword);
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
+                    .setHeadless(true)
+                    .setArgs(Arrays.asList("--disable-blink-features=AutomationControlled")));
 
-        if (loginResponse.statusCode() != 200) {
-            return loginResponse.cookies();
-        }
-        return null;
-    }
+            BrowserContext context = browser.newContext(new Browser.NewContextOptions()
+                    .setUserAgent(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0")
+                    .setDeviceScaleFactor(1)
+                    .setViewportSize(1366, 768));
 
-    public Connection.Response login(String username, String password) throws IOException {
-        String csrfToken = getCsrfToken(IMAGE_HOST + LOGIN_API, false);
+            // 隐藏自动化痕迹，避免被检测
+            String fileContent = ResourceUtil.readUtf8Str("stealth.min.js");
+            context.addInitScript(fileContent);
 
-        if (csrfToken != null) {
-            // 将 List<HttpCookie> 转换为 Map<String, String>
-            Map<String, String> cookieMap = cookies.stream()
-                    .collect(Collectors.toMap(HttpCookie::getName, HttpCookie::getValue));
+            Page page = context.newPage();
 
-            Connection.Response loginResponse = Jsoup.connect(IMAGE_HOST + LOGIN_API)
-                    .data("csrf_token", csrfToken)
-                    .data("action", "enter")
-                    .data("handleOrEmail", username)
-                    .data("password", password)
-                    .data("remember", "on")
-                    .cookies(cookieMap)
-                    .method(Connection.Method.POST)
-                    .execute();
+            page.navigate(IMAGE_HOST + LOGIN_API, new Page.NavigateOptions().setWaitUntil(WaitUntilState.COMMIT));
 
-            // 检查登录是否成功
-            if (!loginResponse.body().contains("Enter")) {
-                return loginResponse;
-            }
-        }
+            try {
+                // 等待出现退出按钮, 已经登录
+                page.waitForSelector(PASSWORD_LOGOUT_BUTTON_SELECTOR,
+                        new Page.WaitForSelectorOptions().setTimeout(3000));
+            } catch (TimeoutError e) {
+                // 输入用户名
+                page.waitForSelector(USERNAME_INPUT_SELECTOR, new Page.WaitForSelectorOptions().setTimeout(3000));
+                page.fill(USERNAME_INPUT_SELECTOR, loginUsername);
 
-        return null;
-    }
+                // 输入密码
+                page.waitForSelector(PASSWORD_INPUT_SELECTOR, new Page.WaitForSelectorOptions().setTimeout(3000));
+                page.fill(PASSWORD_INPUT_SELECTOR, loginPassword);
 
-    public String getRankInfo(String cid, Map<String, String> cookies) throws IOException {
-        if (cookies == null) {
-            String url = IMAGE_HOST + RANK_API;
+                page.keyboard().press("Enter");
 
-            HttpURLConnection connection = (HttpURLConnection) new URL(String.format(url, cid))
-                    .openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+                try {
+                    // 等待出现退出按钮
+                    page.waitForSelector(PASSWORD_LOGOUT_BUTTON_SELECTOR,
+                            new Page.WaitForSelectorOptions().setTimeout(5000));
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
+                    List<Cookie> cookiesSet = page.context().cookies();
+                    return CookiesUtils.convertCookiesToMap(cookiesSet);
+                } catch (TimeoutError e2) {
                 }
-                return response.toString();
-            } finally {
-                connection.disconnect();
             }
-        } else {
-            // 复制 cookies
-            Connection.Response response = Jsoup.connect(String.format(RANK_URL, cid))
-                    .cookies(cookies) // 使用登录时获得的 cookies
-                    .execute();
-            return response.body();
+        }
+        return null;
+    }
+
+    public String getRankInfo(String cid) throws IOException {
+        String url = IMAGE_HOST + RANK_API;
+
+        HttpURLConnection connection = (HttpURLConnection) new URL(String.format(url, cid)).openConnection();
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestProperty("User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+
+            return response.toString();
+        } catch (IOException e) {
+            // 处理 400 状态码
+            if (connection.getResponseCode() == 400) {
+                StringBuilder errorResponse = new StringBuilder();
+                try (BufferedReader errorReader = new BufferedReader(
+                        new InputStreamReader(connection.getErrorStream()))) {
+                    String errorLine;
+                    while ((errorLine = errorReader.readLine()) != null) {
+                        errorResponse.append(errorLine);
+                    }
+                }
+
+                // 检查返回的 JSON 数据
+                if (isContestNotFound(errorResponse.toString())) {
+                    return getRankInfoWithCookies(cid);
+                }
+            }
+            throw e;
+        } finally {
+            connection.disconnect();
         }
     }
 
-    public List<ACMContestRankVO> dealRank(String html, String cid, Map<String, String> usernameToUidMap,
-            Boolean isApi) {
+    // 检查 JSON 是否表明 Contest ID 无效
+    private boolean isContestNotFound(String jsonResponse) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode root = objectMapper.readTree(jsonResponse);
+            return "FAILED".equals(root.path("status").asText())
+                    && root.path("comment").asText().contains("Contest with id");
+        } catch (IOException e) {
+            // 如果解析失败，返回 false
+            return false;
+        }
+    }
+
+    private String getRankInfoWithCookies(String cid) throws IOException {
+        Connection.Response response = Jsoup.connect(String.format(RANK_URL, cid))
+                .cookies(cookies) // 使用登录时获得的 cookies
+                .method(Connection.Method.GET)
+                .execute();
+        return response.body();
+    }
+
+    public List<ACMContestRankVO> dealRank(String html, String cid, Map<String, String> usernameToUidMap) {
         List<ACMContestRankVO> rankDataList = new ArrayList<>();
 
-        if (isApi) {
+        if (CollectionUtils.isEmpty(cookies)) {
             // 解析 JSON 数据
             JSONObject jsonObject = new JSONObject(html);
             JSONObject resultObject = jsonObject.getJSONObject("result");
@@ -259,57 +299,6 @@ public class CFScraperStrategy extends ScraperStrategy {
         // }
 
         return rankDataList;
-    }
-
-    public String getCsrfToken(String url, boolean needTTA) {
-
-        // 清除当前线程的cookies缓存
-        HttpRequest.getCookieManager().getCookieStore().removeAll();
-
-        HttpRequest request = HttpUtil.createGet(url).header("accept",
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
-                .header("accept-language", "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6")
-                .header("cache-control", "max-age=0")
-                .header("priority", "u=0, i")
-                .header("referer", "https://codeforces.com/enter")
-                .header("sec-ch-ua", "\"Not)A;Brand\";v=\"99\", \"Microsoft Edge\";v=\"127\", \"Chromium\";v=\"127\"")
-                .header("sec-ch-ua-mobile", "?0")
-                .header("sec-ch-ua-platform", "\"Windows\"")
-                .header("sec-fetch-dest", "document")
-                .header("sec-fetch-mode", "navigate")
-                .header("sec-fetch-site", "same-origin")
-                .header("sec-fetch-user", "?1")
-                .header("upgrade-insecure-requests", "1")
-                .header("user-agent",
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0");
-
-        if (cookies == null) {
-            request.header("cookie", "RCPC=" + CodeForcesUtils.getRCPC());
-        } else {
-            request.cookie(cookies);
-        }
-
-        HttpResponse response = request.execute();
-
-        String body = response.body();
-
-        if (body.contains("Redirecting... Please, wait.")) {
-            List<String> list = ReUtil.findAll("[a-z0-9]+[a-z0-9]{31}", body, 0, new ArrayList<>());
-
-            CodeForcesUtils.updateRCPC(list);
-
-            request.removeHeader("cookie");
-
-            request.header("cookie", "RCPC=" + CodeForcesUtils.getRCPC());
-            response = request.execute();
-            body = response.body();
-        }
-
-        cookies = response.getCookies();
-
-        String csrfToken = ReUtil.get("data-csrf='(\\w+)'", body, 1);
-
-        return csrfToken;
     }
 
 }

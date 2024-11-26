@@ -4,18 +4,21 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+
 import org.springframework.util.StringUtils;
+
 import top.hcode.hoj.pojo.entity.problem.Problem;
 import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.pojo.entity.problem.Tag;
-import top.hcode.hoj.utils.CodeForcesUtils;
 import top.hcode.hoj.utils.Constants;
+import top.hcode.hoj.utils.CookiesUtils;
 
 import java.net.HttpCookie;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -27,16 +30,17 @@ public class CFProblemStrategy extends ProblemStrategy {
 
     public static final String JUDGE_NAME = "CF";
     public static final String HOST = "https://codeforces.com";
-    public static final String PROBLEM_URL = "/problemset/problem/%s/%s";
+    public static final String CONTEST_PROBLEM_URL = "/contest/%s/problem/%s";
+    public static final String CONTEST_URL = "/contest/%s";
 
-    protected List<HttpCookie> cookies;
+    public List<HttpCookie> cookies;
 
     public String getJudgeName() {
         return JUDGE_NAME;
     }
 
     public String getProblemUrl(String contestId, String problemNum) {
-        return HOST + String.format(PROBLEM_URL, contestId, problemNum);
+        return HOST + String.format(CONTEST_PROBLEM_URL, contestId, problemNum);
     }
 
     public String getProblemSource(String html, String problemId, String contestId, String problemNum) {
@@ -48,6 +52,13 @@ public class CFProblemStrategy extends ProblemStrategy {
                                 .replace("color: black", "color: #009688;")
                         + "</p>",
                 contestId, problemNum, getJudgeName() + "-" + problemId);
+    }
+
+    @Override
+    public RemoteProblemInfo getProblemInfoByCookie(String problemId, String author, List<HttpCookie> cookies)
+            throws Exception {
+        this.cookies = cookies;
+        return getProblemInfo(problemId, author);
     }
 
     @Override
@@ -67,23 +78,20 @@ public class CFProblemStrategy extends ProblemStrategy {
             throw new IllegalArgumentException("Codeforces: Incorrect problem id format!");
         }
 
-        HttpRequest request = HttpRequest.get(getProblemUrl(contestId, problemNum))
-                .header("cookie", "RCPC=" + CodeForcesUtils.getRCPC())
-                .timeout(20000);
-        if (cookies != null) {
-            request.cookie(cookies);
-        }
-        String html = request.execute().body();
-        // 重定向失效，更新RCPC
-        if (html.contains("Redirecting... Please, wait.")) {
-            List<String> list = ReUtil.findAll("[a-z0-9]+[a-z0-9]{31}", html, 0, new ArrayList<>());
-            CodeForcesUtils.updateRCPC(list);
-            html = HttpRequest.get(getProblemUrl(contestId, problemNum))
-                    .header("cookie", "RCPC=" + CodeForcesUtils.getRCPC())
-                    .timeout(20000)
-                    .execute()
-                    .body();
-        }
+        Map<String, String> cookie_map = CookiesUtils.convertHttpCookieListToMap(cookies);
+
+        HttpResponse httpResponse = HttpRequest.get(getProblemUrl(contestId, problemNum))
+                .header("origin", HOST)
+                .header("referer", String.format(HOST + CONTEST_URL, contestId))
+                .header("x-csrf-token", cookie_map.get("csrfToken"))
+                .header("cookie", CookiesUtils.convertMapToCookieHeader(cookie_map))
+                .header("user-agent",
+                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0")
+                .form("csrf_token", cookie_map.get("csrfToken"))
+                .timeout(20000)
+                .execute();
+
+        String html = httpResponse.body();
 
         Problem info = new Problem();
         ProblemDescription problemDescription = new ProblemDescription().setPid(info.getId());

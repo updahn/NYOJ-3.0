@@ -71,6 +71,8 @@ public class SwitchConfig {
 
     private List<Boolean> vjAliveList = new ArrayList<>();
 
+    private List<Boolean> cfAliveList = new ArrayList<>();
+
     private List<Boolean> nowcoderAliveList = new ArrayList<>();
 
     private List<String> nowcoderTitleList = new ArrayList<>();
@@ -192,6 +194,7 @@ public class SwitchConfig {
         this.setMossUsernameList(format2Unicode(this.mossUsernameList));
 
         this.setVjAliveList(vjAliveList);
+        this.setCfAliveList(cfAliveList);
         this.setNowcoderAliveList(nowcoderAliveList);
         this.setAcwingAliveList(acwingAliveList);
 
@@ -231,6 +234,7 @@ public class SwitchConfig {
         this.setMossUsernameList(convertUnicode2Str(this.mossUsernameList));
 
         this.setVjAliveList(vjAliveList);
+        this.setCfAliveList(cfAliveList);
         this.setNowcoderAliveList(nowcoderAliveList);
         this.setAcwingAliveList(acwingAliveList);
 

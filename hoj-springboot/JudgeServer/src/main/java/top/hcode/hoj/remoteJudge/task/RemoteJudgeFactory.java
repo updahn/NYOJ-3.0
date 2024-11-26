@@ -11,7 +11,7 @@ public class RemoteJudgeFactory {
             case HDU_JUDGE:
                 return new HDUJudge();
             case CF_JUDGE:
-                return new CodeForcesJudge();
+                return new CodeForcesJudge2();
             case POJ_JUDGE:
                 return new POJJudge();
             case GYM_JUDGE:

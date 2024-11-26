@@ -41,6 +41,7 @@ public class CookieManager {
     private RedisUtils redisUtils;
 
     public IPage<AliveVO> getCoursePage(Integer limit, Integer currentPage, String scraper) throws Exception {
+        String finalScraper = scraper.equals("GYM") ? "CF" : scraper;
 
         // 页数，每页题数若为空，设置默认值
         if (currentPage == null || currentPage < 1)
@@ -48,7 +49,7 @@ public class CookieManager {
         if (limit == null || limit < 1)
             limit = 2;
 
-        List<AliveVO> aliveVoList = getAliveList(scraper);
+        List<AliveVO> aliveVoList = getAliveList(finalScraper);
 
         List<AliveVO> pageList = new ArrayList<>();
 
@@ -76,8 +77,9 @@ public class CookieManager {
     }
 
     public List<HttpCookie> getCookieList(String scraper, String user, Boolean isCheckLogin) throws Exception {
+        String finalScraper = scraper.equals("GYM") ? "CF" : scraper;
 
-        List<Pair_<String, String>> userList = getCourseInfoList(scraper);
+        List<Pair_<String, String>> userList = getCourseInfoList(finalScraper);
 
         int index = 0; // 默认使用第一个账号
         if (user != null) {
@@ -85,14 +87,14 @@ public class CookieManager {
             index = IntStream.range(0, userList.size())
                     .filter(i -> userList.get(i).getKey().equals(user))
                     .findFirst()
-                    .orElseThrow(() -> new Exception("Noknown Account: [" + scraper + ": " + user + "]"));
+                    .orElseThrow(() -> new Exception("Noknown Account: [" + finalScraper + ": " + user + "]"));
         }
 
         // 获取用户名和密码
         String username = userList.get(index).getKey();
         String password = userList.get(index).getValue();
 
-        String key = scraper + ":" + user;
+        String key = finalScraper + ":" + user;
 
         List<HttpCookie> oldCookies = null; // 初始化为空
 
@@ -116,7 +118,7 @@ public class CookieManager {
         }
 
         // 检查缓存中的 Cookie 是否过期，如果过期则更新
-        CookieStrategy scraperStrategy = getScraperStrategy(scraper);
+        CookieStrategy scraperStrategy = getScraperStrategy(finalScraper);
         CookieContext remoteOjContext = new CookieContext(scraperStrategy);
         List<HttpCookie> cookies = remoteOjContext.getCookiesByLogin(oldCookies, username, password);
 
@@ -147,12 +149,14 @@ public class CookieManager {
     }
 
     public List<Pair_<String, String>> getCourseInfoList(String scraper) throws Exception {
+        String finalScraper = scraper.equals("GYM") ? "CF" : scraper;
+
         SwitchConfig switchConfig = nacosSwitchConfig.getSwitchConfig();
         List<String> usernameList;
         List<String> passwordList;
 
         // 根据 scraper 获取对应的用户名和密码或课程用户名和链接列表
-        switch (scraper) {
+        switch (finalScraper) {
             case "NOWCODER":
                 usernameList = switchConfig.getNowcoderUsernameList();
                 passwordList = switchConfig.getNowcoderPasswordList();
@@ -164,6 +168,10 @@ public class CookieManager {
             case "VJ":
                 usernameList = switchConfig.getVjUsernameList();
                 passwordList = switchConfig.getVjPasswordList();
+                break;
+            case "CF":
+                usernameList = switchConfig.getCfUsernameList();
+                passwordList = switchConfig.getCfPasswordList();
                 break;
             default:
                 throw new Exception("未知的存活cookie名字，暂时不支持！");
@@ -189,8 +197,10 @@ public class CookieManager {
 
     // 使用传统的 switch 语句替代 switch 表达式
     private CookieStrategy getScraperStrategy(String scraper) throws Exception {
+        String finalScraper = scraper.equals("GYM") ? "CF" : scraper;
+
         CookieStrategy cookieStrategy;
-        switch (scraper) {
+        switch (finalScraper) {
             case "NOWCODER":
                 cookieStrategy = new NowcoderCookieStrategy();
                 break;
@@ -199,6 +209,9 @@ public class CookieManager {
                 break;
             case "VJ":
                 cookieStrategy = new VjudgeCookieStrategy();
+                break;
+            case "CF":
+                cookieStrategy = new CFCookieStrategy();
                 break;
             default:
                 throw new Exception("未知的存活cookie名字，暂时不支持！");

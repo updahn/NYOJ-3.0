@@ -497,11 +497,15 @@ public class ConfigManager {
         }
 
         if (checkListDiff(config.getCfUsernameList(), switchConfig.getCfUsernameList()) ||
-                checkListDiff(config.getCfPasswordList(), switchConfig.getCfPasswordList())) {
+                checkListDiff(config.getCfPasswordList(), switchConfig.getCfPasswordList()) ||
+                checkListDiff2(config.getCfAliveList(), switchConfig.getCfAliveList())) {
             switchConfig.setCfUsernameList(config.getCfUsernameList());
             switchConfig.setCfPasswordList(config.getCfPasswordList());
-            changeRemoteJudgeAccount(config.getCfUsernameList(),
+            switchConfig.setCfAliveList(config.getCfAliveList());
+            changeRemoteJudgeAccount2(config.getCfUsernameList(),
                     config.getCfPasswordList(),
+                    config.getCfAliveList(),
+                    null, null,
                     Constants.RemoteOJ.CODEFORCES.getName());
         }
 

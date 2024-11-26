@@ -209,7 +209,7 @@ export default {
   },
   computed: {
     hasAlive() {
-      return ["VJ", "Nowcoder", "Acwing"].includes(this.OJ);
+      return ["VJ", "Nowcoder", "Acwing", "Codeforces"].includes(this.OJ);
     },
     isCourse() {
       return ["Nowcoder", "Acwing"].includes(this.OJ);

@@ -25,11 +25,16 @@ public class CookiesUtils {
      * @return Map<String, String> 类型的 cookie 键值对映射
      */
     public static Map<String, String> convertHttpCookieListToMap(List<HttpCookie> cookies) {
-        if (CollectionUtils.isEmpty(cookies)) {
-            return null;
+        if (cookies != null && !cookies.isEmpty()) {
+            return cookies.stream()
+                    .filter(cookie -> cookie != null && cookie.getName() != null && cookie.getValue() != null)
+                    .collect(Collectors.toMap(
+                            HttpCookie::getName,
+                            HttpCookie::getValue,
+                            (oldValue, newValue) -> newValue // 处理键冲突
+                    ));
         }
-        return cookies.stream()
-                .collect(Collectors.toMap(HttpCookie::getName, HttpCookie::getValue));
+        return new HashMap<>();
     }
 
     /**

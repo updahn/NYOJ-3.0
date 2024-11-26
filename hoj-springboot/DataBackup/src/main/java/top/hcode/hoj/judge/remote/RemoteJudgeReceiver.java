@@ -150,7 +150,8 @@ public class RemoteJudgeReceiver extends AbstractReceiver {
             toJudgeDTO.setUsername(judge.getVjudgeUsername());
             toJudgeDTO.setPassword(judge.getVjudgePassword());
 
-            if (OJName.equals(Constants.RemoteOJ.VJ.getName())) {
+            if (OJName.equals(Constants.RemoteOJ.VJ.getName())
+                    || OJName.equals(Constants.RemoteOJ.CODEFORCES.getName())) {
                 try {
                     List<HttpCookie> cookies = cookieManager.getCookieList(OJName, judge.getVjudgeUsername(), false);
                     toJudgeDTO.setCookies(cookieManager.convertHttpCookieToString(cookies));
@@ -190,7 +191,8 @@ public class RemoteJudgeReceiver extends AbstractReceiver {
                     toJudgeDTO.setUsername(account.getUsername())
                             .setPassword(account.getPassword());
 
-                    if (OJName.equals(Constants.RemoteOJ.VJ.getName())) {
+                    if (OJName.equals(Constants.RemoteOJ.VJ.getName())
+                            || OJName.equals(Constants.RemoteOJ.CODEFORCES.getName())) {
 
                         try {
                             List<HttpCookie> cookies = cookieManager.getCookieList(OJName, toJudgeDTO.getUsername(),

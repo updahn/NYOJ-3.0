@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import top.hcode.hoj.config.NacosSwitchConfig;
 import top.hcode.hoj.config.SwitchConfig;
 import top.hcode.hoj.crawler.language.LanguageContext;
 import top.hcode.hoj.crawler.problem.*;
 import top.hcode.hoj.dao.judge.RemoteJudgeAccountEntityService;
-import top.hcode.hoj.pojo.entity.judge.RemoteJudgeAccount;
 import top.hcode.hoj.pojo.entity.problem.*;
 import top.hcode.hoj.dao.problem.*;
 import top.hcode.hoj.manager.oj.CookieManager;
@@ -108,15 +108,18 @@ public class RemoteProblemManager {
                 throw new Exception("未知的OJ的名字，暂时不支持！");
         }
 
+        SwitchConfig switchConfig = nacosSwitchConfig.getSwitchConfig();
+
         ProblemContext problemContext = new ProblemContext(problemStrategy);
         try {
             if (Objects.equals("SCPC", OJName)) {
-                SwitchConfig switchConfig = nacosSwitchConfig.getSwitchConfig();
+                if (StringUtils.isEmpty(switchConfig.getScpcSuperAdminAccount())) {
+                    throw new Exception("未配备对应oj远程评测账号");
+                }
                 String username = switchConfig.getScpcSuperAdminAccount();
                 String password = switchConfig.getScpcSuperAdminPassword();
                 return problemContext.getProblemInfoByLogin(problemId, author, username, password);
             } else if (Objects.equals("QOJ", OJName)) {
-                SwitchConfig switchConfig = nacosSwitchConfig.getSwitchConfig();
                 if (CollectionUtils.isEmpty(switchConfig.getQojUsernameList())) {
                     throw new Exception("未配备对应oj远程评测账号");
                 }
@@ -124,30 +127,25 @@ public class RemoteProblemManager {
                 String password = switchConfig.getQojPasswordList().get(0);
                 return problemContext.getProblemInfoByLogin(problemId, author, username, password);
             } else if (Objects.equals("VJ", OJName)) {
-                // 获取 SwitchConfig 配置并提取默认用户名和密码
-                SwitchConfig switchConfig = nacosSwitchConfig.getSwitchConfig();
                 if (CollectionUtils.isEmpty(switchConfig.getVjUsernameList())) {
                     throw new Exception("未配备对应oj远程评测账号");
                 }
-
                 String username = switchConfig.getVjUsernameList().get(0);
                 List<HttpCookie> cookies = cookieManager.getCookieList(OJName, username, false);
 
-                // 返回使用新 Cookies 获取的题目信息
                 return problemContext.getProblemInfoByCookie(problemId, author, cookies);
             } else {
                 return problemContext.getProblemInfo(problemId, author);
             }
         } catch (IllegalStateException e) {
             if (Objects.equals("GYM", OJName)) {
-                QueryWrapper<RemoteJudgeAccount> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("oj", "CF");
-                List<RemoteJudgeAccount> remoteJudgeAccounts = remoteJudgeAccountEntityService.list(queryWrapper);
-                if (!CollectionUtils.isEmpty(remoteJudgeAccounts)) {
-                    RemoteJudgeAccount account = remoteJudgeAccounts.get(0);
-                    return problemContext.getProblemInfoByLogin(problemId, author, account.getUsername(),
-                            account.getPassword());
+                if (CollectionUtils.isEmpty(switchConfig.getCfUsernameList())) {
+                    throw new Exception("未配备对应oj远程评测账号");
                 }
+                String username = switchConfig.getCfUsernameList().get(0);
+                List<HttpCookie> cookies = cookieManager.getCookieList(OJName, username, false);
+
+                return problemContext.getProblemInfoByCookie(problemId, author, cookies);
             }
             return null;
         }
