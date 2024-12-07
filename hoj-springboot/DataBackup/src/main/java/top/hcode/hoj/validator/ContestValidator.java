@@ -180,25 +180,31 @@ public class ContestValidator {
 
     public boolean validateAccountRule(String accountRule, String username) {
 
-        String prefix = ReUtil.get("<prefix>([\\s\\S]*?)</prefix>",
-                accountRule, 1);
-        String suffix = ReUtil.get("<suffix>([\\s\\S]*?)</suffix>",
-                accountRule, 1);
-        String start = ReUtil.get("<start>([\\s\\S]*?)</start>",
-                accountRule, 1);
-        String end = ReUtil.get("<end>([\\s\\S]*?)</end>",
-                accountRule, 1);
-        String extra = ReUtil.get("<extra>([\\s\\S]*?)</extra>",
-                accountRule, 1);
+        String prefix = getRuleValue(accountRule, "prefix");
+        String suffix = getRuleValue(accountRule, "suffix");
+        String start = getRuleValue(accountRule, "start");
+        String end = getRuleValue(accountRule, "end");
+        String extra = getRuleValue(accountRule, "extra");
 
-        int startNum = Integer.parseInt(start);
-        int endNum = Integer.parseInt(end);
+        // 检查范围规则
+        if (start != null && end != null) {
+            long startNum = Long.parseLong(start);
+            long endNum = Long.parseLong(end);
 
-        for (int i = startNum; i <= endNum; i++) {
-            if (username.equals(prefix + i + suffix)) {
-                return true;
+            // 直接计算用户是否在范围内
+            if (username.startsWith(prefix) && username.endsWith(suffix)) {
+                try {
+                    String numberPart = username.substring(prefix.length(), username.length() - suffix.length());
+                    long number = Long.parseLong(numberPart);
+                    if (number >= startNum && number <= endNum) {
+                        return true;
+                    }
+                } catch (NumberFormatException ignored) {
+                    // 如果提取的部分不是数字，跳过
+                }
             }
         }
+
         // 额外账号列表
         if (!StringUtils.isEmpty(extra)) {
             String[] accountList = extra.trim().split(" ");
@@ -360,4 +366,8 @@ public class ContestValidator {
         return is_ ? (statisticContest.getCids()) + "+" : (keywords.endsWith("+") ? keywords : keywords + "+");
     }
 
+    String getRuleValue(String rule, String tag) {
+        String value = ReUtil.get("<" + tag + ">([\\s\\S]*?)</" + tag + ">", rule, 1);
+        return "undefined".equals(value) ? null : value;
+    }
 }
