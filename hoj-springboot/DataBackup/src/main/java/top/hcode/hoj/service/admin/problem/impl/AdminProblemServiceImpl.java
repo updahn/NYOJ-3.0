@@ -135,7 +135,7 @@ public class AdminProblemServiceImpl implements AdminProblemService {
         } catch (StatusNotFoundException e) {
             return CommonResult.errorResponse(e.getMessage(), ResultStatus.NOT_FOUND);
         } catch (Exception e) {
-            return CommonResult.errorResponse(e.getMessage(), ResultStatus.SYSTEM_ERROR);
+            return CommonResult.errorResponse(e.getMessage(), ResultStatus.FAIL);
         }
     }
 }

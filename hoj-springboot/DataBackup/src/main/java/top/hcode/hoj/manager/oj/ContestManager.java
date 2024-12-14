@@ -496,7 +496,7 @@ public class ContestManager {
                 contest.getGid(), null);
 
         List<ProblemDescription> problemDescriptionList = problemEntityService.getProblemDescriptionList(
-                contestProblem.getPid(), contestProblem.getPeid(), null, contest.getGid());
+                contestProblem.getPid(), contestProblem.getPeid(), null, null);
 
         if (problem == null) {
             throw new StatusNotFoundException("该题号对应的题目不存在");

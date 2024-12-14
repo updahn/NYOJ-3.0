@@ -280,9 +280,8 @@ public class AdminTrainingProblemManager {
         Long peid = trainingProblemDTO.getPeid();
         Long tid = trainingProblemDTO.getTid();
 
-        // 比赛中题目显示默认为原标题
-        ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, null, null, null);
-        List<ProblemDescription> problemDescriptionList = problem.getProblemDescriptionList();
+        List<ProblemDescription> problemDescriptionList = problemEntityService.getProblemDescriptionList(pid, peid,
+                null, null);
 
         boolean isOk = problemDescriptionList.stream()
                 .anyMatch(desc -> {

@@ -3,19 +3,15 @@ package top.hcode.hoj.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,7 +36,6 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
-import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusNotFoundException;
 import top.hcode.hoj.config.NacosSwitchConfig;
 import top.hcode.hoj.config.WebConfig;
@@ -115,7 +110,7 @@ public class HtmlToPdfUtils {
      * @param outputPath 保存位置
      */
     @Async
-    public void updateContestPDF(Contest contest, String outputPath) throws StatusFailException, IOException {
+    public void updateContestPDF(Contest contest, String outputPath) {
         String outputName = getProblemDescriptionName(outputPath);
         Long cid = contest.getId();
 
@@ -130,7 +125,7 @@ public class HtmlToPdfUtils {
         List<ProblemRes> problemList = contestProblemList.stream()
                 .map(contestProblem -> {
                     return problemEntityService.getProblemRes(
-                            contestProblem.getPid(), contestProblem.getPeid(), null, null, cid);
+                            contestProblem.getPid(), contestProblem.getPeid(), null, contest.getGid(), cid);
                 })
                 .collect(Collectors.toList());
 
@@ -154,106 +149,80 @@ public class HtmlToPdfUtils {
                 .filter(Objects::nonNull) // 过滤掉 null 值
                 .collect(Collectors.toList());
 
-        // 合并并保存 PDF
-        savePDFDetails(fileNameList, outputName, problemList.get(0).getContestTime(),
-                problemList.get(0).getContestTitle());
+        try {
+            // 合并并保存 PDF
+            savePDFDetails(fileNameList, outputName, problemList.get(0).getContestTime(),
+                    problemList.get(0).getContestTitle());
+        } catch (IOException e) {
+            // 捕获异常但不终止流处理
+            e.printStackTrace();
+        }
 
         // 保存对应的比赛题面和题目题面
         contest.setPdfDescription(Constants.File.FILE_API.getPath() + outputName + ".pdf");
         contestEntityService.updateById(contest);
-        Set<Long> processedCids = new HashSet<>();
-        problemList.forEach(problemRes -> updateProblemPDF(problemRes, cid, processedCids));
     }
 
     /**
      * 保存/更新题面
      *
-     * @param pid  题目Id
-     * @param peid 题面Id
-     * @param cid  比赛Id
+     * @param problem 题目信息
      */
     @Async
-    public void updateProblemPDF(ProblemRes problem, Long cid, Set<Long> processedCids) {
-        Long pid = problem.getId();
-        Long peid = problem.getPeid();
-        String pdfName = getProblemDescriptionName(problem.getPdfDescription());
-        String description = problem.getDescription();
+    public void updateProblemPDF(ProblemRes problemRes) {
+        List<ProblemRes> problemList = new ArrayList<>();
 
-        try {
-            Pattern pattern = Pattern.compile("/api/public/file/([a-fA-F0-9]+)\\.pdf");
-            Matcher matcher = pattern.matcher(description);
+        problemList.add(problemRes);
 
-            // 如果题面中包含文件，则说明已经为pdf题面
-            if (matcher.find()) {
-                pdfName = matcher.group(1);
-            } else {
-                if (pdfName == null) {
-                    pdfName = IdUtil.fastSimpleUUID();
+        // 查询所有相关比赛题目并批量加入列表
+        QueryWrapper<ContestProblem> contestProblemQuery = new QueryWrapper<>();
+        contestProblemQuery.eq("pid", problemRes.getId());
+        contestProblemEntityService.list(contestProblemQuery).forEach(cp -> {
+            ProblemRes contestProblemRes = problemEntityService.getProblemRes(cp.getPid(), cp.getPeid(), null, null,
+                    cp.getCid());
+            contestProblemRes.setCid(cp.getCid());
+            problemList.add(contestProblemRes);
+        });
+
+        // 使用并行流并发处理
+        problemList.parallelStream().forEach(prob -> {
+            Long probId = prob.getId();
+            Long probPeid = prob.getPeid();
+
+            String pdfName = Optional.ofNullable(getProblemDescriptionName(prob.getPdfDescription()))
+                    .orElse(IdUtil.fastSimpleUUID());
+
+            try {
+                // 检查 PDF 文件
+                Pattern pattern = Pattern.compile("/api/public/file/([a-fA-F0-9]+)\\.pdf");
+                Matcher matcher = pattern.matcher(prob.getDescription());
+                if (matcher.find()) {
+                    pdfName = matcher.group(1);
+                } else {
+                    convertPDFByHtml(prob, pdfName);
                 }
-                convertPDFByHtml(problem, pdfName);
+
+                // 更新数据库
+                if (prob.getCid() != null && prob.getCid() != 0) {
+                    contestProblemEntityService.update(new UpdateWrapper<ContestProblem>()
+                            .eq("pid", probId).eq("cid", prob.getCid())
+                            .set("pdf_description", Constants.File.FILE_API.getPath() + pdfName + ".pdf"));
+                } else {
+                    String htmlPath = Constants.File.PROBLEM_FILE_FOLDER.getPath() + File.separator + pdfName + ".html";
+                    String html = FileUtil.readString(new File(htmlPath), StandardCharsets.UTF_8);
+
+                    // 更新对应数据库
+                    UpdateWrapper<ProblemDescription> updateWrapper = new UpdateWrapper<>();
+                    updateWrapper.eq("pid", probId).eq(probPeid != null, "id", probPeid);
+                    updateWrapper.set("pdf_description", Constants.File.FILE_API.getPath() + pdfName + ".pdf");
+                    updateWrapper.set("html", html);
+
+                    problemDescriptionEntityService.update(updateWrapper);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            if (cid != null && cid != 0) {
-                // 更新对应数据库
-                UpdateWrapper<ContestProblem> updateWrapper = new UpdateWrapper<>();
-                updateWrapper.eq("pid", pid).eq("cid", cid);
-                updateWrapper.set("pdf_description", Constants.File.FILE_API.getPath() + pdfName + ".pdf");
-
-                contestProblemEntityService.update(updateWrapper);
-            } else {
-                String htmlPath = Constants.File.PROBLEM_FILE_FOLDER.getPath() + File.separator + pdfName + ".html";
-
-                StringBuilder htmlContent = new StringBuilder();
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(new FileInputStream(new File(htmlPath)),
-                                StandardCharsets.UTF_8))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        htmlContent.append(line);
-                        htmlContent.append(System.lineSeparator()); // 保持行分隔符
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace(); // 处理异常
-                }
-
-                String html = htmlContent.toString(); // 现在包含了读取到的HTML文件内容
-
-                // 更新对应数据库
-                UpdateWrapper<ProblemDescription> updateWrapper = new UpdateWrapper<>();
-                updateWrapper.eq("pid", pid).eq(peid != null, "id", peid);
-                updateWrapper.set("pdf_description", Constants.File.FILE_API.getPath() + pdfName + ".pdf");
-                updateWrapper.set("html", html);
-
-                problemDescriptionEntityService.update(updateWrapper);
-
-                // 将引用该题目的所有比赛题目同步调整，因为根题面发生改变
-                QueryWrapper<ContestProblem> contestProblemQueryWrapper = new QueryWrapper<>();
-                contestProblemQueryWrapper.eq("pid", pid);
-                List<ContestProblem> contestProblemList = contestProblemEntityService.list(contestProblemQueryWrapper);
-
-                for (ContestProblem contestProblem : contestProblemList) {
-                    if (!processedCids.contains(contestProblem.getId())) {
-                        processedCids.add(contestProblem.getId());
-
-                        // 设置比赛对应的信息
-                        Contest contest = contestEntityService.getById(contestProblem.getCid());
-
-                        // 给题目添加比赛信息
-                        problem.setContestTitle(contest.getTitle());
-                        problem.setContestTime(contest.getStartTime());
-                        problem.setDisplayId(contestProblem.getDisplayId());
-                        problem.setDisplayTitle(contestProblem.getDisplayTitle());
-                        problem.setPdfDescription(contestProblem.getPdfDescription());
-                        // 重新生成
-                        problem.setHtml(null);
-
-                        updateProblemPDF(problem, contestProblem.getCid(), processedCids);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     /**
@@ -332,7 +301,7 @@ public class HtmlToPdfUtils {
             String contestInfo = !StringUtils.isEmpty(problem.getContestTitle())
                     ? "Contest: " + problem.getContestTitle() + " "
                     : "";
-            log.info("{}Problem: {}, Create HTML Success", contestInfo, problem.getTitle());
+            log.info("{} Problem: {}, Create HTML Success", contestInfo, problem.getTitle());
         }
     }
 

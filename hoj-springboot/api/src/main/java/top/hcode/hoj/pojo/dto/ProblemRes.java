@@ -15,6 +15,8 @@ public class ProblemRes {
 
     private Long peid;
 
+    private Long cid;
+
     @ApiModelProperty(value = "题目的自定义ID 例如（HOJ-1000）")
     private String problemId;
 

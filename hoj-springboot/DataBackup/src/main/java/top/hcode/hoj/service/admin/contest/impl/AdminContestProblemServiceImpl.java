@@ -102,6 +102,8 @@ public class AdminContestProblemServiceImpl implements AdminContestProblemServic
             return CommonResult.successResponse(adminContestProblemManager.setContestProblem(contestProblem));
         } catch (StatusFailException e) {
             return CommonResult.errorResponse(e.getMessage());
+        } catch (Exception e) {
+            return CommonResult.errorResponse(e.getMessage(), ResultStatus.FAIL);
         }
     }
 
@@ -141,10 +143,6 @@ public class AdminContestProblemServiceImpl implements AdminContestProblemServic
         try {
             return CommonResult.successResponse(adminContestProblemManager.getContestPdf(cid, isCoverPage));
         } catch (StatusFailException e) {
-            return CommonResult.errorResponse(e.getMessage());
-        } catch (StatusNotFoundException e) {
-            return CommonResult.errorResponse(e.getMessage(), ResultStatus.NOT_FOUND);
-        } catch (IOException e) {
             return CommonResult.errorResponse(e.getMessage());
         } catch (StatusForbiddenException e) {
             return CommonResult.errorResponse(e.getMessage(), ResultStatus.FORBIDDEN);

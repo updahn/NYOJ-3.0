@@ -1,6 +1,7 @@
 package top.hcode.hoj.manager.group.contest;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -26,6 +27,7 @@ import top.hcode.hoj.pojo.vo.ContestFileConfigVO;
 import top.hcode.hoj.pojo.vo.ContestVO;
 import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.utils.Constants;
+import top.hcode.hoj.utils.HtmlToPdfUtils;
 import top.hcode.hoj.validator.ContestValidator;
 import top.hcode.hoj.validator.GroupValidator;
 
@@ -61,6 +63,9 @@ public class GroupContestManager {
 
     @Autowired
     private GroupManager groupManager;
+
+    @Autowired
+    private HtmlToPdfUtils htmlToPdfUtils;
 
     public IPage<ContestVO> getContestList(Integer limit, Integer currentPage, Long gid, String keyword)
             throws StatusNotFoundException, StatusForbiddenException {
@@ -309,6 +314,15 @@ public class GroupContestManager {
         } else {
             throw new StatusFailException("修改失败");
         }
+
+        String outputPath = contest.getPdfDescription();
+        // 如果 outputName 为空，生成一个唯一 ID
+        if (outputPath == null) {
+            outputPath = IdUtil.fastSimpleUUID();
+        }
+
+        // 异步生成比赛题面
+        htmlToPdfUtils.updateContestPDF(contest, outputPath);
     }
 
     public void deleteContest(Long cid) throws StatusForbiddenException, StatusNotFoundException, StatusFailException {

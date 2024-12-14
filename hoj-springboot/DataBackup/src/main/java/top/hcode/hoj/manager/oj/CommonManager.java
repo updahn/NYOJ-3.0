@@ -166,7 +166,7 @@ public class CommonManager {
 
         String oj = "ME";
         if (pid != null) {
-            ProblemRes problem = problemEntityService.getProblemRes(pid, null, null, null, null);
+            Problem problem = problemEntityService.getById(pid);
             if (problem.getIsRemote()) {
                 if (problem.getProblemId().startsWith("VJ_")) {
                     oj = "VJ_" + ReUtil.get("VJ-(\\d+)\\(([^-]+)-", problem.getProblemId(), 2);

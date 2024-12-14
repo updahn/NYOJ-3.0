@@ -291,7 +291,7 @@ public class AdminContestProblemManager {
         return contestProblem;
     }
 
-    public ContestProblem setContestProblem(ContestProblem contestProblem) throws StatusFailException {
+    public ContestProblem setContestProblem(ContestProblem contestProblem) throws StatusFailException, Exception {
         boolean isOk = contestProblemEntityService.saveOrUpdate(contestProblem);
         if (isOk) {
             contestProblemEntityService.syncContestRecord(contestProblem.getPid(), contestProblem.getCid(),
@@ -303,12 +303,11 @@ public class AdminContestProblemManager {
                     userRolesVo.getUsername());
 
             // 获取题面
-            ProblemRes problem = problemEntityService.getProblemRes(contestProblem.getPid(), null, null, null,
-                    contestProblem.getCid());
+            ProblemRes problem = problemEntityService.getProblemRes(contestProblem.getPid(), contestProblem.getPeid(),
+                    null, null, contestProblem.getCid());
 
-            Set<Long> processedCids = new HashSet<>();
             // 更新题面对应的pdf信息
-            htmlToPdfUtils.updateProblemPDF(problem, contestProblem.getCid(), processedCids);
+            htmlToPdfUtils.updateProblemPDF(problem);
 
             return contestProblem;
         } else {
@@ -335,17 +334,14 @@ public class AdminContestProblemManager {
         }
 
         // 比赛中题目显示默认为原标题
-        ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, peid, null, null);
+        Problem problem = problemEntityService.getById(pid);
 
-        String displayName = problem.getProblemDescriptionList().get(0).getTitle();
+        String displayName = problemEntityService.getDefaultProblemTitle(problem);
 
-        Problem problem_ = new Problem();
-        BeanUtil.copyProperties(problem, problem_);
-
-        problem_.setAuth(3); // 设置为比赛题目
+        problem.setAuth(3); // 设置为比赛题目
 
         // 修改成比赛题目
-        boolean updateProblem = problemEntityService.saveOrUpdate(problem_);
+        boolean updateProblem = problemEntityService.saveOrUpdate(problem);
 
         boolean isOk = contestProblemEntityService.saveOrUpdate(new ContestProblem()
                 .setCid(cid).setPid(pid).setPeid(peid).setDisplayTitle(displayName).setDisplayId(displayId));
@@ -365,8 +361,7 @@ public class AdminContestProblemManager {
         Long peid = contestProblemDto.getPeid();
         Long cid = contestProblemDto.getCid();
 
-        // 比赛中题目显示默认为原标题
-        ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, null, null, null);
+        ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, peid, null, null);
         List<ProblemDescription> problemDescriptionList = problem.getProblemDescriptionList();
 
         boolean isOk = problemDescriptionList.stream()
@@ -430,8 +425,7 @@ public class AdminContestProblemManager {
         }
 
         // 比赛中题目显示默认为原标题
-        String displayName = problemEntityService.getProblemResDTO(finalProblem.getId(), null, null, null)
-                .getProblemDescriptionList().get(0).getTitle();
+        String displayName = problemEntityService.getDefaultProblemTitle(finalProblem);
 
         // 修改成比赛题目
         boolean updateProblem = problemEntityService.saveOrUpdate(problem.setAuth(3));
@@ -450,8 +444,7 @@ public class AdminContestProblemManager {
                 userRolesVo.getUid(), userRolesVo.getUsername());
     }
 
-    public String getContestPdf(Long cid, Boolean isCoverPage)
-            throws StatusFailException, StatusNotFoundException, IOException, StatusForbiddenException {
+    public String getContestPdf(Long cid, Boolean isCoverPage) throws StatusFailException, StatusForbiddenException {
         Contest contest = contestEntityService.getById(cid);
 
         if (contest == null) {

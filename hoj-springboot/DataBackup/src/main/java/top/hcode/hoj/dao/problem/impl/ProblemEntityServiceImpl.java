@@ -879,27 +879,26 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
 
     @Override
     public ProblemResDTO getProblemResDTO(Long pid, Long peid, String problemId, Long gid) {
-        ProblemResDTO problemRes = new ProblemResDTO();
+        ProblemResDTO problemResDTo = new ProblemResDTO();
 
-        Problem problem = getProblem(pid, peid, problemId, gid);
+        Problem problem = getProblem(pid, problemId, gid);
 
         if (problem != null) {
             List<ProblemDescription> problemDescriptionList = getProblemDescription(problem.getId(), peid);
             if (!CollectionUtils.isEmpty(problemDescriptionList)) {
-                problemRes.setProblemDescriptionList(problemDescriptionList);
+                problemResDTo.setProblemDescriptionList(problemDescriptionList);
             }
-
-            BeanUtil.copyProperties(problem, problemRes);
+            BeanUtil.copyProperties(problem, problemResDTo);
         }
 
-        return problemRes;
+        return problemResDTo;
     }
 
     @Override
     public ProblemRes getProblemRes(Long pid, Long peid, String problemId, Long gid, Long cid) {
         ProblemRes problemRes = new ProblemRes();
 
-        Problem problem = getProblem(pid, peid, problemId, gid);
+        Problem problem = getProblem(pid, problemId, gid);
 
         if (problem != null) {
             List<ProblemDescription> problemDescriptionList = getProblemDescription(problem.getId(),
@@ -936,6 +935,7 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
                 problemRes.setDisplayId(contestProblem.getDisplayId());
                 problemRes.setDisplayTitle(contestProblem.getDisplayTitle());
                 problemRes.setPdfDescription(contestProblem.getPdfDescription());
+                problemRes.setHtml(null);
             }
 
             return problemRes;
@@ -985,7 +985,7 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
     public List<ProblemDescription> getProblemDescriptionList(Long pid, Long peid, String problemId, Long gid) {
         List<ProblemDescription> problemDescriptionList = new ArrayList<>();
 
-        Problem problem = getProblem(pid, peid, problemId, gid);
+        Problem problem = getProblem(pid, problemId, gid);
 
         if (problem != null) {
             problemDescriptionList = getProblemDescription(problem.getId(), peid);
@@ -1025,21 +1025,16 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
         return problemDescriptionList;
     }
 
-    public Problem getProblem(Long pid, Long peid, String problemId, Long gid) {
+    public Problem getProblem(Long pid, String problemId, Long gid) {
         QueryWrapper<Problem> wrapper = new QueryWrapper<>();
         if (pid != null) {
-            wrapper.eq("id", pid).eq(problemId != null, "problem_id", problemId);
+            wrapper.eq("id", pid);
         } else {
-            wrapper.eq(problemId != null, "problem_id", problemId).eq(pid != null, "id", pid)
-                    .eq(gid != null, "gid", gid).isNull(gid == null, "gid");
+            wrapper.eq(problemId != null, "problem_id", problemId)
+                    .eq(gid != null, "gid", gid)
+                    .isNull(gid == null, "gid");
         }
-        List<Problem> problemList = problemMapper.selectList(wrapper);
-
-        if (!CollectionUtils.isEmpty(problemList)) {
-            Problem problem = problemList.get(0);
-            return problem;
-        }
-        return null;
+        return problemMapper.selectOne(wrapper);
     }
 
     public IPage<ProblemResDTO> getProblemListPage(IPage<ProblemResDTO> iPage, List<ProblemResDTO> allProblems) {
@@ -1066,7 +1061,6 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
                 .map(ProblemDescription::getId)
                 .collect(Collectors.toList());
 
-        Set<Long> processedCids = new HashSet<>();
         // 并行处理问题描述列表
         boolean problemDescriptionResult = true;
         if (!CollectionUtils.isEmpty(problemDescriptionList)) {
@@ -1090,11 +1084,11 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
 
                         if (peid == null) { // 添加
                             result = problemDescriptionMapper.insert(problemDescription.setPid(pid)) == 1;
-                            htmlToPdfUtils.updateProblemPDF(problemRes, null, processedCids);
                         } else if (peidList.remove(peid)) { // 更新
                             result = problemDescriptionMapper.updateById(problemDescription) == 1;
-                            htmlToPdfUtils.updateProblemPDF(problemRes, null, processedCids);
                         }
+
+                        htmlToPdfUtils.updateProblemPDF(problemRes);
 
                         return result;
                     })

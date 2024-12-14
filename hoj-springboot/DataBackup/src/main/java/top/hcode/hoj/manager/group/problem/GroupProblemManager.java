@@ -233,16 +233,14 @@ public class GroupProblemManager {
 
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
-        Long pid = problemDto.getProblem().getId();
-
-        ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, null, null,
-                problemDto.getProblem().getGid());
+        Problem problem = problemDto.getProblem();
 
         if (problem == null) {
             throw new StatusNotFoundException("该题目不存在！");
         }
 
         Long gid = problem.getGid();
+        Long pid = problem.getId();
 
         boolean isRoot = groupManager.getGroupAuthAdmin(gid);
 

@@ -343,9 +343,9 @@ public class AdminProblemManager {
             throw new StatusNotFoundException("该题目不存在");
         }
 
-        ProblemResDTO problemResDTO = problemEntityService.getProblemResDTO(problem.getId(), null, null, null);
+        List<ProblemDescription> problemDescriptionList = problemEntityService
+                .getProblemDescriptionList(problem.getId(), null, null, null);
 
-        List<ProblemDescription> problemDescriptionList = problemResDTO.getProblemDescriptionList();
         // 按照 rank 从大到小排序
         problemDescriptionList.sort((desc1, desc2) -> Integer.compare(desc2.getRank(), desc1.getRank()));
 

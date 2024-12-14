@@ -294,7 +294,7 @@ public class ProblemManager {
             problemDescriptionList = problemEntityService.getProblemDescriptionList(
                     trainingProblem.getPid(), trainingProblem.getPeid(), null, null);
         } else {
-            problem = problemEntityService.getProblemRes(null, peid, problemId, gid, null);
+            problem = problemEntityService.getProblemRes(null, null, problemId, gid, null);
             problemDescriptionList = problemEntityService.getProblemDescriptionList(null, null, problemId, gid);
         }
 
@@ -391,11 +391,9 @@ public class ProblemManager {
 
         String filePath = problem.getPdfDescription();
 
-        // 如果不存在对应pdf题面则创建
         if (StringUtils.isEmpty(filePath)) {
-            Set<Long> processedCids = new HashSet<>();
             // 更新题面对应的pdf信息
-            htmlToPdfUtils.updateProblemPDF(problem, cid, processedCids);
+            htmlToPdfUtils.updateProblemPDF(problem);
         }
 
         return filePath;
