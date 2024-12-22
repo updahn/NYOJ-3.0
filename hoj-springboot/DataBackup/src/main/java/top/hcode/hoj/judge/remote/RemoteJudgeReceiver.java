@@ -62,9 +62,9 @@ public class RemoteJudgeReceiver extends AbstractReceiver {
     @Autowired
     private CookieManager cookieManager;
 
-    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10);
+    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10000);
 
-    private final static Map<String, Future> futureTaskMap = new ConcurrentHashMap<>(10);
+    private final static Map<String, Future> futureTaskMap = new ConcurrentHashMap<>(10000);
 
     @Async("judgeTaskAsyncPool")
     public void processWaitingTask() {

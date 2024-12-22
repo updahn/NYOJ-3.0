@@ -51,9 +51,9 @@ public class Dispatcher {
     @Autowired
     private RedisUtils redisUtils;
 
-    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(20);
+    private final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10000);
 
-    private final static Map<String, Future> futureTaskMap = new ConcurrentHashMap<>(20);
+    private final static Map<String, Future> futureTaskMap = new ConcurrentHashMap<>(10000);
 
     // 每个提交任务尝试300次失败则判为提交失败
     protected final static Integer maxTryNum = 300;

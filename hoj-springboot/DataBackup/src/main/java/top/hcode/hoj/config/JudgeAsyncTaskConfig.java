@@ -20,11 +20,11 @@ public class JudgeAsyncTaskConfig {
     public Executor judgeTaskAsyncPool() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         // 核心线程池大小
-        executor.setCorePoolSize(2);
+        executor.setCorePoolSize(1000);
         // 最大线程数
-        executor.setMaxPoolSize(10);
+        executor.setMaxPoolSize(50000);
         // 队列容量
-        executor.setQueueCapacity(500);
+        executor.setQueueCapacity(50000);
         // 活跃时间
         executor.setKeepAliveSeconds(3);
         // 线程名字前缀
