@@ -114,8 +114,6 @@ public class BeforeDispatchInitManager {
 
         // 将新提交数据插入数据库
         judgeEntityService.save(judge);
-
-        trainingManager.checkAndSyncTrainingRecord(problem.getId(), judge.getSubmitId(), judge.getUid());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -234,11 +232,6 @@ public class BeforeDispatchInitManager {
 
         // 将新提交数据插入数据库
         judgeEntityService.save(judge);
-
-        // 非私有训练不记录
-        if (!training.getAuth().equals(Constants.Training.AUTH_PRIVATE.getValue())) {
-            return;
-        }
 
         TrainingRecord trainingRecord = new TrainingRecord();
         trainingRecord.setPid(problem.getId())

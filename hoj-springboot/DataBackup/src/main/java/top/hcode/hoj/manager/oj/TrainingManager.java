@@ -406,28 +406,6 @@ public class TrainingManager {
                 .collect(Collectors.toMap(TrainingProblem::getId, TrainingProblem::getDisplayId));
     }
 
-    /**
-     * 未启用，该操作会导致公开训练也记录，但其实并不需要，会造成数据量无效增加
-     */
-    @Async
-    public void checkAndSyncTrainingRecord(Long pid, Long submitId, String uid) {
-        List<TrainingProblem> trainingProblemList = trainingProblemEntityService.getPrivateTrainingProblemListByPid(pid,
-                uid);
-        if (!CollectionUtils.isEmpty(trainingProblemList)) {
-            List<TrainingRecord> trainingRecordList = new ArrayList<>();
-            for (TrainingProblem trainingProblem : trainingProblemList) {
-                TrainingRecord trainingRecord = new TrainingRecord();
-                trainingRecord.setPid(pid)
-                        .setTid(trainingProblem.getTid())
-                        .setTpid(trainingProblem.getId())
-                        .setSubmitId(submitId)
-                        .setUid(uid);
-                trainingRecordList.add(trainingRecord);
-            }
-            trainingRecordEntityService.saveBatch(trainingRecordList);
-        }
-    }
-
     public List<ProblemFullScreenListVO> getProblemFullScreenList(Long tid)
             throws StatusFailException, StatusForbiddenException, StatusAccessDeniedException {
         Training training = trainingEntityService.getById(tid);

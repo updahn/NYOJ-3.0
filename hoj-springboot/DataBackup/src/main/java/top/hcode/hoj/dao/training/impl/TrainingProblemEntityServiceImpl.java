@@ -72,11 +72,6 @@ public class TrainingProblemEntityServiceImpl extends ServiceImpl<TrainingProble
     }
 
     @Override
-    public List<TrainingProblem> getPrivateTrainingProblemListByPid(Long pid, String uid) {
-        return trainingProblemMapper.getPrivateTrainingProblemListByPid(pid, uid);
-    }
-
-    @Override
     public List<TrainingProblem> getTrainingListAcceptedCountByUid(List<Long> tidList, String uid) {
         return trainingProblemMapper.getTrainingListAcceptedCountByUid(tidList, uid);
     }

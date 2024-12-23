@@ -60,23 +60,6 @@
           and pt.pid = #{pid}
     </select>
 
-
-    <select id="getPrivateTrainingProblemListByPid" resultType="top.hcode.hoj.pojo.entity.training.TrainingProblem">
-        SELECT tp.*
-        from (
-                 select t.id
-                 FROM training_register tr,
-                      training t
-                 where tr.tid = t.id
-                   and t.auth = 'Private'
-                   and tr.uid = #{uid}
-             ) tm
-                 left join
-             training_problem tp
-             on tm.id = tp.tid
-        where tp.pid = #{pid}
-    </select>
-
     <select id="getTrainingListAcceptedCountByUid" resultType="top.hcode.hoj.pojo.entity.training.TrainingProblem">
         SELECT a.pid,a.tid
         FROM

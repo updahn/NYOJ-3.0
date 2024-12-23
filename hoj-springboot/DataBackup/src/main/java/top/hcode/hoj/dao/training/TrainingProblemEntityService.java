@@ -19,8 +19,6 @@ public interface TrainingProblemEntityService extends IService<TrainingProblem> 
 
     public Integer getUserTrainingACProblemCount(String uid, Long gid, List<Long> pidList);
 
-    public List<TrainingProblem> getPrivateTrainingProblemListByPid(Long pid, String uid);
-
     public List<TrainingProblem> getTrainingListAcceptedCountByUid(List<Long> tidList, String uid);
 
     public List<TrainingProblem> getGroupTrainingListAcceptedCountByUid(List<Long> tidList, Long gid, String uid);
