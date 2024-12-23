@@ -38,6 +38,9 @@ public class UserAcproblem implements Serializable {
     @ApiModelProperty(value = "ac的题目id")
     private Long pid;
 
+    @ApiModelProperty(value = "团队id")
+    private Long gid;
+
     @ApiModelProperty(value = "提交的id")
     private Long submitId;
 

@@ -158,7 +158,7 @@ public class AccountManager {
      * @Description 前端userHome用户个人主页的数据请求，主要是返回解决题目数，AC的题目列表，提交总数，AC总数，Rating分，
      * @Since 2021/01/07
      */
-    public UserHomeVO getUserHomeInfo(String uid, String username) throws StatusFailException {
+    public UserHomeVO getUserHomeInfo(String uid, String username, Long gid) throws StatusFailException {
 
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
@@ -172,7 +172,7 @@ public class AccountManager {
             }
         }
 
-        UserHomeVO userHomeInfo = userRecordEntityService.getUserHomeInfo(uid, username);
+        UserHomeVO userHomeInfo = userRecordEntityService.getUserHomeInfo(uid, username, gid);
         if (userHomeInfo == null) {
             throw new StatusFailException("用户不存在");
         }
@@ -206,6 +206,8 @@ public class AccountManager {
                 .select("distinct pid", "submit_id")
                 .orderByAsc("submit_id");
 
+        queryWrapper.eq(gid != null, "gid", gid);
+
         List<UserAcproblem> acProblemList = userAcproblemEntityService.list(queryWrapper);
         List<Long> pidList = acProblemList.stream().map(UserAcproblem::getPid).collect(Collectors.toList());
 
@@ -224,7 +226,7 @@ public class AccountManager {
         }
         userHomeInfo.setSolvedList(disPlayIdList);
 
-        UserContestsRankingVO userContestsRankingVo = getUserContestsRanking(uid, username);
+        UserContestsRankingVO userContestsRankingVo = getUserContestsRanking(uid, username, gid);
 
         // 获取用户参加的比赛
         userHomeInfo.setContestPidList((List<Long>) userContestsRankingVo.getSolvedList());
@@ -293,11 +295,11 @@ public class AccountManager {
 
     /**
      * @param uid
+     * @param gid
      * @return
      * @Description 获取用户参加的比赛
      */
-    public List<Contest> getUserContests(String uid) throws StatusFailException {
-
+    public List<Contest> getUserContests(String uid, Long gid) throws StatusFailException {
         // 获取已经结束, 不包含赛后提交，可见的ACM比赛的状态, 比赛结束后开榜的比赛
         QueryWrapper<Contest> contestQueryWrapper = new QueryWrapper<>();
         contestQueryWrapper
@@ -306,25 +308,11 @@ public class AccountManager {
                 .eq("visible", 1) // 可见
                 .eq("auto_real_rank", 1) // 比赛结束后开榜的比赛
                 .eq("type", 0) // ACM比赛
-                .isNull("gid") // 不为团队的
                 .orderByAsc("end_time"); // 参加的比赛按照结束时间升序排序
 
-        List<Long> pidList = contestEntityService.list(contestQueryWrapper).stream().map(Contest::getId)
-                .collect(Collectors.toList());
-        QueryWrapper<ContestRecord> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("distinct cid")
-                .eq("uid", uid)
-                .in("cid", pidList);
-        List<ContestRecord> userContestList = contestRecordEntityService.list(queryWrapper);
+        contestQueryWrapper.eq(gid != null, "gid", gid);
 
-        List<Contest> contestList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(userContestList)) {
-            return contestList;
-        }
-
-        contestList = userContestList.stream()
-                .map(contestRecord -> contestEntityService.getById(contestRecord.getCid()))
-                .collect(Collectors.toList());
+        List<Contest> contestList = contestEntityService.list(contestQueryWrapper);
 
         return contestList;
     }
@@ -332,12 +320,14 @@ public class AccountManager {
     /**
      * @param uid
      * @param username
+     * @param gid
      * @return
      * @Description 获取用户的比赛名次变化图
      */
-    public UserContestsRankingVO getUserContestsRanking(String uid, String username) throws StatusFailException {
+    public UserContestsRankingVO getUserContestsRanking(String uid, String username, Long gid)
+            throws StatusFailException {
 
-        List<Contest> contestList = getUserContests(uid);
+        List<Contest> contestList = getUserContests(uid, gid);
 
         return contestRankManager.getContestsRanking(contestList, uid, username);
     }

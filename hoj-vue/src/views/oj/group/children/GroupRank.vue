@@ -71,11 +71,6 @@
         </template>
       </vxe-table-column>
       <vxe-table-column :title="$t('m.Total')" min-width="100" field="total"></vxe-table-column>
-      <vxe-table-column :title="$t('m.Score')" min-width="80">
-        <template v-slot="{ row }">
-          <span>{{ row.score }}</span>
-        </template>
-      </vxe-table-column>
       <vxe-table-column :title="$t('m.Rating')" min-width="80">
         <template v-slot="{ row }">
           <span>{{ getACRate(row.ac, row.total) }}</span>

@@ -2833,3 +2833,47 @@ DELIMITER ;
 CALL UpdateJudgeTable();
 
 
+/*
+* user_acproblem 添加 gid
+*/
+DROP PROCEDURE
+IF EXISTS add_UserAcproblem_Gid;
+DELIMITER $$
+
+CREATE PROCEDURE add_UserAcproblem_Gid ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'user_acproblem'
+	AND column_name = 'gid'
+) THEN
+	ALTER TABLE user_acproblem ADD COLUMN `gid` bigint(20) unsigned DEFAULT NULL;
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_UserAcproblem_Gid ;
+
+DROP PROCEDURE add_UserAcproblem_Gid;
+
+
+/*
+* user_acproblem 插入和更新 gid
+*/
+INSERT INTO user_acproblem (gid, pid, uid, submit_id, gmt_create, gmt_modified)
+SELECT j.gid, j.pid, j.uid, j.submit_id, j.gmt_create, j.gmt_modified
+FROM judge j
+LEFT JOIN user_acproblem u ON u.submit_id = j.submit_id
+WHERE j.status = 0 AND u.submit_id IS NULL;
+
+UPDATE user_acproblem uc
+JOIN judge j ON uc.submit_id = j.submit_id
+SET uc.gid = j.gid, uc.gmt_create = j.gmt_create;
+
+
+

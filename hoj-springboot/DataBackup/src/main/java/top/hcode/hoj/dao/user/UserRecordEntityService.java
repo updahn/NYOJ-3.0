@@ -25,7 +25,7 @@ public interface UserRecordEntityService extends IService<UserRecord> {
 
     List<ACMRankVO> getRecent7ACRank();
 
-    UserHomeVO getUserHomeInfo(String uid, String username);
+    UserHomeVO getUserHomeInfo(String uid, String username, Long gid);
 
     List<Judge> getLastYearUserJudgeList(String uid, String username);
 

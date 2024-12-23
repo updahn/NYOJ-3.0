@@ -39,7 +39,7 @@ public interface UserRecordMapper extends BaseMapper<UserRecord> {
 
     IPage<CODERankVO> getCODERankList(Page<CODERankVO> page, @Param("uidList") List<String> uidList);
 
-    UserHomeVO getUserHomeInfo(@Param("uid") String uid, @Param("username") String username);
+    UserHomeVO getUserHomeInfo(@Param("uid") String uid, @Param("username") String username, @Param("gid") Long gid);
 
     IPage<OIRankVO> getGroupRankList(Page<OIRankVO> page,
             @Param("gid") Long gid,

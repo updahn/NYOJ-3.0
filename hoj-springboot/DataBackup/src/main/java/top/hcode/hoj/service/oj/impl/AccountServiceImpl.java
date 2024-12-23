@@ -32,9 +32,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public CommonResult<UserHomeVO> getUserHomeInfo(String uid, String username) {
+    public CommonResult<UserHomeVO> getUserHomeInfo(String uid, String username, Long gid) {
         try {
-            return CommonResult.successResponse(accountManager.getUserHomeInfo(uid, username));
+            return CommonResult.successResponse(accountManager.getUserHomeInfo(uid, username, gid));
         } catch (StatusFailException e) {
             return CommonResult.errorResponse(e.getMessage());
         }

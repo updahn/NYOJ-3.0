@@ -50,8 +50,8 @@ public class UserRecordEntityServiceImpl extends ServiceImpl<UserRecordMapper, U
     }
 
     @Override
-    public UserHomeVO getUserHomeInfo(String uid, String username) {
-        return userRecordMapper.getUserHomeInfo(uid, username);
+    public UserHomeVO getUserHomeInfo(String uid, String username, Long gid) {
+        return userRecordMapper.getUserHomeInfo(uid, username, gid);
     }
 
     @Override

@@ -815,9 +815,9 @@ const ojApi = {
     });
   },
   // userhome页的请求
-  getUserInfo(uid, username) {
+  getUserInfo(uid, username, gid) {
     return ajax('/api/get-user-home-info', 'get', {
-      params: { uid, username },
+      params: { uid, username, gid },
     });
   },
 

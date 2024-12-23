@@ -478,8 +478,9 @@ export default {
     init() {
       const uid = this.$route.query.uid;
       const username = this.$route.query.username;
+      const gid = this.$route.params.groupID;
       this.loading = true;
-      api.getUserInfo(uid, username).then(
+      api.getUserInfo(uid, username, gid).then(
         (res) => {
           this.changeDomTitle({ title: res.data.username });
           this.profile = res.data.data;

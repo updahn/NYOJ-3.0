@@ -11,7 +11,7 @@ public interface AccountService {
 
     public CommonResult<CheckUsernameOrEmailVO> checkUsernameOrEmail(CheckUsernameOrEmailDTO checkUsernameOrEmailDto);
 
-    public CommonResult<UserHomeVO> getUserHomeInfo(String uid, String username);
+    public CommonResult<UserHomeVO> getUserHomeInfo(String uid, String username, Long gid);
 
     public CommonResult<UserCalendarHeatmapVO> getUserCalendarHeatmap(String uid, String username);
 
