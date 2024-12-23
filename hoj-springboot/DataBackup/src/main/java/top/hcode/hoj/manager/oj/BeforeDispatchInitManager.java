@@ -92,7 +92,7 @@ public class BeforeDispatchInitManager {
             throw new StatusForbiddenException("错误！当前题目已不存在，不可提交！");
         }
 
-        if (problem.getAuth() == 2) {
+        if (problem.getAuth().intValue() == Constants.ProblemAuth.PRIVATE.getAuth()) {
             throw new StatusForbiddenException("错误！当前题目不可提交！");
         }
 
@@ -131,9 +131,11 @@ public class BeforeDispatchInitManager {
             }
         }
 
-        // 超级管理员或者该比赛的创建者，则为比赛管理者
+        // 是否为超级管理员或者该比赛的创建者，则为比赛管理者
+
         boolean isRoot = SecurityUtils.getSubject().hasRole("root")
                 || SecurityUtils.getSubject().hasRole("admin");
+
         if (!isRoot && !contest.getUid().equals(userRolesVo.getUid())
                 && !(contest.getIsGroup() && groupValidator.isGroupRoot(userRolesVo.getUid(), contest.getGid()))) {
             if (contest.getStatus().intValue() == Constants.Contest.STATUS_SCHEDULED.getCode()) {
@@ -164,7 +166,7 @@ public class BeforeDispatchInitManager {
             throw new StatusForbiddenException("错误！当前题目已不存在，不可提交！");
         }
 
-        if (problem.getAuth() == 2) {
+        if (problem.getAuth().intValue() == Constants.ProblemAuth.PRIVATE.getAuth()) {
             throw new StatusForbiddenException("错误！当前题目已被隐藏，不可提交！");
         }
 
@@ -221,7 +223,7 @@ public class BeforeDispatchInitManager {
             throw new StatusForbiddenException("错误！当前题目已不存在，不可提交！");
         }
 
-        if (problem.getAuth() == 2) {
+        if (problem.getAuth().intValue() == Constants.ProblemAuth.PRIVATE.getAuth()) {
             throw new StatusForbiddenException("错误！当前题目不可提交！");
         }
 
