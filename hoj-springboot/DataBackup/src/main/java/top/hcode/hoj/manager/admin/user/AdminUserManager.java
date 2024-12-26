@@ -35,8 +35,10 @@ import top.hcode.hoj.pojo.vo.UserRolesVO;
 import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.Md5Utils;
+import top.hcode.hoj.utils.PasswordUtils;
 import top.hcode.hoj.utils.RedisUtils;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -209,8 +211,8 @@ public class AdminUserManager {
             if (failedUserNameSet.size() > 0) {
                 int failedCount = failedUserNameSet.size();
                 int successCount = users.size() - failedCount;
-                String errMsg = "[导入结果] 成功数：" + successCount + ",  失败数：" + failedCount +
-                        ",  失败的用户名：" + failedUserNameSet;
+                String errMsg = "[导入结果] 成功数：" + successCount + ",  失败数：" + failedCount + ",  失败的用户名："
+                        + failedUserNameSet;
                 throw new StatusFailException(errMsg);
             }
         } else {
@@ -221,6 +223,14 @@ public class AdminUserManager {
     @Transactional(rollbackFor = Exception.class)
     public String addNewUser(List<String> user) throws StatusFailException {
         String uuid = IdUtil.simpleUUID();
+
+        if (StringUtils.isEmpty(user.get(1))) {
+            throw new StatusFailException("密码不能为空");
+        }
+
+        if (user.get(1).length() < 6 || user.get(1).length() > 20) {
+            throw new StatusFailException("密码长度应该为6~20位！");
+        }
 
         UserPreferences userPreferences = new UserPreferences().setUid(uuid);
         UserSign userSign = new UserSign().setUid(uuid).setUsername(user.get(0));
@@ -277,9 +287,7 @@ public class AdminUserManager {
         }
 
         boolean result1 = userInfoEntityService.save(userInfo);
-        UserRole userRole = new UserRole()
-                .setRoleId(1002L)
-                .setUid(uuid);
+        UserRole userRole = new UserRole().setRoleId(1002L).setUid(uuid);
         boolean result2 = userRoleEntityService.save(userRole);
         UserRecord userRecord = new UserRecord().setUid(uuid);
         boolean result3 = userRecordEntityService.save(userRecord);
@@ -302,8 +310,10 @@ public class AdminUserManager {
         String passwd = (String) params.getOrDefault("password_custom", "");
         int type = (int) params.getOrDefault("type", false);
 
-        if (passwd != null && passwd != "" && passwd.length() < 6) {
-            throw new StatusFailException("请输入大于6位的密码！");
+        if (!StringUtils.isEmpty(passwd)) {
+            if (passwd.length() < 6 || passwd.length() > 20) {
+                throw new StatusFailException("密码长度应该为6~20位！");
+            }
         }
 
         List<UserInfo> userInfoList = new LinkedList<>();
@@ -315,7 +325,8 @@ public class AdminUserManager {
         HashMap<String, Object> userInfo = new HashMap<>(); // 存储账号密码放入redis中，等待导出excel
         for (int num = numberFrom; num <= numberTo; num++) {
             String uuid = IdUtil.simpleUUID();
-            String password = StringUtils.isEmpty(passwd) ? RandomUtil.randomString(passwordLength) : passwd;
+            String password = StringUtils.isEmpty(passwd) ? PasswordUtils.generateRamdomPassword(passwordLength)
+                    : passwd;
             String username = prefix + num + suffix;
             userInfoList.add(new UserInfo()
                     .setUuid(uuid)

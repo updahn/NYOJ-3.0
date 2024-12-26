@@ -14,7 +14,7 @@
         <el-input
           v-model="loginForm.password"
           prefix-icon="el-icon-lock"
-          :placeholder="$t('m.New_Password')"
+          :placeholder="$t('m.Old_Password')"
           @keyup.enter.native="handleLogin"
           type="password"
           show-password
@@ -104,6 +104,20 @@ export default {
             max: 20,
             message: this.$i18n.t("m.Password_Check_Between"),
             trigger: "blur",
+          },
+          {
+            trigger: "blur",
+            validator: (rule, value, callback) => {
+              const passwordReg =
+                /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])/;
+              if (!passwordReg.test(value)) {
+                callback(
+                  new Error(this.$i18n.t("m.Password_Validation_Message"))
+                );
+              } else {
+                callback();
+              }
+            },
           },
           { validator: CheckPassword, trigger: "blur" },
         ],

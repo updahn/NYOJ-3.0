@@ -34,7 +34,7 @@ export const m = {
   NavBar_Management: '后台管理',
   NavBar_Logout: '退出登录',
   Dialog_Login: '登录',
-  Dialog_ContestAccountLogin: '比赛账号登录',
+  Dialog_ResetPasswordLogin: '重置密码登录',
   Dialog_Register: '注册',
   Dialog_Reset_Password: '重置密码',
   Click_To_Home: '点击返回首页',
@@ -67,8 +67,9 @@ export const m = {
   Password_Check_Required: '密码不能为空',
   Password_Check_Between: '请输入长度为6~20位的密码',
   Welcome_Back: '欢迎回来~',
+  Password_Validation_Message: '密码必须由数字、大小写字母、特殊字符组合',
 
-  // /components/oj/common/ContestAccountLogin.vue 比赛账号登录弹窗
+  // /components/oj/common/ResetPasswordLogin.vue
   NewPassword_Again_Check_Required: '请再次输入新密码',
 
   // /components/oj/common/Register.vue 注册弹窗

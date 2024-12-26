@@ -245,8 +245,8 @@
             </el-form-item>
           </el-col>
           <el-col :md="3" :xs="24">
-            <el-form-item :label="$t('m.Account_Type')">
-              <el-select v-model="formGenerateUser.type" :width="40">
+            <el-form-item :label="$t('m.Account_Type')" prop="type">
+              <el-select v-model="formGenerateUser.type" style="width: 100%">
                 <el-option label="用户" :value="0" :key="0"></el-option>
                 <el-option label="比赛账号" :value="1" :key="1"></el-option>
                 <el-option label="组队比赛账号" :value="2" :key="2"></el-option>
@@ -270,11 +270,13 @@
                 v-model="isPasswdCustom"
                 :active-text="$t('m.True')"
                 :inactive-text="$t('m.False')"
+                style="width: 100%"
               ></el-switch>
               <el-input
                 v-if="isPasswdCustom"
                 v-model="formGenerateUser.password_custom"
                 :placeholder="$t('m.Password_Custom')"
+                style="width: 100%"
               ></el-input>
             </el-form-item>
           </el-col>

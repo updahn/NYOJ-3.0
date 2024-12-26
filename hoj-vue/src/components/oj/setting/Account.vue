@@ -275,6 +275,20 @@ export default {
             max: 20,
             message: this.$i18n.t("m.Password_Check_Between"),
           },
+          {
+            trigger: "blur",
+            validator: (rule, value, callback) => {
+              const passwordReg =
+                /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])/;
+              if (!passwordReg.test(value)) {
+                callback(
+                  new Error(this.$i18n.t("m.Password_Validation_Message"))
+                );
+              } else {
+                callback();
+              }
+            },
+          },
           { validator: CheckNewPassword, trigger: "blur" },
         ],
         againPassword: [

@@ -164,8 +164,8 @@ export default {
               let status = _.data.status;
               // 禁止登录
               if (status === 403) {
-                // 切换到比赛专用登录界面
-                this.switchMode("ContestAccountLogin");
+                // 切换到修改密码登录界面
+                this.switchMode("ResetPasswordLogin");
               }
               this.$store.dispatch("incrLoginFailNum", false);
               this.btnLoginLoading = false;

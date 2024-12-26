@@ -154,12 +154,13 @@ public class PassportManager {
         userRolesVo.getRoles().stream()
                 .forEach(role -> rolesList.add(role.getRole()));
 
+        String username = loginDto.getUsername();
+        String oldPassword = loginDto.getPassword();
+        String newPassword = loginDto.getNewPassword();
+
         // 比赛账号
         if ((rolesList.contains("contest_account")
                 || rolesList.contains("team_contest_account"))) {
-            String username = loginDto.getUsername();
-            String oldPassword = loginDto.getPassword();
-            String newPassword = loginDto.getNewPassword();
 
             if (newPassword != null) {
                 if (SecureUtil.md5(oldPassword).equals(SecureUtil.md5(newPassword))) {
@@ -181,6 +182,25 @@ public class PassportManager {
                     throw new StatusForbiddenException("该账户为比赛账户，首次登录请更改密码！");
                 }
             }
+        }
+
+        // 如果是弱密码也强制要求更改密码
+        if (StringUtils.isEmpty(newPassword)) {
+            // 检查密码是否包含至少一个小写字母、一个大写字母、一个数字和一个特殊字符
+            if (!oldPassword.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).+$")) {
+                throw new StatusForbiddenException("为保护用户信息，密码必须由数字、大小写字母、特殊字符组合，请前往修改密码！");
+            }
+        } else {
+            // 检查密码是否包含至少一个小写字母、一个大写字母、一个数字和一个特殊字符
+            if (!newPassword.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).+$")) {
+                throw new StatusForbiddenException("为保护用户信息，密码必须由数字、大小写字母、特殊字符组合，请前往修改密码！");
+            }
+
+            // 更新原始密码
+            UpdateWrapper<UserInfo> userInfoUpdateWrapper = new UpdateWrapper<>();
+            userInfoUpdateWrapper.eq("username", username).set("password",
+                    Md5Utils.generateSaltMD5Password(newPassword));
+            userInfoEntityService.update(userInfoUpdateWrapper);
         }
 
         String jwt = jwtUtils.generateToken(userRolesVo.getUid());
@@ -309,6 +329,11 @@ public class PassportManager {
 
         if (registerDto.getPassword().length() < 6 || registerDto.getPassword().length() > 20) {
             throw new StatusFailException("密码长度应该为6~20位！");
+        }
+
+        // 检查密码是否包含至少一个小写字母、一个大写字母、一个数字和一个特殊字符
+        if (!registerDto.getPassword().matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).+$")) {
+            throw new StatusFailException("密码必须由数字、大小写字母、特殊字符组合！");
         }
 
         if (StringUtils.isEmpty(registerDto.getUsername())) {

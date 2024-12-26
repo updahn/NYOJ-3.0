@@ -927,7 +927,7 @@
 </template>
 <script>
 import Login from "@/components/oj/common/Login";
-import ContestAccountLogin from "@/components/oj/common/ContestAccountLogin";
+import ResetPasswordLogin from "@/components/oj/common/ResetPasswordLogin";
 import Register from "@/components/oj/common/Register";
 import ResetPwd from "@/components/oj/common/ResetPassword";
 import MsgSvg from "@/components/oj/msg/msgSvg";
@@ -939,7 +939,7 @@ import { CONTEST_STATUS_REVERSE } from "@/common/constants";
 export default {
   components: {
     Login,
-    ContestAccountLogin,
+    ResetPasswordLogin,
     Register,
     ResetPwd,
     Avatar,

@@ -11,7 +11,7 @@ import moment from 'moment';
 Vue.use(Vuex);
 const rootState = {
   modalStatus: {
-    mode: 'Login', // or 'register' or 'contestAccountLogin',
+    mode: 'Login', // or 'register' or 'ResetPasswordLogin',
     visible: false,
   },
   websiteConfig: {
