@@ -376,10 +376,23 @@ export default {
 <style scoped>
 .filter-row {
   margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
 }
+.filter-row span {
+  margin-right: 15px;
+  margin-top: 10px;
+}
+
 .filter-right {
   float: right;
+  margin-right: 20px;
+  margin-top: 10px;
+  margin-left: auto;
 }
+
 .filter-item {
   margin-right: 1em;
   margin-top: 0.5em;
@@ -387,22 +400,6 @@ export default {
 }
 .filter-item:hover {
   cursor: pointer;
-}
-@media screen and (max-width: 768px) {
-  .filter-row span {
-    margin-right: 5px;
-  }
-  .filter-right span {
-    margin-right: 2px;
-  }
-}
-@media screen and (min-width: 768px) {
-  .filter-row span {
-    margin-right: 20px;
-  }
-  .filter-right span {
-    margin-right: 20px;
-  }
 }
 /deep/ .el-tag--dark {
   border-color: #fff;

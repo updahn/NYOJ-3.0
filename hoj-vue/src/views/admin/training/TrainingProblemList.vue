@@ -418,24 +418,16 @@ export default {
 </script>
 
 <style scoped>
-.filter-row span button {
-  margin-top: 5px;
-  margin-bottom: 5px;
+.filter-row {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
 }
-.filter-row span div {
-  margin-top: 8px;
+.filter-row span {
+  margin-right: 15px;
+  margin-top: 10px;
 }
-@media screen and (max-width: 768px) {
-  .filter-row span {
-    margin-right: 5px;
-  }
-  .filter-row span div {
-    width: 80%;
-  }
-}
-@media screen and (min-width: 768px) {
-  .filter-row span {
-    margin-right: 20px;
-  }
-}
+
 </style>

@@ -1,21 +1,34 @@
 <template>
   <div class="admin-container">
-    <div v-if="!mobileNar">
-      <el-menu class="vertical_menu" :router="true" :default-active="currentPath">
-        <el-tooltip :content="$t('m.Click_To_Home')" placement="bottom" effect="dark">
-          <div class="logo">
+    <div v-if="!mobileNar" class="menu-container">
+      <el-menu
+        class="vertical_menu"
+        :router="true"
+        :default-active="currentPath"
+        :collapse="isCollapse"
+        :collapse-transition="false"
+        unique-opened
+        :style="{ width: isCollapse ? '64px' : '210px' }"
+      >
+        <div class="logo">
+          <el-tooltip :content="$t('m.Click_To_Home')" placement="bottom" effect="dark">
             <router-link to="/">
-              <img :src="imgUrl" alt="Online Judge Admin" />
+              <img
+                :style="{ width: isCollapse ? '50px' : '110px', height: isCollapse ? '50px' : '110px' }"
+                :src="imgUrl"
+                alt="Online Judge Admin"
+              />
             </router-link>
-          </div>
-        </el-tooltip>
+          </el-tooltip>
+        </div>
+
         <el-menu-item index="/admin/">
           <i class="fa fa-tachometer fa-size" aria-hidden="true"></i>
           {{ $t("m.Dashboard") }}
         </el-menu-item>
         <el-submenu index="important" v-if="isSuperAdmin">
           <template slot="title">
-            <i class="el-icon-setting"></i>
+            <i class="fa el-icon-setting fa-size"></i>
             {{ $t("m.Important") }}
           </template>
 
@@ -32,7 +45,7 @@
         </el-submenu>
         <el-submenu index="general" v-if="isMainAdminRole">
           <template slot="title">
-            <i class="el-icon-menu"></i>
+            <i class="fa el-icon-menu fa-size"></i>
             {{ $t("m.General") }}
           </template>
           <el-menu-item index="/admin/switch">
@@ -110,7 +123,7 @@
         </el-submenu>
         <el-submenu index="training">
           <template slot="title">
-            <i class="el-icon-s-claim" aria-hidden="true" style="font-size: 20px"></i>
+            <i class="fa el-icon-s-claim fa-size" aria-hidden="true"></i>
             {{ $t("m.Training_Admin") }}
           </template>
           <el-menu-item index="/admin/training">
@@ -131,7 +144,7 @@
         </el-submenu>
         <el-submenu index="examination">
           <template slot="title">
-            <i class="el-icon-monitor" aria-hidden="true" style="font-size: 20px"></i>
+            <i class="fa el-icon-monitor fa-size" aria-hidden="true"></i>
             {{ $t("m.ExaminationRoom_Admin") }}
           </template>
           <el-menu-item index="/admin/examination">
@@ -152,7 +165,7 @@
         </el-submenu>
         <el-submenu index="cloc" v-if="isMainAdminRole">
           <template slot="title">
-            <i class="el-icon-cloudy" aria-hidden="true" style="font-size: 20px"></i>
+            <i class="fa el-icon-cloudy fa-size" aria-hidden="true"></i>
             {{ $t("m.Cloc_Admin") }}
           </template>
           <el-menu-item index="/admin/cloc">
@@ -163,7 +176,7 @@
         </el-submenu>
         <el-submenu index="honor" v-if="isMainAdminRole">
           <template slot="title">
-            <i class="el-icon-medal" aria-hidden="true" style="font-size: 20px"></i>
+            <i class="fa el-icon-medal fa-size" aria-hidden="true"></i>
             {{ $t("m.Honor_Admin") }}
           </template>
           <el-menu-item index="/admin/honor">
@@ -179,7 +192,7 @@
         </el-submenu>
         <el-submenu index="tools" v-if="isMainAdminRole">
           <template slot="title">
-            <i class="el-icon-s-cooperation" aria-hidden="true" style="font-size: 20px"></i>
+            <i class="fa el-icon-s-cooperation fa-size" aria-hidden="true"></i>
             {{ $t("m.Tools_Admin") }}
           </template>
           <el-menu-item index="/admin/tools/ranks-list">
@@ -188,10 +201,26 @@
             }}
           </el-menu-item>
         </el-submenu>
+
+        <div
+          style="position: fixed; bottom: 0; z-index: 9999; background: white;"
+          :style="{ width: isCollapse ? '63px' : '209px' }"
+        >
+          <div style="height: 2px;">
+            <el-divider></el-divider>
+          </div>
+          <el-menu-item @click="toggleCollapse">
+            <i
+              :class="isCollapse
+            ? 'fa fa-caret-square-o-right fa-size'
+            : 'fa fa-caret-square-o-left fa-size'"
+            ></i>
+          </el-menu-item>
+        </div>
       </el-menu>
-      <div id="header">
-        <el-row>
-          <el-col :span="18">
+      <div id="header" :style="{ marginLeft: isCollapse ? '64px' : '210px' }">
+        <el-row type="flex" justify="space-between" align="middle">
+          <div style="text-align: left;">
             <div class="breadcrumb-container">
               <el-breadcrumb separator-class="el-icon-arrow-right">
                 <el-breadcrumb-item :to="{ path: '/admin/' }">
@@ -205,8 +234,8 @@
                 >{{ $t("m." + item.meta.title.replaceAll(" ", "_")) }}</el-breadcrumb-item>
               </el-breadcrumb>
             </div>
-          </el-col>
-          <el-col :span="6" v-show="isAuthenticated">
+          </div>
+          <div v-show="isAuthenticated" style="text-align: right;">
             <i class="fa fa-font katex-editor fa-size" @click="katexVisible = true"></i>
             <avatar
               :username="userInfo.username"
@@ -217,7 +246,7 @@
               class="drop-avatar"
             ></avatar>
             <el-dropdown @command="handleCommand" style="vertical-align: middle">
-              <span>
+              <span class="dropdown-trigger">
                 {{ userInfo.username
                 }}
                 <i
@@ -232,7 +261,7 @@
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-          </el-col>
+          </div>
         </el-row>
       </div>
     </div>
@@ -276,7 +305,7 @@
             active-class="mobile-menu-active"
           >
             <mu-list-item-action>
-              <mu-icon value=":fa fa-tachometer" size="24"></mu-icon>
+              <mu-icon value=":fa fa-tachometer fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>{{ $t("m.Dashboard") }}</mu-list-item-title>
           </mu-list-item>
@@ -290,7 +319,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'important' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":el-icon-setting" size="24"></mu-icon>
+              <mu-icon value=":fa el-icon-setting fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>{{ $t("m.Important") }}</mu-list-item-title>
             <mu-list-item-action>
@@ -332,7 +361,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'general' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":el-icon-menu" size="24"></mu-icon>
+              <mu-icon value=":fa el-icon-menu fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>{{ $t("m.General") }}</mu-list-item-title>
             <mu-list-item-action>
@@ -428,7 +457,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'problem' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":fa fa-bars" size="24"></mu-icon>
+              <mu-icon value=":fa fa-bars fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>{{ $t("m.Problem_Admin") }}</mu-list-item-title>
             <mu-list-item-action>
@@ -556,7 +585,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'training' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":el-icon-s-claim fa-size" size="24"></mu-icon>
+              <mu-icon value=":fa el-icon-s-claim fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>
               {{
@@ -619,7 +648,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'examination' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":el-icon-monitor fa-size" size="24"></mu-icon>
+              <mu-icon value=":fa el-icon-monitor fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>
               {{
@@ -682,7 +711,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'cloc' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":el-icon-cloudy fa-size" size="24"></mu-icon>
+              <mu-icon value=":fa el-icon-cloudy fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>
               {{
@@ -717,7 +746,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'honor' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":el-icon-medal fa-size" size="24"></mu-icon>
+              <mu-icon value=":fa el-icon-medal fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>
               {{
@@ -766,7 +795,7 @@
             @toggle-nested="openSideMenu = arguments[0] ? 'tools' : ''"
           >
             <mu-list-item-action>
-              <mu-icon value=":el-icon-s-cooperation fa-size" size="24"></mu-icon>
+              <mu-icon value=":fa el-icon-s-cooperation fa-size" size="24"></mu-icon>
             </mu-list-item-action>
             <mu-list-item-title>
               {{
@@ -794,7 +823,11 @@
         </mu-list>
       </mu-drawer>
     </div>
-    <div class="content-app">
+
+    <div
+      class="content-app"
+      :style="{ marginLeft: (!mobileNar ? (isCollapse ? '74px' : '220px') : '10px') }"
+    >
       <transition name="fadeInUp" mode="out-in">
         <router-view v-if="!$route.meta.keepAlive"></router-view>
       </transition>
@@ -875,6 +908,7 @@ export default {
       currentPath: "",
       routeList: [],
       imgUrl: require("@/assets/backstage.png"),
+      isCollapse: false,
     };
   },
   components: {
@@ -909,6 +943,9 @@ export default {
     changeWebTheme(theme) {
       this.$store.commit("changeWebTheme", { theme: theme });
     },
+    toggleCollapse() {
+      this.isCollapse = !this.isCollapse;
+    },
   },
   computed: {
     ...mapGetters([
@@ -940,31 +977,42 @@ export default {
 <style scoped>
 .vertical_menu {
   overflow: auto;
-  width: 15%;
-  height: 100%;
+  height: calc(100% - 80px);
   position: fixed !important;
   z-index: 100;
   top: 0;
   bottom: 0;
   left: 0;
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.vertical_menu::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 .vertical_menu .logo {
   margin: 20px 0;
   text-align: center;
   cursor: pointer;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .vertical_menu .logo img {
   background-color: #fff;
   border: 3px solid #fff;
-  width: 110px;
-  height: 110px;
 }
+.vertical_menu ::v-deep .el-submenu__title {
+  display: flex;
+  align-items: center;
+}
+
 .fa-size {
   text-align: center;
   font-size: 18px;
   vertical-align: middle;
-  margin-right: 5px;
-  width: 24px;
+  margin-right: 28px;
 }
 a {
   background-color: transparent;
@@ -997,7 +1045,6 @@ img {
 
 #header {
   text-align: right;
-  margin-left: 15%;
   padding-right: 30px;
   line-height: 50px;
   height: 50px;
@@ -1012,6 +1059,7 @@ img {
   .content-app {
     padding: 0 5px;
     margin-top: 20px;
+    margin-right: 15px;
   }
 }
 @media screen and (min-width: 992px) {
@@ -1020,24 +1068,11 @@ img {
     margin-right: 10px;
     margin-left: calc(20% + 10px);
   }
-  .vertical_menu {
-    width: 20%;
-  }
-  #header {
-    margin-left: 20%;
-  }
 }
 @media screen and (min-width: 1150px) {
   .content-app {
     margin-top: 10px;
     margin-right: 10px;
-    margin-left: 220px;
-  }
-  .vertical_menu {
-    width: 210px;
-  }
-  #header {
-    margin-left: 210px;
   }
 }
 
@@ -1066,5 +1101,41 @@ img {
 .drop-avatar {
   vertical-align: middle;
   margin-right: 10px;
+}
+
+.dropdown-trigger {
+  cursor: pointer;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.toggle-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-container {
+  overflow: hidden;
+}
+
+/*
+ * 过渡动画
+ * - .menu-collapse-enter-active, .menu-collapse-leave-active：过渡过程
+ * - .menu-collapse-enter, .menu-collapse-leave-to：进入/离开时的初始或结束状态
+ */
+.menu-collapse-enter-active,
+.menu-collapse-leave-active {
+  transition: width 0.2s ease;
+}
+.menu-collapse-enter,
+.menu-collapse-leave-to {
+  width: 64px;
+}
+
+.el-submenu__title {
+  padding-left: 10px;
 }
 </style>

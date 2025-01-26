@@ -174,18 +174,17 @@ export default {
 
 <style scoped>
 .filter-row {
-  float: right;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
 }
-@media screen and (max-width: 768px) {
-  .filter-row span {
-    margin-right: 2px;
-  }
+.filter-row span {
+  margin-right: 15px;
+  margin-top: 10px;
 }
-@media screen and (min-width: 768px) {
-  .filter-row span {
-    margin-right: 20px;
-  }
-}
+
 /deep/ .el-tag--dark {
   border-color: #fff;
 }
