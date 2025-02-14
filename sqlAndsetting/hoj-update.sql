@@ -2876,4 +2876,32 @@ JOIN judge j ON uc.submit_id = j.submit_id
 SET uc.gid = j.gid, uc.gmt_create = j.gmt_create;
 
 
+/*
+* user_sign 添加 faculty
+*/
+DROP PROCEDURE
+IF EXISTS add_UserSign_Faculty;
+DELIMITER $$
+
+CREATE PROCEDURE add_UserSign_Faculty ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'user_sign'
+	AND column_name = 'faculty'
+) THEN
+	ALTER TABLE user_sign ADD COLUMN `faculty` varchar(100) DEFAULT NULL COMMENT '院系';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_UserSign_Faculty;
+
+DROP PROCEDURE add_UserSign_Faculty;
+
 

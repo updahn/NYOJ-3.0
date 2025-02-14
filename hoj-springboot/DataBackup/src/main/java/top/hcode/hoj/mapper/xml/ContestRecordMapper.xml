@@ -109,7 +109,7 @@
     <select id="getACMContestRecord" resultType="top.hcode.hoj.pojo.vo.ContestRecordVO">
         SELECT cr.id,cr.cid,cr.uid,cr.pid,cr.cpid,cr.display_id,cr.submit_id,u.username,cr.status,cr.submit_time,
         cr.time,cr.score,cr.use_time,cr.checked,cr.gmt_create,cr.gmt_modified,
-        u.gender,us.realname as realname,u.avatar,us.school,u.nickname
+        u.gender,us.realname as realname,u.avatar,us.school,us.faculty,us.course,u.nickname
         FROM contest_record cr,user_info u,user_sign us
         <where>
             cr.uid = u.uuid AND us.uid = u.uuid

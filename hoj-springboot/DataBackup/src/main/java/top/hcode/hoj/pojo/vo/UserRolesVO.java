@@ -35,6 +35,9 @@ public class UserRolesVO implements Serializable {
     @ApiModelProperty(value = "学校")
     private String school;
 
+    @ApiModelProperty(value = "院系")
+    private String faculty;
+
     @ApiModelProperty(value = "专业")
     private String course;
 

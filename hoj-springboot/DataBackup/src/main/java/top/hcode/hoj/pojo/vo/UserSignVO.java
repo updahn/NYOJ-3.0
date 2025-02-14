@@ -23,6 +23,9 @@ public class UserSignVO {
     @ApiModelProperty(value = "学校")
     private String school;
 
+    @ApiModelProperty(value = "院系")
+    private String faculty;
+
     @ApiModelProperty(value = "专业/班级")
     private String course;
 

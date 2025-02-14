@@ -707,6 +707,7 @@ public class AccountManager {
 
         commonValidator.validateContentLength(userSignVO.getRealname(), "真实姓名", 20);
         commonValidator.validateContentLength(userSignVO.getSchool(), "学校", 20);
+        commonValidator.validateContentLength(userSignVO.getFaculty(), "院系", 20);
         commonValidator.validateContentLength(userSignVO.getCourse(), "专业/班级", 20);
         commonValidator.validateContentLength(userSignVO.getNumber(), "学号", 20);
         commonValidator.validateContentLength(userSignVO.getClothesSize(), "衣服尺寸", 5);
@@ -719,6 +720,7 @@ public class AccountManager {
                 .setUsername(userRolesVo.getUsername())
                 .setRealname(userSignVO.getRealname())
                 .setSchool(userSignVO.getSchool())
+                .setFaculty(userSignVO.getFaculty())
                 .setCourse(userSignVO.getCourse())
                 .setNumber(userSignVO.getNumber())
                 .setClothesSize(userSignVO.getClothesSize() != null ? userSignVO.getClothesSize().toUpperCase() : null)

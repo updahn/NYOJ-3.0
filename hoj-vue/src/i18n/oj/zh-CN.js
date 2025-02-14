@@ -952,6 +952,8 @@ export const m = {
   StudentNumber_Check_length: '长度在 6 到 15 的数字',
   Enter_Your_School: '请输入学校',
   Not_Find_School: '没有目标学校',
+  Faculty: '院系',
+  Faculty_Check_Required: '院系不能为空',
 
   // /components/oj/setting/MultiOj.vue
   Home_Multi_Oj: '国内 OJ',

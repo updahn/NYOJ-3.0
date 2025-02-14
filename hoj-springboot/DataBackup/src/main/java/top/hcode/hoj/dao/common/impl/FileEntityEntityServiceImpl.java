@@ -78,26 +78,32 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
         head3.add("Real Name");
         List<String> head4 = new LinkedList<>();
         head4.add("School");
+        List<String> head5 = new LinkedList<>();
+        head5.add("Faculty");
+        List<String> head6 = new LinkedList<>();
+        head6.add("Course");
 
         headList.add(head0);
         headList.add(head1);
         headList.add(head2);
         headList.add(head3);
         headList.add(head4);
+        headList.add(head5);
+        headList.add(head6);
 
-        List<String> head5 = new LinkedList<>();
+        List<String> head7 = new LinkedList<>();
         if (isACM) {
-            head5.add("AC");
-            List<String> head6 = new LinkedList<>();
-            head6.add("Total Submission");
-            List<String> head7 = new LinkedList<>();
-            head7.add("Total Penalty Time");
-            headList.add(head5);
-            headList.add(head6);
+            head7.add("AC");
+            List<String> head8 = new LinkedList<>();
+            head8.add("Total Submission");
+            List<String> head9 = new LinkedList<>();
+            head9.add("Total Penalty Time");
             headList.add(head7);
+            headList.add(head8);
+            headList.add(head9);
         } else {
-            head5.add("Total Score");
-            headList.add(head5);
+            head7.add("Total Score");
+            headList.add(head7);
         }
 
         // 添加题目头
@@ -126,8 +132,15 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
 
         if (isRoot) {
             List<String> head5 = new LinkedList<>();
-            head5.add("Realname");
+            head5.add("Faculty");
+            List<String> head6 = new LinkedList<>();
+            head6.add("Course");
+            List<String> head7 = new LinkedList<>();
+            head7.add("Real Name");
+
             headList.add(head5);
+            headList.add(head6);
+            headList.add(head7);
         }
 
         headList.add(head2);
@@ -170,6 +183,8 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
             }
             rowData.add(acmContestRankVo.getRealname());
             rowData.add(acmContestRankVo.getSchool());
+            rowData.add(acmContestRankVo.getFaculty());
+            rowData.add(acmContestRankVo.getCourse());
             rowData.add(acmContestRankVo.getAc());
             rowData.add(acmContestRankVo.getTotal());
             rowData.add(acmContestRankVo.getTotalTime());
@@ -254,10 +269,12 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
             List<Object> rowData = new LinkedList<>();
             rowData.add(acmContestRankVo.getRank() == -1 ? "*" : acmContestRankVo.getRank().toString());
             rowData.add(acmContestRankVo.getUsername());
+            rowData.add(acmContestRankVo.getSchool());
             if (isRoot) {
+                rowData.add(acmContestRankVo.getFaculty());
+                rowData.add(acmContestRankVo.getCourse());
                 rowData.add(acmContestRankVo.getRealname());
             }
-            rowData.add(acmContestRankVo.getSchool());
             rowData.add(acmContestRankVo.getAc());
             rowData.add(acmContestRankVo.getTotalTime());
             HashMap<String, HashMap<String, Object>> contestInfos = acmContestRankVo.getSubmissionInfo();

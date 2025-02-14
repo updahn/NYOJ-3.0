@@ -951,6 +951,8 @@ export const m = {
   StudentNumber_Check_length: 'The length is between 6 and 15 digit characters',
   Enter_Your_School: 'Enter Your School',
   Not_Find_School: "Don't Find School",
+  Faculty: 'Faculty',
+  Faculty_Check_Required: 'The faculty is required.',
 
   // /components/oj/setting/MultiOj.vue
   Home_Multi_Oj: 'Multi Home Oj',

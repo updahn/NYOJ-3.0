@@ -36,6 +36,10 @@ public class UserSign implements Serializable {
     private String school;
 
     @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @ApiModelProperty(value = "院系")
+    private String faculty;
+
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "专业/班级")
     private String course;
 

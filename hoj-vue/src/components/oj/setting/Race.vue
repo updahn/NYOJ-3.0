@@ -40,6 +40,9 @@
               ></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item prop="faculty" :label="$t('m.Faculty')">
+            <el-input v-model="formProfile.faculty" :maxlength="20" />
+          </el-form-item>
           <el-form-item prop="course" :label="$t('m.Course')">
             <el-input v-model="formProfile.course" :maxlength="20" />
           </el-form-item>
@@ -54,12 +57,10 @@
       </el-col>
       <el-col :md="10" :xs="24">
         <div class="right">
-          <el-form-item prop="clothesSize" :label="$t('m.Clothes_Size')">
-            <el-input
-              v-model="formProfile.clothesSize"
-              :placeholder="$t('m.Clothes_Size')+' ：S/M/L/XL'"
-              :maxlength="10"
-            />
+          <el-form-item :label="$t('m.Clothes_Size')">
+            <el-radio-group v-model="formProfile.clothesSize">
+              <el-radio v-for="size in sizes" :key="size" :label="size">{{ size }}</el-radio>
+            </el-radio-group>
           </el-form-item>
           <el-form-item prop="phoneNumber" :label="$t('m.Phone_Number')">
             <el-input v-model="formProfile.phoneNumber" :maxlength="20" />
@@ -88,11 +89,13 @@ export default {
         username: "",
         realname: "",
         school: null,
+        faculty: "",
         course: "",
         number: "",
         clothesSize: "",
         phoneNumber: "",
       },
+      sizes: ["S", "M", "L", "XL", "XXL", "XXXL", "XXXXL", "XXXXXL"],
       rules: {
         realname: [
           {
@@ -129,17 +132,17 @@ export default {
             trigger: "blur",
           },
         ],
+        faculty: [
+          {
+            required: true,
+            message: this.$i18n.t("m.Faculty_Check_Required"),
+            trigger: "blur",
+          },
+        ],
         course: [
           {
             required: true,
             message: this.$i18n.t("m.Course_Check_Required"),
-            trigger: "blur",
-          },
-          {
-            pattern: /^\d+-[\u4e00-\u9fa5]+$/,
-            min: 5,
-            max: 20,
-            message: this.$i18n.t("m.Course_Check_length"),
             trigger: "blur",
           },
         ],
@@ -162,15 +165,6 @@ export default {
             pattern:
               /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/,
             message: this.$i18n.t("m.PhoneNumber_Check_length"),
-            trigger: "blur",
-          },
-        ],
-        clothesSize: [
-          {
-            pattern: /^(S|M|L|XL)$/i,
-            min: 1,
-            max: 2,
-            message: this.$i18n.t("m.ClothesSize_Check_length"),
             trigger: "blur",
           },
         ],
