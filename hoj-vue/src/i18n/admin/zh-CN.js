@@ -75,6 +75,7 @@ export const m = {
   Edit_User: '编辑用户',
   Delete_User: '删除用户',
   Import_User: '导入用户',
+  Apply_Account: '发送账号',
   Import_User_Tips1: '用户数据导入仅支持csv格式的用户数据。',
   Import_User_Tips2: '共九列数据：用户名和密码不能为空，邮箱、真实姓名、性别、昵称、学校、班级、学号可选填，否则该行数据可能导入失败。',
   Import_User_Tips3: '第一行不必写(“用户名”，“密码”，“邮箱”，"真实姓名"，“性别”，“昵称”，“学校”，“班级”，“学号”)这九个列名',
@@ -87,6 +88,7 @@ export const m = {
   Show_All: '显示全部',
   Password: '密码',
   Upload_All: '上传全部',
+  Send_All: '发送全部',
   Clear_All: '清除全部',
   Generate_User: '生成用户',
   Prefix: '前缀',
@@ -118,6 +120,7 @@ export const m = {
   Generate_Skipped_Reason: '行用户数据被过滤，原因是可能为空行或某个列值(用户名或密码)为空',
   Generate_Skipped_Reason2: '行用户数据被过滤，原因是可能为空行或某个列值(真实姓名或学号)为空',
   Upload_Users_Successfully: '上传用户成功',
+  Apply_Users_Account_Successfully: '发送邮件成功',
 
   // /views/admin/general/User.vue
   General_Auth: '权限管理',
@@ -521,6 +524,7 @@ export const m = {
   Sign_Duration: '报名时长',
   Sign_Duration_Check: '报名时长不能小于0',
   Sign_EndTime_Check: '报名结束时间不能晚于比赛结束时间',
+  Contest_Url: '比赛网址',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: '讨论ID',

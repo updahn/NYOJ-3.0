@@ -252,4 +252,52 @@ public class EmailManager {
         }
     }
 
+    /**
+     * @param username     用户账号
+     * @param password     用户密码
+     * @param email        用户邮箱
+     * @param school       用户学校
+     * @param contestUrl   比赛网址
+     * @param contestTitle 比赛标题
+     * @MethodName sendUserAccount
+     * @Description 超级管理员后台发送用户账号信息到对应用户邮箱。
+     * @Return
+     */
+    @Async
+    public void sendUserAccount(String username, String password, String email, String school, String contestUrl,
+            String contestTitle) {
+        JavaMailSenderImpl mailSender = getMailSender();
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+            // 设置渲染到html页面对应的值
+            Context context = new Context();
+            WebConfig webConfig = nacosSwitchConfig.getWebConfig();
+            context.setVariable(Constants.Email.OJ_NAME.name(), UnicodeUtil.toString(webConfig.getName()));
+            context.setVariable(Constants.Email.OJ_SHORT_NAME.name(), UnicodeUtil.toString(webConfig.getShortName()));
+            context.setVariable(Constants.Email.OJ_URL.name(), webConfig.getBaseUrl());
+            context.setVariable(Constants.Email.EMAIL_BACKGROUND_IMG.name(), webConfig.getEmailBGImg());
+            context.setVariable("USERNAME", username);
+            context.setVariable("PASSWORD", password);
+            context.setVariable("SCHOOL", school);
+            context.setVariable("CONTEST_URL", contestUrl);
+            context.setVariable("CONTEST_TITLE", contestTitle);
+
+            // 利用模板引擎加载html文件进行渲染并生成对应的字符串
+            String emailContent = templateEngine.process("emailTemplate_accountInfo", context);
+
+            // 设置邮件标题
+            mimeMessageHelper.setSubject(UnicodeUtil.toString(webConfig.getShortName()) + "的用户账号通知");
+            mimeMessageHelper.setText(emailContent, true);
+            // 收件人
+            mimeMessageHelper.setTo(email);
+            // 发送人
+            mimeMessageHelper.setFrom(webConfig.getEmailUsername());
+
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            log.error("发送用户账号的邮件任务发生异常------------>{}", e.getMessage());
+        }
+    }
+
 }

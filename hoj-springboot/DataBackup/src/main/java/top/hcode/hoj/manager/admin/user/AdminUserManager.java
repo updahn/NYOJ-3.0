@@ -11,15 +11,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import top.hcode.hoj.common.exception.StatusAccessDeniedException;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.dao.user.UserPreferencesEntityService;
 import top.hcode.hoj.dao.user.UserRecordEntityService;
 import top.hcode.hoj.dao.user.UserSignEntityService;
 import top.hcode.hoj.dao.user.UserRoleEntityService;
+import top.hcode.hoj.manager.email.EmailManager;
 import top.hcode.hoj.manager.msg.AdminNoticeManager;
 import top.hcode.hoj.pojo.dto.AdminEditUserDTO;
 import top.hcode.hoj.pojo.entity.user.UserInfo;
@@ -35,6 +39,8 @@ import top.hcode.hoj.utils.RedisUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
 
 /**
  * @Author: Himit_ZH
@@ -65,6 +71,9 @@ public class AdminUserManager {
 
     @Autowired
     private RedisUtils redisUtils;
+
+    @Resource
+    private EmailManager emailManager;
 
     public IPage<UserRolesVO> getUserList(Integer limit, Integer currentPage, Integer type, String keyword) {
         if (currentPage == null || currentPage < 1)
@@ -337,4 +346,65 @@ public class AdminUserManager {
             throw new StatusFailException("生成指定用户失败！注意查看组合生成的用户名是否已有存在的！");
         }
     }
+
+    @Async
+    public void applyUsersAccount(List<List<String>> users, String contestUrl, String contestTitle)
+            throws StatusFailException, StatusAccessDeniedException {
+        if (!emailManager.isOk()) {
+            throw new StatusAccessDeniedException("对不起！本站邮箱系统未配置，暂不支持发送账号邮件！");
+        }
+
+        List<String> successUidList = new LinkedList<>();
+        if (users != null) {
+            HashSet<String> failedUserNameSet = new HashSet<>();
+            for (List<String> user : users) {
+                try {
+                    String uuid = sendUserAccount(user, contestUrl, contestTitle);
+                    Thread.sleep(10 * 1000);
+
+                    if (uuid != null) {
+                        successUidList.add(uuid);
+                    } else {
+                        failedUserNameSet.add(user.get(0));
+                    }
+                } catch (Exception e) {
+                    failedUserNameSet.add(user.get(0));
+                }
+            }
+
+            if (failedUserNameSet.size() > 0) {
+                int failedCount = failedUserNameSet.size();
+                int successCount = users.size() - failedCount;
+                String errMsg = "[发送结果] 成功数：" + successCount + ",  失败数：" + failedCount +
+                        ",  失败的用户名：" + failedUserNameSet + ", 可能原因是, 对应的账号未在网站上注册或创建或者输入的表格中邮箱为空";
+                throw new StatusFailException(errMsg);
+            }
+        } else {
+            throw new StatusFailException("发送的用户数据不能为空！");
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public String sendUserAccount(List<String> user, String contestUrl, String contestTitle)
+            throws StatusFailException {
+        String username = user.get(0);
+        String password = user.get(1);
+        String email = user.get(2);
+        String school = user.size() <= 6 || StringUtils.isEmpty(user.get(6)) ? null : user.get(6);
+
+        if (StringUtils.isEmpty(email)) {
+            return null;
+        }
+
+        UserRolesVO userRolesVo = userRoleEntityService.getUserRoles(null, username);
+
+        if (userRolesVo == null) {
+            return null;
+        }
+
+        emailManager.sendUserAccount(username, password, email, school, contestUrl, contestTitle);
+
+        return userRolesVo.getUid();
+    }
+
 }

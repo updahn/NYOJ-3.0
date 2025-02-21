@@ -116,7 +116,7 @@
     <!-- 导入csv用户数据 -->
     <el-card style="margin-top:20px">
       <div slot="header">
-        <span class="panel-title home-title">{{ $t('m.Import_User') }}</span>
+        <span class="panel-title home-title">{{ $t('m.Import_User') }} / {{ $t('m.Apply_Account')}}</span>
       </div>
       <p>1. {{ $t('m.Import_User_Tips1') }}</p>
       <p>2. {{ $t('m.Import_User_Tips2') }}</p>
@@ -189,17 +189,23 @@
 
         <div class="panel-options">
           <el-button
+            type="danger"
+            size="small"
+            icon="el-icon-delete"
+            @click="handleResetData"
+          >{{ $t('m.Clear_All') }}</el-button>
+          <el-button
             type="primary"
             size="small"
             icon="el-icon-upload"
             @click="handleUsersUpload"
           >{{ $t('m.Upload_All') }}</el-button>
           <el-button
-            type="danger"
+            type="primary"
             size="small"
-            icon="el-icon-delete"
-            @click="handleResetData"
-          >{{ $t('m.Clear_All') }}</el-button>
+            icon="el-icon-position"
+            @click="handleApplyAccount"
+          >{{ $t('m.Send_All') }}</el-button>
           <el-pagination
             class="page"
             layout="prev, pager, next"
@@ -414,6 +420,22 @@
         </el-button>
       </span>
     </el-dialog>
+    <el-dialog :title="$t('m.Apply_Account')" :visible.sync="showApplyAccountDialog" width="400px">
+      <el-form>
+        <el-form-item :label="$t('m.Contest_Url')">
+          <el-input v-model="contestUrl" size="small"></el-input>
+        </el-form-item>
+
+        <el-form-item :label="$t('m.Contest_Title')">
+          <el-input v-model="contestTitle" size="small"></el-input>
+        </el-form-item>
+
+        <el-form-item style="text-align: center">
+          <el-button type="primary" @click="confirmDialog">{{ $t("m.Send_All") }}</el-button>
+        </el-form-item>
+        <br />
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -505,6 +527,7 @@ export default {
       keyword: "",
       // 是否显示用户对话框
       showUserDialog: false,
+      showApplyAccountDialog: false,
       onlyAdmin: false,
 
       // 当前用户model
@@ -599,6 +622,8 @@ export default {
         password_custom: [{ validator: CheckPwd, trigger: "blur" }],
       },
       isPasswdCustom: false,
+      contestUrl: null,
+      contestTitle: null,
     };
   },
   mounted() {
@@ -770,6 +795,22 @@ export default {
           this.getUserList(1);
           this.handleResetData();
           myMessage.success(this.$i18n.t("m.Upload_Users_Successfully"));
+        })
+        .catch(() => {});
+    },
+    handleApplyAccount() {
+      this.showApplyAccountDialog = true;
+    },
+    confirmDialog() {
+      api
+        .admin_ApplyUsersAccount(
+          this.uploadUsers,
+          this.contestUrl,
+          this.contestTitle
+        )
+        .then((res) => {
+          myMessage.success(this.$i18n.t("m.Apply_Users_Account_Successfully"));
+          this.showApplyAccountDialog = false;
         })
         .catch(() => {});
     },

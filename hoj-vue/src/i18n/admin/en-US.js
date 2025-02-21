@@ -75,6 +75,7 @@ export const m = {
   Edit_User: 'Edit User',
   Delete_User: 'Delete User',
   Import_User: 'Import User',
+  Apply_Account: 'Apply Account',
   Import_User_Tips1: 'The imported user data only supports user data in CSV format.',
   Import_User_Tips2: 'There are nine columns of data: username and password cannot be empty. Email, real name, gender, nickname, school, course, and student ID are optional. Otherwise, the row might fail to import.',
   Import_User_Tips3: 'The first row does not need to include the nine column headers ("username," "password," "email," "real name," "gender," "nickname," "school," "course," "student ID").',
@@ -87,6 +88,7 @@ export const m = {
   Show_All: 'Show All',
   Password: 'Password',
   Upload_All: 'Upload All',
+  Send_All: 'Send All',
   Clear_All: 'Clear All',
   Generate_User: 'Generate User',
   Prefix: 'Prefix',
@@ -118,6 +120,7 @@ export const m = {
   Generate_Skipped_Reason: 'rows user data are filtered because it may be an empty row or a column(username or password) value is empty.',
   Generate_Skipped_Reason2: 'rows user data are filtered because it may be an empty row or a column(realname or student number) value is empty.',
   Upload_Users_Successfully: 'Upload Users Successfully',
+  Apply_Users_Account_Successfully: 'Apply User\'s Account Successfully',
 
   // /views/admin/general/Auth.vue
   General_Auth: 'Auth',
@@ -522,6 +525,7 @@ export const m = {
   Sign_Duration: 'Sign Duration',
   Sign_Duration_Check: 'The duration of the sign cannot be less than or equal to zero!',
   Sign_EndTime_Check: 'The EndTime of the sign cannot after the EndTime of the contest',
+  Contest_Url: 'Contest Url',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: 'Discussion ID',

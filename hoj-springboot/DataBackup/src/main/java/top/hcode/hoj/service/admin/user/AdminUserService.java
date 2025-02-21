@@ -26,4 +26,6 @@ public interface AdminUserService {
 
     public CommonResult<Map<Object, Object>> generateUser(Map<String, Object> params);
 
+    public CommonResult<Void> applyUsersAccount(List<List<String>> users, String contestUrl, String contestTitle);
+
 }

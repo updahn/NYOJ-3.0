@@ -2,8 +2,11 @@ package top.hcode.hoj.service.admin.user.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.stereotype.Service;
+
+import top.hcode.hoj.common.exception.StatusAccessDeniedException;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.result.CommonResult;
+import top.hcode.hoj.common.result.ResultStatus;
 import top.hcode.hoj.manager.admin.user.AdminUserManager;
 import top.hcode.hoj.pojo.dto.AdminEditUserDTO;
 import top.hcode.hoj.pojo.vo.UserRolesVO;
@@ -68,4 +71,17 @@ public class AdminUserServiceImpl implements AdminUserService {
             return CommonResult.errorResponse(e.getMessage());
         }
     }
+
+    @Override
+    public CommonResult<Void> applyUsersAccount(List<List<String>> users, String contestUrl, String contestTitle) {
+        try {
+            adminUserManager.applyUsersAccount(users, contestUrl, contestTitle);
+            return CommonResult.successResponse();
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
+        } catch (StatusAccessDeniedException e) {
+            return CommonResult.errorResponse(e.getMessage(), ResultStatus.ACCESS_DENIED);
+        }
+    }
+
 }

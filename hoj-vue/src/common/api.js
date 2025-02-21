@@ -1629,6 +1629,13 @@ const adminApi = {
       },
     });
   },
+  admin_ApplyUsersAccount(users, contestUrl, contestTitle) {
+    let params = { contestUrl, contestTitle };
+    return ajax('/api/admin/user/apply-user-account', 'post', {
+      data: { users },
+      params: params,
+    });
+  },
   admin_generateUser(data) {
     return ajax('/api/admin/user/generate-user', 'post', {
       data,

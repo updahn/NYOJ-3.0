@@ -63,4 +63,13 @@ public class AdminUserController {
         return adminUserService.generateUser(params);
     }
 
+    @PostMapping("/apply-user-account")
+    @RequiresPermissions("user_admin")
+    @RequiresAuthentication
+    public CommonResult<Void> applyUsersAccount(@RequestBody Map<String, Object> params,
+            @RequestParam(value = "contestUrl", defaultValue = "false") String contestUrl,
+            @RequestParam(value = "contestTitle", defaultValue = "false") String contestTitle) {
+        return adminUserService.applyUsersAccount((List<List<String>>) params.get("users"), contestUrl, contestTitle);
+    }
+
 }
