@@ -30,11 +30,8 @@ public class ContestPrint {
 
     private Long cid;
 
-    @ApiModelProperty(value = "提交打印文本的用户")
-    private String username;
-
-    @ApiModelProperty(value = "真实姓名")
-    private String realname;
+    @ApiModelProperty(value = "用户id")
+    private String uid;
 
     @ApiModelProperty(value = "内容")
     private String content;

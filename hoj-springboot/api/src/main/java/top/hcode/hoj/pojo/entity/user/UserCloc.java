@@ -24,12 +24,6 @@ public class UserCloc implements Serializable {
     @TableId(value = "uid", type = IdType.UUID)
     private String uid;
 
-    @ApiModelProperty(value = "用户名")
-    private String username;
-
-    @ApiModelProperty(value = "真实姓名")
-    private String realname;
-
     @ApiModelProperty(value = "日期")
     private String time;
 

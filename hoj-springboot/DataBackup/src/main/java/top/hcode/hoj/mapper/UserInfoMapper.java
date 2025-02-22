@@ -29,4 +29,11 @@ public interface UserInfoMapper extends BaseMapper<UserInfo> {
     List<String> getNowContestAdmin(@Param("cid") Long cid);
 
     List<String> getNowGroupAdmin(@Param("gid") Long gid);
+
+    String getUsernameByUid(@Param("uid") String uid);
+
+    String getUidByUsername(@Param("username") String username);
+
+    String getRealNameByUid(@Param("uid") String uid);
+
 }

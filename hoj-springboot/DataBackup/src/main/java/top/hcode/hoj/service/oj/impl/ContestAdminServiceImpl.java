@@ -8,9 +8,9 @@ import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.common.result.ResultStatus;
 import top.hcode.hoj.manager.oj.ContestAdminManager;
 import top.hcode.hoj.pojo.dto.CheckACDTO;
-import top.hcode.hoj.pojo.entity.contest.ContestPrint;
 import top.hcode.hoj.pojo.entity.contest.ContestRecord;
 import top.hcode.hoj.pojo.entity.contest.ContestSign;
+import top.hcode.hoj.pojo.vo.ContestPrintVO;
 import top.hcode.hoj.pojo.vo.ContestSignVO;
 import top.hcode.hoj.pojo.vo.SessionVO;
 import top.hcode.hoj.service.oj.ContestAdminService;
@@ -54,7 +54,7 @@ public class ContestAdminServiceImpl implements ContestAdminService {
     }
 
     @Override
-    public CommonResult<IPage<ContestPrint>> getContestPrint(Long cid, Integer currentPage, Integer limit) {
+    public CommonResult<IPage<ContestPrintVO>> getContestPrint(Long cid, Integer currentPage, Integer limit) {
         try {
             return CommonResult.successResponse(contestAdminManager.getContestPrint(cid, currentPage, limit));
         } catch (StatusForbiddenException e) {

@@ -21,4 +21,17 @@
     <select id="getNowGroupAdmin" resultType="java.lang.String" useCache="true">
         SELECT ur.uid FROM user_role ur, contest ct where ct.gid = #{gid} and (ur.role_id = 1001 or ur.role_id = 1000) and ct.start_time > ur.gmt_modified
     </select>
+
+    <select id="getUsernameByUid" resultType="java.lang.String" useCache="true">
+        SELECT username from user_info where uuid = #{uid}
+    </select>
+
+    <select id="getUidByUsername" resultType="java.lang.String" useCache="true">
+        SELECT uuid from user_info where username = #{username}
+    </select>
+
+    <select id="getRealNameByUid" resultType="java.lang.String" useCache="true">
+        SELECT realname from user_sign where uid = #{uid}
+    </select>
+
 </mapper>

@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.pojo.dto.CheckACDTO;
-import top.hcode.hoj.pojo.entity.contest.ContestPrint;
 import top.hcode.hoj.pojo.entity.contest.ContestRecord;
 import top.hcode.hoj.pojo.entity.contest.ContestSign;
+import top.hcode.hoj.pojo.vo.ContestPrintVO;
 import top.hcode.hoj.pojo.vo.ContestSignVO;
 import top.hcode.hoj.pojo.vo.SessionVO;
 import top.hcode.hoj.service.oj.ContestAdminService;
@@ -61,7 +61,7 @@ public class ContestAdminController {
 
     @GetMapping("/get-contest-print")
     @RequiresAuthentication
-    public CommonResult<IPage<ContestPrint>> getContestPrint(@RequestParam("cid") Long cid,
+    public CommonResult<IPage<ContestPrintVO>> getContestPrint(@RequestParam("cid") Long cid,
             @RequestParam(value = "currentPage", required = false) Integer currentPage,
             @RequestParam(value = "limit", required = false) Integer limit) {
 

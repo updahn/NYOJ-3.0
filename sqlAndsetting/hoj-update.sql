@@ -2905,3 +2905,70 @@ CALL add_UserSign_Faculty;
 DROP PROCEDURE add_UserSign_Faculty;
 
 
+-- 删除 contest_print_ibfk_2 外键约束
+ALTER TABLE contest_print DROP FOREIGN KEY contest_print_ibfk_2;
+
+-- 删除 user_cloc_ibfk_2 外键约束
+ALTER TABLE user_cloc DROP FOREIGN KEY user_cloc_ibfk_2;
+
+-- 对于 contest_print 表
+ALTER TABLE contest_print DROP COLUMN username;
+ALTER TABLE contest_print DROP COLUMN realname;
+
+-- 对于 user_sign 表
+ALTER TABLE user_sign DROP COLUMN username;
+
+-- 对于 user_multi_oj 表
+ALTER TABLE user_multi_oj DROP COLUMN username;
+
+-- 对于 user_cloc 表
+ALTER TABLE user_cloc DROP COLUMN username;
+ALTER TABLE user_cloc DROP COLUMN realname;
+
+-- 对于 statistic_rank 表
+ALTER TABLE statistic_rank DROP COLUMN username;
+ALTER TABLE statistic_rank DROP COLUMN realname;
+
+-- 删除依赖于 user_info.avatar 的外键约束
+ALTER TABLE comment DROP FOREIGN KEY comment_ibfk_6;
+# ALTER TABLE discussion DROP FOREIGN KEY discussion_ibfk_4;
+ALTER TABLE reply DROP FOREIGN KEY reply_ibfk_2;
+ALTER TABLE reply DROP FOREIGN KEY reply_ibfk_3;
+
+-- 删除 user_info 表中 avatar 字段的唯一索引
+ALTER TABLE user_info DROP INDEX avatar;
+
+-- 修改 avatar 字段为可重复值
+ALTER TABLE user_info MODIFY avatar VARCHAR(255) NULL COMMENT '头像地址';
+
+
+/*
+* contest_print 添加 uid
+*/
+DROP PROCEDURE
+IF EXISTS add_ContestPrint_Uid;
+DELIMITER $$
+
+CREATE PROCEDURE add_ContestPrint_Uid ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'contest_print'
+	AND column_name = 'uid'
+) THEN
+	ALTER TABLE contest_print ADD COLUMN `uid` varchar(32) COLLATE utf8_general_ci DEFAULT NULL COMMENT '用户编号';
+    ALTER TABLE contest_print ADD KEY `uid` (`uid`);
+	ALTER TABLE contest_print ADD CONSTRAINT `contest_print_ibfk_3` FOREIGN KEY (`uid`) REFERENCES `user_info` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE;
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_ContestPrint_Uid;
+
+DROP PROCEDURE add_ContestPrint_Uid;
+

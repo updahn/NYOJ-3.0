@@ -38,7 +38,6 @@ import top.hcode.hoj.utils.Md5Utils;
 import top.hcode.hoj.utils.PasswordUtils;
 import top.hcode.hoj.utils.RedisUtils;
 
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -143,7 +142,7 @@ public class AdminUserManager {
         QueryWrapper<UserSign> userSignQueryWrapper = new QueryWrapper<>();
         userSignQueryWrapper.eq("uid", uid);
         UserSign userSign = userSignEntityService.getOne(userSignQueryWrapper, false);
-        userSign.setUsername(username).setRealname(realname);
+        userSign.setRealname(realname);
         boolean updateUserSign = userSignEntityService.updateById(userSign);
 
         QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
@@ -233,7 +232,7 @@ public class AdminUserManager {
         }
 
         UserPreferences userPreferences = new UserPreferences().setUid(uuid);
-        UserSign userSign = new UserSign().setUid(uuid).setUsername(user.get(0));
+        UserSign userSign = new UserSign().setUid(uuid);
         UserInfo userInfo = new UserInfo()
                 .setUuid(uuid)
                 .setUsername(user.get(0))
@@ -338,7 +337,7 @@ public class AdminUserManager {
                     .setUid(uuid));
             userRecordList.add(new UserRecord().setUid(uuid));
             userPreferencesList.add(new UserPreferences().setUid(uuid));
-            userSignList.add(new UserSign().setUid(uuid).setUsername(username));
+            userSignList.add(new UserSign().setUid(uuid));
         }
         boolean result1 = userInfoEntityService.saveBatch(userInfoList);
         boolean result2 = userRoleEntityService.saveBatch(userRoleList);

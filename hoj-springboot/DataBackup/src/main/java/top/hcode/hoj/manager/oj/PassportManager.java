@@ -364,8 +364,7 @@ public class PassportManager {
         boolean addUserPreferences = userPreferencesEntityService.save(new UserPreferences().setUid(uuid));
 
         // 往user_sign表插入数据
-        boolean addUserSign = userSignEntityService
-                .save(new UserSign().setUid(uuid).setUsername(registerDto.getUsername()));
+        boolean addUserSign = userSignEntityService.save(new UserSign().setUid(uuid));
 
         if (addUser && addUserRole && addUserRecord && addUserPreferences && addUserSign) {
             redisUtils.del(registerDto.getEmail());

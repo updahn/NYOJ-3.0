@@ -22,6 +22,7 @@ import top.hcode.hoj.config.NacosSwitchConfig;
 import top.hcode.hoj.config.SwitchConfig;
 import top.hcode.hoj.dao.tools.StatisticContestEntityService;
 import top.hcode.hoj.dao.tools.StatisticRankEntityService;
+import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.manager.oj.ContestRankManager;
 import top.hcode.hoj.mapper.StatisticContestMapper;
 import top.hcode.hoj.pojo.bo.Pair_;
@@ -56,6 +57,9 @@ public class StatisticManager {
 
     @Resource
     private StatisticContestEntityService statisticContestEntityService;
+
+    @Resource
+    private UserRoleEntityService userRoleEntityService;
 
     public IPage<StatisticContest> getStatisticList(Integer currentPage, Integer limit,
             String keyword) {
@@ -268,6 +272,10 @@ public class StatisticManager {
                         // 复制属性
                         BeanUtil.copyProperties(statisticContest, acmContestRankVo, "account", "data");
                         BeanUtil.copyProperties(statisticRank, acmContestRankVo, "submissionInfo");
+
+                        // 添加username和realname
+                        acmContestRankVo.setRealname(userRoleEntityService.getRealNameByUid(statisticRank.getUid()));
+                        acmContestRankVo.setUsername(userRoleEntityService.getUsernameByUid(statisticRank.getUid()));
 
                         // 解析 JSON 数据并设置到相应的字段
                         acmContestRankVo.setSubmissionInfo(parseJsonWithType(statisticRank.getJson(),

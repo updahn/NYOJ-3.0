@@ -30,12 +30,6 @@ public class StatisticRank implements Serializable {
     @ApiModelProperty(value = "用户id")
     private String uid;
 
-    @ApiModelProperty(value = "用户名")
-    private String username;
-
-    @ApiModelProperty(value = "用户真实姓名")
-    private String realname;
-
     @ApiModelProperty(value = "学校")
     private String school;
 

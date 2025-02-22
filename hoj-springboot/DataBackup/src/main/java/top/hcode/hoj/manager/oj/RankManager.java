@@ -20,6 +20,7 @@ import top.hcode.hoj.pojo.vo.ACMRankVO;
 import top.hcode.hoj.pojo.vo.CODERankVO;
 import top.hcode.hoj.pojo.vo.OIRankVO;
 import top.hcode.hoj.pojo.vo.OJRankVO;
+import top.hcode.hoj.pojo.vo.UserClocVO;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.dao.user.UserRecordEntityService;
 import top.hcode.hoj.dao.user.UserSignEntityService;
@@ -265,10 +266,8 @@ public class RankManager {
     /**
      * @Description 查询用户的coding记录
      */
-    public List<UserCloc> getUserCodeRecord(List<String> uidList, String startTime, String endTime)
+    public List<UserClocVO> getUserCodeRecord(List<String> uidList, String startTime, String endTime)
             throws StatusFailException, StatusNotFoundException, IOException {
-
-        List<UserCloc> userClocList = new ArrayList<>();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -277,8 +276,7 @@ public class RankManager {
             Date startTimeDate = startTime != null ? sdf.parse(startTime) : null;
             Date endTimeDate = endTime != null ? sdf.parse(endTime) : null;
 
-            userClocList = clocUtils.getUserCodeLines(uidList, startTimeDate, endTimeDate, false);
-            return userClocList;
+            return clocUtils.getUserCodeLines(uidList, startTimeDate, endTimeDate, false);
         } catch (ParseException e) {
             e.printStackTrace();
         }

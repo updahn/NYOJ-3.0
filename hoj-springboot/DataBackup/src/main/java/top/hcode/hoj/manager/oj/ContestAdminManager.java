@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
 
 import java.util.ArrayList;
@@ -19,12 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.contest.ContestPrintEntityService;
 import top.hcode.hoj.dao.contest.ContestRecordEntityService;
 import top.hcode.hoj.dao.contest.ContestRegisterEntityService;
 import top.hcode.hoj.dao.contest.ContestSignEntityService;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
+import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.dao.user.UserSignEntityService;
 import top.hcode.hoj.manager.group.GroupManager;
 import top.hcode.hoj.mapper.SessionMapper;
@@ -35,8 +38,8 @@ import top.hcode.hoj.pojo.entity.contest.ContestRecord;
 import top.hcode.hoj.pojo.entity.contest.ContestRegister;
 import top.hcode.hoj.pojo.entity.contest.ContestSign;
 import top.hcode.hoj.pojo.entity.judge.Judge;
-import top.hcode.hoj.pojo.entity.judge.JudgeServer;
 import top.hcode.hoj.pojo.entity.user.UserSign;
+import top.hcode.hoj.pojo.vo.ContestPrintVO;
 import top.hcode.hoj.pojo.vo.ContestSignVO;
 import top.hcode.hoj.pojo.vo.SessionVO;
 import top.hcode.hoj.pojo.vo.UserSignVO;
@@ -69,6 +72,9 @@ public class ContestAdminManager {
 
     @Autowired
     private ContestRegisterEntityService contestRegisterEntityService;
+
+    @Resource
+    private UserRoleEntityService userRoleEntityService;
 
     @Autowired
     private JudgeEntityService judgeEntityService;
@@ -141,7 +147,7 @@ public class ContestAdminManager {
 
     }
 
-    public IPage<ContestPrint> getContestPrint(Long cid, Integer currentPage, Integer limit)
+    public IPage<ContestPrintVO> getContestPrint(Long cid, Integer currentPage, Integer limit)
             throws StatusForbiddenException {
 
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
@@ -163,15 +169,27 @@ public class ContestAdminManager {
 
         // 获取当前比赛的，未被确定的排在签名
 
-        IPage<ContestPrint> contestPrintIPage = new Page<>(currentPage, limit);
-
         QueryWrapper<ContestPrint> contestPrintQueryWrapper = new QueryWrapper<>();
-        contestPrintQueryWrapper.select("id", "cid", "username", "realname", "status", "gmt_create")
+        contestPrintQueryWrapper.select("id", "cid", "uid", "status", "gmt_create")
                 .eq("cid", cid)
                 .orderByAsc("status")
                 .orderByDesc("gmt_create");
 
-        return contestPrintEntityService.page(contestPrintIPage, contestPrintQueryWrapper);
+        List<ContestPrint> contestPrintList = contestPrintEntityService.list(contestPrintQueryWrapper);
+
+        List<ContestPrintVO> contestPrintVoList = contestPrintList
+                .stream()
+                .filter(cp -> cp.getUid() != null)
+                .map(cp -> {
+                    ContestPrintVO vo = new ContestPrintVO();
+                    BeanUtil.copyProperties(cp, vo);
+                    vo.setRealname(userRoleEntityService.getRealNameByUid(cp.getUid()));
+                    vo.setUsername(userRoleEntityService.getUsernameByUid(cp.getUid()));
+                    return vo;
+                })
+                .collect(Collectors.toList());
+
+        return Paginate.paginateListToIPage(contestPrintVoList, currentPage, limit);
     }
 
     public void checkContestPrintStatus(Long id, Long cid) throws StatusFailException, StatusForbiddenException {
@@ -331,7 +349,6 @@ public class ContestAdminManager {
             userSignEntityService.updateById(new UserSign()
                     .setId(userSignVo.getId())
                     .setUid(userSignVo.getUid())
-                    .setUsername(userSignVo.getUsername())
                     .setRealname(userSignVo.getRealname())
                     .setSchool(userSignVo.getSchool())
                     .setCourse(userSignVo.getCourse())

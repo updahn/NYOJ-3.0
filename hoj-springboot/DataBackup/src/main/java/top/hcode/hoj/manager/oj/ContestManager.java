@@ -1033,9 +1033,8 @@ public class ContestManager {
         }
 
         boolean isOk = contestPrintEntityService.saveOrUpdate(new ContestPrint().setCid(contestPrintDto.getCid())
-                .setContent(contestPrintDto.getContent())
-                .setUsername(userRolesVo.getUsername())
-                .setRealname(userRolesVo.getRealname()));
+                .setUid(userRolesVo.getUid())
+                .setContent(contestPrintDto.getContent()));
 
         if (!isOk) {
             throw new StatusFailException("提交失败");

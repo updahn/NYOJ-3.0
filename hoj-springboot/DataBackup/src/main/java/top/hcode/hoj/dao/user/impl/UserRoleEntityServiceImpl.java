@@ -9,6 +9,7 @@ import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.hcode.hoj.dao.user.UserRoleEntityService;
+import top.hcode.hoj.mapper.UserInfoMapper;
 import top.hcode.hoj.mapper.UserRoleMapper;
 import top.hcode.hoj.pojo.entity.user.Role;
 import top.hcode.hoj.pojo.entity.user.UserRole;
@@ -32,6 +33,9 @@ import java.util.List;
 public class UserRoleEntityServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> implements UserRoleEntityService {
     @Autowired
     private UserRoleMapper userRoleMapper;
+
+    @Autowired
+    private UserInfoMapper userInfoMapper;
 
     @Autowired
     private RedisSessionDAO redisSessionDAO;
@@ -142,6 +146,21 @@ public class UserRoleEntityServiceImpl extends ServiceImpl<UserRoleMapper, UserR
                 EnglishRole.get(newType - 1000) +
                 "】. Some permissions may be different from before. Please note!";
         return msg;
+    }
+
+    @Override
+    public String getUsernameByUid(String uid) {
+        return userInfoMapper.getUsernameByUid(uid);
+    }
+
+    @Override
+    public String getUidByUsername(String uid) {
+        return userInfoMapper.getUidByUsername(uid);
+    }
+
+    @Override
+    public String getRealNameByUid(String uid) {
+        return userInfoMapper.getRealNameByUid(uid);
     }
 
 }

@@ -27,4 +27,10 @@ public interface UserRoleEntityService extends IService<UserRole> {
     void deleteCache(String uid, boolean isRemoveSession);
 
     String getAuthChangeContent(int oldType, int newType);
+
+    String getUsernameByUid(String uid);
+
+    String getUidByUsername(String username);
+
+    String getRealNameByUid(String uid);
 }

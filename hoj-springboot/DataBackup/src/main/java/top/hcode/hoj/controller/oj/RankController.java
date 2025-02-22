@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import top.hcode.hoj.annotation.AnonApi;
 import top.hcode.hoj.common.result.CommonResult;
-import top.hcode.hoj.pojo.entity.user.UserCloc;
+import top.hcode.hoj.pojo.vo.UserClocVO;
 import top.hcode.hoj.service.oj.RankService;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public class RankController {
      * @Return CommonResult
      */
     @PostMapping("/get-user-code-record")
-    public CommonResult<List<UserCloc>> getUserCodeRecord(@RequestBody Map<String, Object> params) {
+    public CommonResult<List<UserClocVO>> getUserCodeRecord(@RequestBody Map<String, Object> params) {
         return rankService.getUserCodeRecord((List<String>) params.get("uidList"), (String) params.get("startTime"),
                 (String) params.get("endTime"));
     }

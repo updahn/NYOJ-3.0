@@ -20,9 +20,10 @@ import top.hcode.hoj.pojo.dto.ClocResultJsonDTO;
 import top.hcode.hoj.pojo.entity.judge.Judge;
 import top.hcode.hoj.pojo.entity.user.UserCloc;
 import top.hcode.hoj.pojo.vo.ClocVO;
-import top.hcode.hoj.pojo.vo.UserRolesVO;
+import top.hcode.hoj.pojo.vo.UserClocVO;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusNotFoundException;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.http.HttpRequest;
@@ -36,6 +37,8 @@ import java.util.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,7 +79,7 @@ public class ClocUtils {
      * @param isSave    是否保存
      * @return 该用户统计代码后的各代码代码行数
      */
-    public List<UserCloc> getUserCodeLines(List<String> uidList, Date startTime, Date endTime, Boolean isSave)
+    public List<UserClocVO> getUserCodeLines(List<String> uidList, Date startTime, Date endTime, Boolean isSave)
             throws StatusFailException, StatusNotFoundException, IOException {
 
         // 起止日期为空，则设置为活动开始时间
@@ -153,7 +156,19 @@ public class ClocUtils {
             }
         }
 
-        return insertUserClocList;
+        List<UserClocVO> userClocVoList = insertUserClocList
+                .stream()
+                .filter(cp -> cp.getUid() != null)
+                .map(cp -> {
+                    UserClocVO vo = new UserClocVO();
+                    BeanUtil.copyProperties(cp, vo);
+                    vo.setRealname(userRoleEntityService.getRealNameByUid(cp.getUid()));
+                    vo.setUsername(userRoleEntityService.getUsernameByUid(cp.getUid()));
+                    return vo;
+                })
+                .collect(Collectors.toList());
+
+        return userClocVoList;
     }
 
     /**
@@ -342,11 +357,8 @@ public class ClocUtils {
 
     private void addUserClocList(String uid, String day, String codeConfigJsonStr, ClocResultDTO clocResultDTO,
             List<UserCloc> insertUserClocList) {
-        UserRolesVO userRoles = userRoleEntityService.getUserRoles(uid, null);
         insertUserClocList.add(new UserCloc()
                 .setUid(uid)
-                .setUsername(userRoles.getUsername())
-                .setRealname(userRoles.getRealname())
                 .setTime(day)
                 .setJson(codeConfigJsonStr)
                 .setSum(clocResultDTO.getSum()));

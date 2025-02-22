@@ -8,7 +8,7 @@ import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusNotFoundException;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.manager.oj.RankManager;
-import top.hcode.hoj.pojo.entity.user.UserCloc;
+import top.hcode.hoj.pojo.vo.UserClocVO;
 import top.hcode.hoj.service.oj.RankService;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class RankServiceImpl implements RankService {
     }
 
     @Override
-    public CommonResult<List<UserCloc>> getUserCodeRecord(List<String> uidList, String startTime, String endTime) {
+    public CommonResult<List<UserClocVO>> getUserCodeRecord(List<String> uidList, String startTime, String endTime) {
         try {
             return CommonResult.successResponse(rankManager.getUserCodeRecord(uidList, startTime, endTime));
         } catch (StatusFailException e) {

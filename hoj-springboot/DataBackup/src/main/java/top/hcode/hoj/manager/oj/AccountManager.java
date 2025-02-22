@@ -717,7 +717,6 @@ public class AccountManager {
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
         boolean isOk = userSignEntityService.saveOrUpdate(new UserSign().setUid(userRolesVo.getUid())
-                .setUsername(userRolesVo.getUsername())
                 .setRealname(userSignVO.getRealname())
                 .setSchool(userSignVO.getSchool())
                 .setFaculty(userSignVO.getFaculty())
@@ -752,7 +751,6 @@ public class AccountManager {
 
         boolean isOk = userMultiOjEntityService.saveOrUpdate(new UserMultiOj()
                 .setUid(userRolesVo.getUid())
-                .setUsername(userRolesVo.getUsername())
                 .setCodeforces(UserMultiOjVo.getCodeforces())
                 .setNowcoder(UserMultiOjVo.getNowcoder())
                 .setVjudge(UserMultiOjVo.getVjudge())

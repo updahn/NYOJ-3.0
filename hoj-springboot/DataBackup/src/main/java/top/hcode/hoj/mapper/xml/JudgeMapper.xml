@@ -257,11 +257,12 @@
     </select>
 
     <select id="getContestJudgeUserList" resultType="top.hcode.hoj.pojo.vo.SessionVO" useCache="true">
-        SELECT us.uid, us.username AS username, us.realname AS realname, GROUP_CONCAT(DISTINCT j.ip) AS ip_list
+        SELECT us.uid, ui.username AS username, us.realname AS realname, GROUP_CONCAT(DISTINCT j.ip) AS ip_list
         FROM judge j
         LEFT JOIN user_sign us ON us.uid = j.uid
+        LEFT JOIN user_info ui ON ui.uuid = us.uid
         WHERE j.cid = #{cid}
-        GROUP BY us.uid, us.username, us.realname
+        GROUP BY us.uid, ui.username, us.realname
         ORDER BY COUNT(DISTINCT j.ip) DESC
     </select>
 </mapper>

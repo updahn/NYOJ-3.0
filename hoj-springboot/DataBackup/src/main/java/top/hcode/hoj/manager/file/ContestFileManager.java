@@ -5,7 +5,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ZipUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -30,10 +29,9 @@ import top.hcode.hoj.dao.judge.JudgeEntityService;
 import top.hcode.hoj.dao.tools.StatisticContestEntityService;
 import top.hcode.hoj.dao.tools.StatisticRankEntityService;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
-import top.hcode.hoj.manager.group.GroupManager;
+import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.manager.oj.ContestCalculateRankManager;
 import top.hcode.hoj.pojo.bo.File_;
-import top.hcode.hoj.manager.oj.ContestManager;
 import top.hcode.hoj.manager.oj.ContestRankManager;
 import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.entity.contest.ContestPrint;
@@ -98,6 +96,9 @@ public class ContestFileManager {
 
     @Autowired
     private GroupValidator groupValidator;
+
+    @Autowired
+    private UserRoleEntityService userRoleEntityService;
 
     @Resource
     private StatisticRankEntityService statisticRankEntityService;
@@ -198,6 +199,10 @@ public class ContestFileManager {
                         // 复制属性
                         BeanUtil.copyProperties(statisticContest, acmContestRankVo, "account", "data");
                         BeanUtil.copyProperties(statisticRank, acmContestRankVo, "submissionInfo");
+
+                        // 添加username和realname
+                        acmContestRankVo.setRealname(userRoleEntityService.getRealNameByUid(statisticRank.getUid()));
+                        acmContestRankVo.setUsername(userRoleEntityService.getUsernameByUid(statisticRank.getUid()));
 
                         // 解析 JSON 数据并设置到相应的字段
                         acmContestRankVo.setSubmissionInfo(parseJsonWithType(statisticRank.getJson(),
@@ -470,7 +475,8 @@ public class ContestFileManager {
             throw new StatusForbiddenException("错误：您并非该比赛的管理员，无权下载打印代码！");
         }
 
-        String filename = contestPrint.getUsername() + "_Contest_Print.txt";
+        String username = userRoleEntityService.getUsernameByUid(contestPrint.getUid());
+        String filename = username + "_Contest_Print.txt";
         String filePath = Constants.File.CONTEST_TEXT_PRINT_FOLDER.getPath() + File.separator + id + File.separator
                 + filename;
         if (!FileUtil.exist(new File(filePath))) {

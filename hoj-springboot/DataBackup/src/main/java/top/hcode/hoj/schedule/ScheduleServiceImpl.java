@@ -26,6 +26,7 @@ import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.dao.user.SessionEntityService;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.dao.user.UserRecordEntityService;
+import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.manager.admin.multiOj.MultiOjInfoManager;
 import top.hcode.hoj.manager.msg.AdminNoticeManager;
 import top.hcode.hoj.manager.oj.CookieManager;
@@ -120,6 +121,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Resource
     private MultiOjInfoManager multiOjInfoManager;
+
+    @Resource
+    private UserRoleEntityService userRoleEntityService;
 
     @Autowired
     private UserMultiOjEntityService userMultiOjEntityService;
@@ -276,7 +280,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 获取uid
             String uid = userMultiOj.getUid();
             // 获取username
-            String username = userMultiOj.getUsername();
+            String username = userRoleEntityService.getUsernameByUid(userMultiOj.getUid());
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "CF", multiOjUsername);
 
@@ -319,7 +323,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 获取uid
             String uid = userMultiOj.getUid();
             // 获取username
-            String username = userMultiOj.getUsername();
+            String username = userRoleEntityService.getUsernameByUid(userMultiOj.getUid());
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "NC", multiOjUsername);
 
@@ -361,7 +365,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 获取uid
             String uid = userMultiOj.getUid();
             // 获取username
-            String username = userMultiOj.getUsername();
+            String username = userRoleEntityService.getUsernameByUid(userMultiOj.getUid());
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "VJ", multiOjUsername);
 
@@ -402,7 +406,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 获取uid
             String uid = userMultiOj.getUid();
             // 获取username
-            String username = userMultiOj.getUsername();
+            String username = userRoleEntityService.getUsernameByUid(userMultiOj.getUid());
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "PK", multiOjUsername);
 
@@ -443,7 +447,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 获取uid
             String uid = userMultiOj.getUid();
             // 获取username
-            String username = userMultiOj.getUsername();
+            String username = userRoleEntityService.getUsernameByUid(userMultiOj.getUid());
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "AT", multiOjUsername);
 
@@ -484,7 +488,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 获取uid
             String uid = userMultiOj.getUid();
             // 获取username
-            String username = userMultiOj.getUsername();
+            String username = userRoleEntityService.getUsernameByUid(userMultiOj.getUid());
             try {
                 MultiOjDto multiOjDto = multiOjInfoManager.getMultiOjProblemInfo(username, "LC", multiOjUsername);
 

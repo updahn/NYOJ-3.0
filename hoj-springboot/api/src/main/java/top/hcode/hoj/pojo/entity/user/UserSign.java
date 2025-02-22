@@ -24,10 +24,6 @@ public class UserSign implements Serializable {
     private String uid;
 
     @TableField(updateStrategy = FieldStrategy.IGNORED)
-    @ApiModelProperty(value = "用户名")
-    private String username;
-
-    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "真实姓名")
     private String realname;
 

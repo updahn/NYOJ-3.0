@@ -24,9 +24,6 @@ public class UserMultiOj implements Serializable {
     @TableId(value = "uid", type = IdType.UUID)
     private String uid;
 
-    @ApiModelProperty(value = "用户名")
-    private String username;
-
     @ApiModelProperty(value = "codeforces 用户名")
     private String codeforces;
 
