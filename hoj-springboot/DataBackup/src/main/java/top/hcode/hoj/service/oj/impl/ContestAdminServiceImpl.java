@@ -131,9 +131,9 @@ public class ContestAdminServiceImpl implements ContestAdminService {
     }
 
     @Override
-    public CommonResult<List<SessionVO>> getContestIpList(Long cid) {
+    public CommonResult<IPage<SessionVO>> getContestIp(Long cid, Integer currentPage, Integer limit) {
         try {
-            return CommonResult.successResponse(contestAdminManager.getContestIpList(cid));
+            return CommonResult.successResponse(contestAdminManager.getContestIp(cid, currentPage, limit));
         } catch (StatusForbiddenException e) {
             return CommonResult.errorResponse(e.getMessage(), ResultStatus.FORBIDDEN);
         }

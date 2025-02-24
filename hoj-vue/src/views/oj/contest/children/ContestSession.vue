@@ -1,8 +1,14 @@
 <template>
   <el-card shadow="always">
     <div slot="header">
-      <span class="panel-title">{{ $t('m.Admin_Session') }}</span>
-      <div class="filter-row">
+      <span class="panel-title">
+        <el-switch
+          v-model="isIp"
+          :active-text="$t('m.Reset_Ip')"
+          :inactive-text="$t('m.Admin_Session')"
+        ></el-switch>
+      </span>
+      <div class="filter-row" v-if="!isIp">
         <span>
           <vxe-input
             v-model="keyword"
@@ -39,13 +45,11 @@
           >{{ $t('m.Refresh') }}</el-button>
         </span>
       </div>
+      <div>
+        <p></p>
+      </div>
     </div>
-    <vxe-table border="inner" stripe auto-resize align="center" :data="sessionList">
-      <vxe-table-column field="gmtCreate" min-width="150" :title="$t('m.Submit_Time')">
-        <template v-slot="{ row }">
-          <span>{{ row.gmtCreate | localtime }}</span>
-        </template>
-      </vxe-table-column>
+    <vxe-table :key="tableKey" border="inner" stripe auto-resize align="center" :data="sessionList">
       <vxe-table-column field="username" :title="$t('m.Username')" min-width="150">
         <template v-slot="{ row }">
           <span>
@@ -57,14 +61,53 @@
         </template>
       </vxe-table-column>
       <vxe-table-column field="realname" :title="$t('m.RealName')" min-width="150"></vxe-table-column>
-      <vxe-table-column field="ip" title="IP" min-width="150"></vxe-table-column>
-      <vxe-table-column field="routeName" :title="$t('m.routeName')" min-width="150"></vxe-table-column>
+
+      <vxe-table-column field="ip" title="IP" min-width="150" :visible="!isIp"></vxe-table-column>
+      <vxe-table-column
+        field="routeName"
+        :title="$t('m.routeName')"
+        min-width="150"
+        :visible="!isIp"
+      ></vxe-table-column>
+      <vxe-table-column
+        field="gmtCreate"
+        min-width="150"
+        :title="$t('m.Submit_Time')"
+        :visible="!isIp"
+      >
+        <template v-slot="{ row }">
+          <span>{{ row.gmtCreate | localtime }}</span>
+        </template>
+      </vxe-table-column>
+
+      <vxe-table-column
+        field="ipList"
+        :title="$t('m.SubmitIp_List')"
+        min-width="150"
+        :formatter="formatIpList"
+        :visible="isIp"
+      ></vxe-table-column>
+      <vxe-table-column field="option" :title="$t('m.Option')" min-width="150" :visible="isIp">
+        <template v-slot="{ row }">
+          <el-button
+            type="primary"
+            size="small"
+            :loading="btnLoading2"
+            icon="el-icon-refresh-right"
+            @click="rejudgeProblem(row)"
+            round
+          >{{ $t('m.Reset') }}</el-button>
+        </template>
+      </vxe-table-column>
     </vxe-table>
     <Pagination
       :total="total"
       :page-size.sync="limit"
+      :page-sizes="[10, 30, 50, 100, 300, 500]"
       :current.sync="page"
       @on-change="getSessionList"
+      @on-page-size-change="getSessionList(1)"
+      :layout="'prev, pager, next, sizes'"
     ></Pagination>
   </el-card>
 </template>
@@ -80,17 +123,21 @@ export default {
   data() {
     return {
       page: 1,
-      limit: 20,
+      limit: 10,
       total: 0,
       btnLoading: false,
       autoRefresh: false,
       sessionList: [],
       keyword: null,
       unkeyword: null,
+      isIp: false,
+      btnLoading2: false,
+      tableKey: 0,
     };
   },
   mounted() {
-    this.getSessionList(1);
+    this.contestID = this.$route.params.contestID;
+    this.getSessionList();
   },
   methods: {
     getUserTotalSubmit(username) {
@@ -120,16 +167,18 @@ export default {
         currentPage: page,
       };
 
-      if (this.keyword != null && this.keyword != "") {
-        params.keyword = this.keyword;
+      if (!this.isIp) {
+        if (this.keyword != null && this.keyword != "") {
+          params.keyword = this.keyword;
+        }
+
+        if (this.unkeyword != null && this.unkeyword != "") {
+          params.unkeyword = this.unkeyword;
+        }
       }
 
-      if (this.unkeyword != null && this.unkeyword != "") {
-        params.unkeyword = this.unkeyword;
-      }
-
-      api
-        .getContestSession(params)
+      const func = this.isIp ? "getContestIp" : "getContestSession";
+      api[func](params)
         .then((res) => {
           this.btnLoading = false;
           this.sessionList = res.data.data.records;
@@ -155,9 +204,47 @@ export default {
     filterByUnkeyword() {
       this.getSessionList(1);
     },
+
+    formatIpList({ cellValue }) {
+      if (cellValue) {
+        return cellValue.split(",").join("\n");
+      }
+      return "";
+    },
+    rejudgeProblem(row) {
+      this.$confirm(this.$i18n.t("m.Contest_ResetIp_Tips"), "Tips", {
+        confirmButtonText: this.$i18n.t("m.OK"),
+        cancelButtonText: this.$i18n.t("m.Cancel"),
+        type: "warning",
+      }).then(
+        () => {
+          let params = {
+            cid: this.contestID,
+            uid: row.uid,
+          };
+          this.btnLoading2 = true;
+          api
+            .ContestResetIp(params)
+            .then((res) => {
+              myMessage.success(this.$i18n.t("m.Reset_successfully"));
+              this.btnLoading2 = false;
+            })
+            .catch(() => {
+              this.btnLoading2 = false;
+            });
+        },
+        () => {}
+      );
+    },
   },
   beforeDestroy() {
     clearInterval(this.refreshFunc);
+  },
+  watch: {
+    isIp(newVal, oldVal) {
+      this.getSessionList();
+      this.tableKey += 1;
+    },
   },
 };
 </script>
@@ -183,5 +270,9 @@ export default {
 
 /deep/ .el-tag--dark {
   border-color: #fff;
+}
+
+/deep/ .el-switch__label span {
+  font-size: 21px !important;
 }
 </style>

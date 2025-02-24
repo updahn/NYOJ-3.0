@@ -877,7 +877,7 @@ const ojApi = {
       params,
     });
   },
-  getContestIpList(params) {
+  getContestIp(params) {
     return ajax('/api/get-contest-ip-list', 'get', {
       params,
     });

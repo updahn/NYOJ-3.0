@@ -31,7 +31,6 @@ import ContestAdminMossDetails from '@/views/oj/contest/moss/ContestAdminMossDet
 import ScrollBoard from '@/views/oj/contest/children/ScrollBoard.vue';
 import ContestRejudgeAdmin from '@/views/oj/contest/children/ContestRejudgeAdmin.vue';
 import ContestSession from '@/views/oj/contest/children/ContestSession.vue';
-import ContestResetIP from '@/views/oj/contest/children/ContestResetIP.vue';
 import DiscussionList from '@/views/oj/discussion/discussionList.vue';
 import Honor from '@/views/oj/honor/Honor.vue';
 import Discussion from '@/views/oj/discussion/discussion.vue';
@@ -330,12 +329,6 @@ const ojRoutes = [
         path: 'contest-session',
         component: ContestSession,
         meta: { title: 'Contest Session', requireAuth: true },
-      },
-      {
-        name: 'ContestResetIP',
-        path: 'contest-reset-ip',
-        component: ContestResetIP,
-        meta: { title: 'Contest Reset IP', requireAuth: true },
       },
     ],
   },
@@ -750,12 +743,6 @@ const ojRoutes = [
             path: 'contest-session',
             component: ContestSession,
             meta: { title: 'Group Contest Session', requireAuth: true, fullScreenSource: 'group' },
-          },
-          {
-            name: 'GroupContestResetIP',
-            path: 'contest-reset-ip',
-            component: ContestResetIP,
-            meta: { title: 'Group Contest Reset IP', requireAuth: true, fullScreenSource: 'group' },
           },
         ],
       },

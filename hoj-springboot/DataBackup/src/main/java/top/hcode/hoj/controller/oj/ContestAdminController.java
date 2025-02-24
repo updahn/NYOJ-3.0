@@ -2,7 +2,6 @@ package top.hcode.hoj.controller.oj;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
@@ -142,9 +141,11 @@ public class ContestAdminController {
 
     @GetMapping("/get-contest-ip-list")
     @RequiresAuthentication
-    public CommonResult<List<SessionVO>> getContestIpList(
-            @RequestParam(value = "cid", required = true) Long cid) {
-        return contestAdminService.getContestIpList(cid);
+    public CommonResult<IPage<SessionVO>> getContestIp(
+            @RequestParam(value = "cid", required = true) Long cid,
+            @RequestParam(value = "currentPage", required = false) Integer currentPage,
+            @RequestParam(value = "limit", required = false) Integer limit) {
+        return contestAdminService.getContestIp(cid, currentPage, limit);
     }
 
     @GetMapping("/rejudge-contest-ip")

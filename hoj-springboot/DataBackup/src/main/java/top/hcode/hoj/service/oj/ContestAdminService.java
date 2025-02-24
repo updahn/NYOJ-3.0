@@ -1,6 +1,5 @@
 package top.hcode.hoj.service.oj;
 
-import java.util.List;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -34,7 +33,7 @@ public interface ContestAdminService {
 	public CommonResult<IPage<SessionVO>> getContestSession(Long cid, Integer currentPage, Integer limit,
 			String keyword, String unkeyword);
 
-	public CommonResult<List<SessionVO>> getContestIpList(Long cid);
+	public CommonResult<IPage<SessionVO>> getContestIp(Long cid, Integer currentPage, Integer limit);
 
 	public CommonResult<Void> rejudgeContestIp(Long cid, String uid);
 

@@ -444,7 +444,8 @@ public class ContestAdminManager {
 
     }
 
-    public List<SessionVO> getContestIpList(Long cid) throws StatusForbiddenException {
+    public IPage<SessionVO> getContestIp(Long cid, Integer currentPage, Integer limit)
+            throws StatusForbiddenException {
 
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
@@ -459,7 +460,7 @@ public class ContestAdminManager {
             throw new StatusForbiddenException("对不起，您无权限操作！");
         }
 
-        return judgeEntityService.getContestJudgeUserList(cid);
+        return Paginate.paginateListToIPage(judgeEntityService.getContestJudgeUserList(cid), currentPage, limit);
     }
 
     public void rejudgeContestIp(Long cid, String uid) throws StatusForbiddenException, StatusFailException {
