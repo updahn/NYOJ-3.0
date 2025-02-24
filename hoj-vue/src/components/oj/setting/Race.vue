@@ -208,26 +208,28 @@ export default {
       api.getSchoolList().then(
         (res) => {
           this.states = res.data.data;
+          this.filteredStates = this.states.map((state) => ({
+            label: state.name,
+            value: state.name,
+          }));
         },
         (_) => {
           this.states = [];
+          this.filteredStates = [];
         }
       );
     },
     fetchStates(query) {
-      if (query !== "") {
-        this.loading = true;
-        setTimeout(() => {
-          this.loading = false;
-          this.filteredStates = this.states
-            .filter((state) => {
-              return state.name.toLowerCase().indexOf(query.toLowerCase()) > -1;
-            })
-            .map((state) => ({ label: state.name, value: state.name }));
-        }, 200);
-      } else {
-        this.filteredStates = [];
-      }
+      this.loading = true;
+      setTimeout(() => {
+        const filterQuery = query.trim().toLowerCase();
+        this.filteredStates = this.states
+          .filter((state) =>
+            filterQuery ? state.name.toLowerCase().includes(filterQuery) : true
+          )
+          .map((state) => ({ label: state.name, value: state.name }));
+        this.loading = false;
+      }, 200);
     },
   },
   computed: {
