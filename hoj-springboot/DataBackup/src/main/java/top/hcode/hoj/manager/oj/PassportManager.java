@@ -119,8 +119,8 @@ public class PassportManager {
         if (loginDto.getPassword().length() < 6 || loginDto.getPassword().length() > 20) {
             throw new StatusFailException("密码长度应该为6~20位！");
         }
-        if (loginDto.getUsername().length() > 20) {
-            throw new StatusFailException("用户名长度不能超过20位!");
+        if (loginDto.getUsername().length() > 30) {
+            throw new StatusFailException("用户名长度不能超过30位!");
         }
 
         String userIpAddr = IpUtils.getUserIpAddr(request);
@@ -340,8 +340,8 @@ public class PassportManager {
             throw new StatusFailException("用户名不能为空");
         }
 
-        if (registerDto.getUsername().length() > 20) {
-            throw new StatusFailException("用户名长度不能超过20位!");
+        if (registerDto.getUsername().length() > 30) {
+            throw new StatusFailException("用户名长度不能超过30位!");
         }
 
         String uuid = IdUtil.simpleUUID();

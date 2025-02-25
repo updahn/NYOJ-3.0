@@ -350,8 +350,8 @@ public class AccountManager {
         if (StringUtils.isEmpty(newUsername)) {
             throw new StatusFailException("错误：新用户名不能为空！");
         }
-        if (newUsername.length() > 20) {
-            throw new StatusFailException("新用户名长度不能超过20位!");
+        if (newUsername.length() > 30) {
+            throw new StatusFailException("新用户名长度不能超过30位!");
         }
 
         ChangeAccountVO resp = new ChangeAccountVO();

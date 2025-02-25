@@ -113,8 +113,8 @@ public class AdminUserManager {
             throw new StatusFailException("密码长度建议为6~20位！");
         }
 
-        if (username.length() > 20) {
-            throw new StatusFailException("用户名长度建议不能超过20位!");
+        if (username.length() > 30) {
+            throw new StatusFailException("用户名长度建议不能超过30位!");
         }
 
         if (StrUtil.isBlank(email)) {
