@@ -129,14 +129,12 @@
 
             <el-col>
               <el-card>
-                <p>1. {{ $t('m.Import_User_Tips1') }}</p>
-                <p>2. {{ $t('m.Import_User_Tips9') }}</p>
-                <p>3. {{ $t('m.Import_User_Tips10') }}</p>
-                <p>4. {{ $t('m.Import_User_Tips5') }}</p>
+                <p>1. {{ $t('m.Import_User_Tips9') }}</p>
+                <p>2. {{ $t('m.Import_User_Tips10') }}</p>
                 <el-upload
                   action
                   :show-file-list="false"
-                  accept=".csv"
+                  accept=".csv, .xlsx, .xls"
                   :before-upload="handleUsersCSV"
                 >
                   <el-button
@@ -408,7 +406,7 @@ import time from "@/common/time";
 import utils from "@/common/utils";
 import api from "@/common/api";
 import myMessage from "@/common/message";
-import papa from "papaparse"; // csv插件
+import { exel } from "@/common/exel";
 
 export default {
   name: "StaticRank",
@@ -756,34 +754,34 @@ export default {
 
       utils.downloadFile(url);
     },
-    handleUsersCSV(file) {
-      papa.parse(file, {
-        complete: (results) => {
-          let data = results.data.filter((user) => {
-            return user[0] && user[1];
-          });
-          let delta = results.data.length - data.length;
-          if (delta > 0) {
-            myMessage.warning(
-              delta + this.$i18n.t("m.Generate_Skipped_Reason2")
-            );
-          }
-          let transformedData = data.reduce((acc, item) => {
-            let key = item[0];
-            let value = item[1];
-            if (!acc[key]) {
-              acc[key] = value;
-            }
-            return acc;
-          }, {});
+    async handleUsersCSV(file) {
+      try {
+        // 调用 exel 解析方法
+        const results = await exel.parse(file);
 
-          // 直接将转换后的数据赋值给 username_dir
-          this.username_dir = transformedData;
-        },
-        error: (error) => {
-          myMessage.error(error);
-        },
-      });
+        let data = results.filter((user) => {
+          return user[0] && user[1];
+        });
+        let delta = results.length - data.length;
+        if (delta > 0) {
+          myMessage.warning(delta + this.$i18n.t("m.Generate_Skipped_Reason2"));
+        }
+        let transformedData = data.reduce((acc, item) => {
+          let key = item[0];
+          let value = item[1];
+          if (!acc[key]) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {});
+
+        // 直接将转换后的数据赋值给 username_dir
+        this.username_dir = transformedData;
+        return false; // 阻止默认上传行为
+      } catch (error) {
+        myMessage.error(`文件解析失败: ${error.message}`);
+        return false;
+      }
     },
   },
   computed: {

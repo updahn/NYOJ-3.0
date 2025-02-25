@@ -130,15 +130,14 @@
         <el-form-item :label="$t('m.StudentInfo')" required>
           <el-col :span="24">
             <el-card>
-              <p>1. {{ $t('m.Import_User_Tips1') }}</p>
-              <p>2. {{ $t('m.Import_User_Tips6') }}</p>
-              <p>3. {{ $t('m.Import_User_Tips7') }}</p>
-              <p>4. {{ $t('m.Import_User_Tips5') }}</p>
-              <p>5. {{ $t('m.Import_User_Tips8') }}</p>
+              <p>1. {{ $t('m.Import_User_Tips6') }}</p>
+              <p>2. {{ $t('m.Import_User_Tips7') }}</p>
+              <p>3. {{ $t('m.Import_User_Tips8') }}</p>
               <el-upload
+                v-if="!examinationSeatData.studentInfo.length"
                 action
                 :show-file-list="false"
-                accept=".csv"
+                accept=".csv, .xlsx, .xls"
                 :before-upload="handleUsersCSV"
               >
                 <el-button
@@ -147,65 +146,75 @@
                   type="primary"
                 >{{ $t('m.Choose_File') }}</el-button>
               </el-upload>
+              <template v-else>
+                <div style="margin-bottom: 10px">
+                  <el-button
+                    type="primary"
+                    icon="el-icon-plus"
+                    circle
+                    @click="insertEvent(-1)"
+                    size="small"
+                  ></el-button>
+                  <el-button
+                    type="danger"
+                    icon="el-icon-delete"
+                    circle
+                    @click="removeEvent()"
+                    size="small"
+                  ></el-button>
+                </div>
+                <vxe-table
+                  border
+                  ref="xAwardTable"
+                  :data="uploadUsersPage"
+                  :edit-config="{ trigger: 'click', mode: 'cell' }"
+                  align="center"
+                  @edit-closed="editClosedEvent"
+                  style="margin-bottom: 15px"
+                >
+                  <vxe-table-column type="checkbox" width="60"></vxe-table-column>
+                  <vxe-table-column
+                    field="realname"
+                    min-width="150"
+                    :title="$t('m.RealName')"
+                    :edit-render="{ name: 'input', attrs: { type: 'text' } }"
+                  ></vxe-table-column>
+                  <vxe-table-column
+                    field="number"
+                    min-width="150"
+                    :title="$t('m.Student_Number')"
+                    :edit-render="{ name: 'input', attrs: { type: 'text' } }"
+                  ></vxe-table-column>
+                  <vxe-table-column
+                    field="course"
+                    min-width="150"
+                    :title="$t('m.Course')"
+                    :edit-render="{ name: 'input', attrs: { type: 'text' } }"
+                  ></vxe-table-column>
+                  <vxe-table-column
+                    field="subject"
+                    min-width="150"
+                    :title="$t('m.Subject')"
+                    :edit-render="{ name: 'input', attrs: { type: 'text' } }"
+                  ></vxe-table-column>
+                  <vxe-table-column
+                    field="username"
+                    min-width="150"
+                    :title="$t('m.Account')"
+                    :edit-render="{ name: 'input', attrs: { type: 'text' } }"
+                  ></vxe-table-column>
+                </vxe-table>
+                <div class="panel-options">
+                  <el-pagination
+                    class="page"
+                    layout="prev, pager, next"
+                    :page-size="uploadUsersPageSize"
+                    :current-page.sync="uploadUsersCurrentPage"
+                    :total="examinationSeatData.studentInfo.length"
+                  ></el-pagination>
+                </div>
+              </template>
             </el-card>
-
-            <div style="margin-bottom: 10px">
-              <el-button
-                type="primary"
-                icon="el-icon-plus"
-                circle
-                @click="insertEvent(-1)"
-                size="small"
-              ></el-button>
-              <el-button
-                type="danger"
-                icon="el-icon-delete"
-                circle
-                @click="removeEvent()"
-                size="small"
-              ></el-button>
-            </div>
-            <vxe-table
-              border
-              ref="xAwardTable"
-              :data="examinationSeatData.studentInfo"
-              :edit-config="{ trigger: 'click', mode: 'cell' }"
-              align="center"
-              @edit-closed="editClosedEvent"
-              style="margin-bottom: 15px"
-            >
-              <vxe-table-column type="checkbox" width="60"></vxe-table-column>
-              <vxe-table-column
-                field="realname"
-                min-width="150"
-                :title="$t('m.RealName')"
-                :edit-render="{ name: 'input', attrs: { type: 'text' } }"
-              ></vxe-table-column>
-              <vxe-table-column
-                field="number"
-                min-width="150"
-                :title="$t('m.Student_Number')"
-                :edit-render="{ name: 'input', attrs: { type: 'text' } }"
-              ></vxe-table-column>
-              <vxe-table-column
-                field="course"
-                min-width="150"
-                :title="$t('m.Course')"
-                :edit-render="{ name: 'input', attrs: { type: 'text' } }"
-              ></vxe-table-column>
-              <vxe-table-column
-                field="subject"
-                min-width="150"
-                :title="$t('m.Subject')"
-                :edit-render="{ name: 'input', attrs: { type: 'text' } }"
-              ></vxe-table-column>
-              <vxe-table-column
-                field="username"
-                min-width="150"
-                :title="$t('m.Account')"
-                :edit-render="{ name: 'input', attrs: { type: 'text' } }"
-              ></vxe-table-column>
-            </vxe-table>
           </el-col>
         </el-form-item>
       </el-form>
@@ -220,7 +229,7 @@
 import api from "@/common/api";
 import { mapGetters } from "vuex";
 import myMessage from "@/common/message";
-import papa from "papaparse"; // csv插件
+import { exel } from "@/common/exel";
 
 export default {
   name: "ExaminationSeat",
@@ -244,6 +253,9 @@ export default {
         random: true,
         studentInfo: [],
       },
+      uploadUsersPage: [],
+      uploadUsersCurrentPage: 1,
+      uploadUsersPageSize: 15,
     };
   },
   mounted() {
@@ -256,6 +268,12 @@ export default {
       if (refresh) {
         this.getExaminationRoomList(1);
       }
+    },
+    uploadUsersCurrentPage(page) {
+      this.uploadUsersPage = this.examinationSeatData.studentInfo.slice(
+        (page - 1) * this.uploadUsersPageSize,
+        page * this.uploadUsersPageSize
+      );
     },
   },
   computed: {
@@ -314,28 +332,36 @@ export default {
       await this.$refs.xAwardTable.setActiveCell(newRow, "realname");
     },
     async removeEvent() {
-      this.$refs.xAwardTable.removeCheckboxRow();
-      let removeRecords = this.$refs.xAwardTable.getRemoveRecords();
-      function getDifferenceSetB(arr1, arr2, typeName) {
-        return Object.values(
-          arr1.concat(arr2).reduce((acc, cur) => {
-            if (
-              acc[cur[typeName]] &&
-              acc[cur[typeName]][typeName] === cur[typeName]
-            ) {
-              delete acc[cur[typeName]];
-            } else {
-              acc[cur[typeName]] = cur;
-            }
-            return acc;
-          }, {})
-        );
+      // 获取当前选中的行
+      const selectedRows = this.$refs.xAwardTable.getCheckboxRecords();
+      if (selectedRows.length === 0) {
+        return;
       }
-      this.examinationSeatData.studentInfo = getDifferenceSetB(
-        this.examinationSeatData.studentInfo,
-        removeRecords,
-        "_XID"
+
+      // 获取当前页的数据
+      const currentPageData = this.uploadUsersPage;
+
+      // 过滤掉选中的行
+      const remainingRows = currentPageData.filter(
+        (row) =>
+          !selectedRows.some((selectedRow) => selectedRow._XID === row._XID)
       );
+
+      // 更新当前页的数据
+      this.uploadUsersPage = remainingRows;
+
+      // 更新完整的数据集
+      const startIndex =
+        (this.uploadUsersCurrentPage - 1) * this.uploadUsersPageSize;
+      const endIndex = startIndex + this.uploadUsersPageSize;
+      this.examinationSeatData.studentInfo = [
+        ...this.examinationSeatData.studentInfo.slice(0, startIndex),
+        ...remainingRows,
+        ...this.examinationSeatData.studentInfo.slice(endIndex),
+      ];
+
+      // 重新加载表格数据
+      this.$refs.xAwardTable.reloadData(this.uploadUsersPage);
     },
     editClosedEvent({ row, column }) {
       let xTable = this.$refs.xAwardTable;
@@ -363,34 +389,39 @@ export default {
         }
       );
     },
-    handleUsersCSV(file) {
-      papa.parse(file, {
-        complete: (results) => {
-          let data = results.data.filter((user) => {
-            return user[0] && user[1];
-          });
-          let delta = results.data.length - data.length;
-          if (delta > 0) {
-            myMessage.warning(
-              delta + this.$i18n.t("m.Generate_Skipped_Reason2")
-            );
-          }
-          let transformedData = data.map((item) => {
-            return {
-              realname: item[0],
-              number: item[1],
-              course: item[2] || null,
-              subject: item[3] || null,
-              username: item[4] || null,
-            };
-          });
-          // 将转换后的数据添加到 Vue 列表中
-          this.examinationSeatData.studentInfo.push(...transformedData);
-        },
-        error: (error) => {
-          myMessage.error(error);
-        },
-      });
+    async handleUsersCSV(file) {
+      try {
+        // 调用 exel 解析方法
+        const results = await exel.parse(file);
+
+        let data = results.filter((user) => {
+          return user[0] && user[1];
+        });
+        let delta = results.length - data.length;
+        if (delta > 0) {
+          myMessage.warning(delta + this.$i18n.t("m.Generate_Skipped_Reason2"));
+        }
+        let transformedData = data.map((item) => {
+          return {
+            realname: item[0],
+            number: item[1],
+            course: item[2] || null,
+            subject: item[3] || null,
+            username: item[4] || null,
+          };
+        });
+        // 将转换后的数据添加到 Vue 列表中
+        this.uploadUsersCurrentPage = 1;
+        this.examinationSeatData.studentInfo = transformedData;
+        this.uploadUsersPage = transformedData.slice(
+          0,
+          this.uploadUsersPageSize
+        );
+        return false; // 阻止默认上传行为
+      } catch (error) {
+        myMessage.error(`文件解析失败: ${error.message}`);
+        return false;
+      }
     },
     getExaminationSeat() {
       let cid = parseInt(this.$route.params.contestId);

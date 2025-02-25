@@ -118,16 +118,14 @@
       <div slot="header">
         <span class="panel-title home-title">{{ $t('m.Import_User') }} / {{ $t('m.Apply_Account')}}</span>
       </div>
-      <p>1. {{ $t('m.Import_User_Tips1') }}</p>
-      <p>2. {{ $t('m.Import_User_Tips2') }}</p>
-      <p>3. {{ $t('m.Import_User_Tips3') }}</p>
-      <p>4. {{ $t('m.Import_User_Tips4') }}</p>
-      <p>5. {{ $t('m.Import_User_Tips5') }}</p>
+      <p>1. {{ $t('m.Import_User_Tips2') }}</p>
+      <p>2. {{ $t('m.Import_User_Tips3') }}</p>
+      <p>3. {{ $t('m.Import_User_Tips4') }}</p>
       <el-upload
         v-if="!uploadUsers.length"
         action
         :show-file-list="false"
-        accept=".csv"
+        accept=".csv, .xlsx, .xls"
         :before-upload="handleUsersCSV"
       >
         <el-button size="small" icon="el-icon-folder-opened" type="primary">
@@ -442,10 +440,11 @@
 </template>
 
 <script>
-import papa from "papaparse"; // csv插件
 import api from "@/common/api";
 import utils from "@/common/utils";
 import myMessage from "@/common/message";
+import { exel } from "@/common/exel";
+
 export default {
   name: "user",
   data() {
@@ -769,26 +768,26 @@ export default {
           });
       });
     },
-    handleUsersCSV(file) {
-      papa.parse(file, {
-        complete: (results) => {
-          let data = results.data.filter((user) => {
-            return user[0] && user[1];
-          });
-          let delta = results.data.length - data.length;
-          if (delta > 0) {
-            myMessage.warning(
-              delta + this.$i18n.t("m.Generate_Skipped_Reason")
-            );
-          }
-          this.uploadUsersCurrentPage = 1;
-          this.uploadUsers = data;
-          this.uploadUsersPage = data.slice(0, this.uploadUsersPageSize);
-        },
-        error: (error) => {
-          myMessage.error(error);
-        },
-      });
+    async handleUsersCSV(file) {
+      try {
+        // 调用 exel 解析方法
+        const results = await exel.parse(file);
+
+        let data = results.filter((user) => {
+          return user[0] && user[1];
+        });
+        let delta = results.length - data.length;
+        if (delta > 0) {
+          myMessage.warning(delta + this.$i18n.t("m.Generate_Skipped_Reason"));
+        }
+        this.uploadUsersCurrentPage = 1;
+        this.uploadUsers = data;
+        this.uploadUsersPage = data.slice(0, this.uploadUsersPageSize);
+        return false; // 阻止默认上传行为
+      } catch (error) {
+        myMessage.error(`文件解析失败: ${error.message}`);
+        return false;
+      }
     },
     handleUsersUpload() {
       api
