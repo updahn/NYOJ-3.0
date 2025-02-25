@@ -71,47 +71,55 @@
             </el-row>
           </div>
           <div class="mundb-footer">
+            Copyright {{ websiteConfig.duration }}
             <a
-              style="color:#1E9FFF"
+              href="https://beian.miit.gov.cn/#/Integrated/index"
+              target="_blank"
+              style="margin-left: 10px"
+            >{{ websiteConfig.domainInfo }}</a>
+            <a
               :href="websiteConfig.recordUrl"
               target="_blank"
+              style="margin-left: 10px"
             >{{ websiteConfig.recordName }}</a>
-            Powered by
-            <a
-              :href="websiteConfig.projectUrl"
-              style="color:#1E9FFF"
-              target="_blank"
-            >{{ websiteConfig.projectName }}</a>
-            <span style="margin-left:10px">
-              <el-dropdown @command="changeWebLanguage" placement="top">
-                <span class="el-dropdown-link">
-                  <i
-                    class="fa fa-globe"
-                    aria-hidden="true"
-                  >{{ this.webLanguage == 'zh-CN' ? '简体中文' : 'English' }}</i>
-                  <i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="zh-CN">简体中文</el-dropdown-item>
-                  <el-dropdown-item command="en-US">English</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </span>
-            <span style="margin-left: 10px">
-              <el-dropdown @command="changeWebTheme" placement="top">
-                <span class="el-dropdown-link">
-                  <i
-                    class="fa fa-globe"
-                    aria-hidden="true"
-                  >{{ this.webTheme == "Light" ? $t("m.Light") : $t("m.Dark") }}</i>
-                  <i class="el-icon-arrow-up el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="Light">{{ $t("m.Light") }}</el-dropdown-item>
-                  <el-dropdown-item command="Dark">{{ $t("m.Dark") }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </span>
+            <br />
+            <div style="margin-top:5px">
+              Powered by
+              <a
+                :href="websiteConfig.projectUrl"
+                target="_blank"
+              >{{ websiteConfig.projectName }}</a>
+              <span style=" margin-left:10px">
+                <el-dropdown @command="changeWebLanguage" placement="top">
+                  <span class="el-dropdown-link">
+                    <i
+                      class="fa fa-globe"
+                      aria-hidden="true"
+                    >{{ this.webLanguage == 'zh-CN' ? '简体中文' : 'English' }}</i>
+                    <i class="el-icon-arrow-up el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="zh-CN">简体中文</el-dropdown-item>
+                    <el-dropdown-item command="en-US">English</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </span>
+              <span style="margin-left: 10px">
+                <el-dropdown @command="changeWebTheme" placement="top">
+                  <span class="el-dropdown-link">
+                    <i
+                      class="fa fa-globe"
+                      aria-hidden="true"
+                    >{{ this.webTheme == "Light" ? $t("m.Light") : $t("m.Dark") }}</i>
+                    <i class="el-icon-arrow-up el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="Light">{{ $t("m.Light") }}</el-dropdown-item>
+                    <el-dropdown-item command="Dark">{{ $t("m.Dark") }}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </span>
+            </div>
           </div>
         </footer>
       </div>
@@ -205,7 +213,7 @@ export default {
           this.$store.commit("changeUserToken", strogeToken);
           // if(this.$route.path.startsWith('/admin')){
           //   this.$router.replace({
-          //     path: "/home",
+          //     path: "/",
           //   });
           // }
         } else {
@@ -219,9 +227,9 @@ export default {
                 });
               }
             } else {
-              if (path != "/home") {
+              if (path != "/") {
                 this.$router.replace({
-                  path: "/home",
+                  path: "/",
                 });
               }
             }
@@ -776,6 +784,20 @@ footer h1 {
   font-size: 1rem;
   line-height: 1;
 }
+
+.footer-powered-by {
+  color: #999;
+}
+
+.footer-powered-by a {
+  color: #999;
+  text-decoration: none;
+}
+
+.footer-powered-by a:hover {
+  text-decoration: underline;
+}
+
 @media (min-width: 768px) {
   .hr-none {
     display: none !important;

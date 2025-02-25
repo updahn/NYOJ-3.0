@@ -183,6 +183,8 @@ public class HomeManager {
                 .put("name", UnicodeUtil.toString(webConfig.getName()))
                 .put("shortName", UnicodeUtil.toString(webConfig.getShortName()))
                 .put("register", webConfig.getRegister())
+                .put("duration", UnicodeUtil.toString(webConfig.getDuration()))
+                .put("domainInfo", UnicodeUtil.toString(webConfig.getDomainInfo()))
                 .put("recordName", UnicodeUtil.toString(webConfig.getRecordName()))
                 .put("recordUrl", UnicodeUtil.toString(webConfig.getRecordUrl()))
                 .put("description", UnicodeUtil.toString(webConfig.getDescription()))

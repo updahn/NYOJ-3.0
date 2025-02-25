@@ -46,6 +46,16 @@ public class WebConfigDTO {
     private Boolean register;
 
     /**
+     * 发行时间
+     */
+    private String duration;
+
+    /**
+     * 域名信息
+     */
+    private String domainInfo;
+
+    /**
      * 备案名
      */
     private String recordName;

@@ -23,6 +23,16 @@
           </el-col>
 
           <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Project_Name')" required>
+              <el-input v-model="websiteConfig.projectName" :placeholder="$t('m.Project_Name')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
+            <el-form-item :label="$t('m.Project_Url')" required>
+              <el-input v-model="websiteConfig.projectUrl" :placeholder="$t('m.Project_Url')"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :md="12" :xs="24">
             <el-form-item :label="$t('m.Record_Name')" required>
               <el-input v-model="websiteConfig.recordName" :placeholder="$t('m.Record_Name')"></el-input>
             </el-form-item>
@@ -33,15 +43,16 @@
             </el-form-item>
           </el-col>
           <el-col :md="12" :xs="24">
-            <el-form-item :label="$t('m.Project_Name')" required>
-              <el-input v-model="websiteConfig.projectName" :placeholder="$t('m.Project_Name')"></el-input>
+            <el-form-item :label="$t('m.Domain_Info')" required>
+              <el-input v-model="websiteConfig.domainInfo" :placeholder="$t('m.Domain_Info')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :md="12" :xs="24">
-            <el-form-item :label="$t('m.Project_Url')" required>
-              <el-input v-model="websiteConfig.projectUrl" :placeholder="$t('m.Project_Url')"></el-input>
+            <el-form-item :label="$t('m.Duration')" required>
+              <el-input v-model="websiteConfig.duration" :placeholder="$t('m.Duration')"></el-input>
             </el-form-item>
           </el-col>
+
           <el-col :md="24" :xs="24">
             <el-form-item :label="$t('m.Web_Desc')" required>
               <el-input
@@ -456,7 +467,7 @@ export default {
     },
     async insertEvent(row) {
       let record = {
-        link: "/home",
+        link: "/",
         title: "首页",
         iconClass: "el-icon-link",
       };

@@ -166,6 +166,8 @@ export const m = {
   Base_Url: 'Base Url',
   Web_Name: 'Web Name',
   Short_Name: 'Short Name',
+  Duration: 'Duration',
+  Domain_Info: 'Domain Info',
   Record_Name: 'Record Name',
   Record_Url: 'Record Url',
   Project_Name: 'Project Name',

@@ -53,6 +53,10 @@ public class WebConfig {
 
     private Boolean register = true;
 
+    private String duration;
+
+    private String domainInfo;
+
     private String recordName;
 
     private String recordUrl;

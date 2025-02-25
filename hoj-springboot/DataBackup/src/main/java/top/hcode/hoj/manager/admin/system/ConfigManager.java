@@ -162,6 +162,8 @@ public class ConfigManager {
                 .shortName(UnicodeUtil.toString(webConfig.getShortName()))
                 .description(UnicodeUtil.toString(webConfig.getDescription()))
                 .register(webConfig.getRegister())
+                .duration(webConfig.getDuration())
+                .domainInfo(webConfig.getDomainInfo())
                 .recordName(UnicodeUtil.toString(webConfig.getRecordName()))
                 .recordUrl(UnicodeUtil.toString(webConfig.getRecordUrl()))
                 .projectName(UnicodeUtil.toString(webConfig.getProjectName()))
@@ -231,6 +233,12 @@ public class ConfigManager {
         }
         if (config.getRegister() != null) {
             webConfig.setRegister(config.getRegister());
+        }
+        if (!StringUtils.isEmpty(config.getDuration())) {
+            webConfig.setDuration(config.getDuration());
+        }
+        if (!StringUtils.isEmpty(config.getDomainInfo())) {
+            webConfig.setDomainInfo(config.getDomainInfo());
         }
         if (!StringUtils.isEmpty(config.getRecordName())) {
             webConfig.setRecordName(config.getRecordName());

@@ -166,6 +166,8 @@ export const m = {
   Base_Url: '基础URL',
   Web_Name: '网站名称',
   Short_Name: '网站简称',
+  Duration: '发行时间',
+  Domain_Info: '域名信息',
   Record_Name: '备案名',
   Record_Url: '备案地址',
   Project_Name: '项目名',
