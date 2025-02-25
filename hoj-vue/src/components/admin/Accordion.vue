@@ -9,9 +9,11 @@
     <div class="body" v-show="isOpen">
       <slot></slot>
     </div>
-    <footer @click="changeVisible">
-      <i :class="{ rotate: !isOpen }" class="el-icon-caret-top" style="color:#2d8cf0"></i>
-    </footer>
+    <el-tooltip :content="isOpen ? $t('m.Fold') : $t('m.Unfold')" placement="top">
+      <footer @click="changeVisible">
+        <i :class="{ rotate: !isOpen }" class="el-icon-caret-top" style="color:#2d8cf0"></i>
+      </footer>
+    </el-tooltip>
   </div>
 </template>
 
