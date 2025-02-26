@@ -2,11 +2,11 @@ package top.hcode.hoj.manager.admin.problem;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.manager.oj.ProblemManager;
 import top.hcode.hoj.pojo.dto.ChangeGroupProblemProgressDTO;
@@ -38,8 +38,8 @@ public class AdminGroupProblemManager {
             currentPage = 1;
         if (limit == null || limit < 1)
             limit = 10;
-        IPage<ProblemResDTO> iPage = new Page<>(currentPage, limit);
-        return problemEntityService.getAdminGroupProblemList(iPage, keyword, gid);
+        return Paginate.paginateListToIPage(problemEntityService.getAdminGroupProblemList(keyword, gid), currentPage,
+                limit);
     }
 
     public void changeProgress(ChangeGroupProblemProgressDTO changeGroupProblemProgressDto) throws StatusFailException {

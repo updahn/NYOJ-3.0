@@ -6,7 +6,6 @@ import top.hcode.hoj.pojo.entity.discussion.Discussion;
 import top.hcode.hoj.pojo.entity.group.GroupMember;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import top.hcode.hoj.mapper.CommentMapper;
@@ -14,6 +13,7 @@ import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.entity.discussion.Comment;
 import top.hcode.hoj.pojo.entity.msg.MsgRemind;
 import top.hcode.hoj.pojo.vo.CommentVO;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.discussion.CommentEntityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -57,8 +57,6 @@ public class CommentEntityServiceImpl extends ServiceImpl<CommentMapper, Comment
     @Override
     public IPage<CommentVO> getCommentList(int limit, int currentPage, Long cid, Integer did, Boolean isRoot,
             String uid) {
-        // 新建分页
-        Page<CommentVO> page = new Page<>(currentPage, limit);
 
         if (cid != null) {
             Contest contest = contestEntityService.getById(cid);
@@ -81,11 +79,13 @@ public class CommentEntityServiceImpl extends ServiceImpl<CommentMapper, Comment
                         myAndAdminUidList.add(groupMember.getUid());
                     }
                 }
-                return commentMapper.getCommentList(page, cid, did, true, myAndAdminUidList);
+                return Paginate.paginateListToIPage(commentMapper.getCommentList(cid, did, true, myAndAdminUidList),
+                        currentPage, limit);
             }
 
         }
-        return commentMapper.getCommentList(page, cid, did, false, null);
+        return Paginate.paginateListToIPage(commentMapper.getCommentList(cid, did, false, null), currentPage,
+                limit);
     }
 
     @Async

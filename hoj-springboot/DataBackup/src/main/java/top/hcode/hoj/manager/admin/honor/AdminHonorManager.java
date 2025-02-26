@@ -1,7 +1,6 @@
 package top.hcode.hoj.manager.admin.honor;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.common.AnnouncementEntityService;
 import top.hcode.hoj.dao.honor.HonorEntityService;
 import top.hcode.hoj.dao.user.UserRoleEntityService;
@@ -48,14 +48,9 @@ public class AdminHonorManager {
         if (limit == null || limit < 1)
             limit = 10;
 
-        // 新建分页
-        Page<Honor> page = new Page<>(currentPage, limit);
+        List<Honor> honorList = honorMapper.getAdminHonorList(keyword, type, year);
 
-        List<Honor> honorList = honorMapper.getAdminHonorList(page, keyword, type, year);
-
-        page.setRecords(honorList);
-
-        return page;
+        return Paginate.paginateListToIPage(honorList, currentPage, limit);
 
     }
 

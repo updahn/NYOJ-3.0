@@ -4,10 +4,11 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.contest.ContestRecordEntityService;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.mapper.ContestRecordMapper;
@@ -95,13 +96,7 @@ public class ContestRecordEntityServiceImpl extends ServiceImpl<ContestRecordMap
             pageList.add(contestRecord);
         }
 
-        Page<ContestRecord> page = new Page<>(currentPage, limit);
-        page.setSize(limit);
-        page.setCurrent(currentPage);
-        page.setTotal(count);
-        page.setRecords(pageList);
-
-        return page;
+        return Paginate.paginateListToIPage(pageList, currentPage, limit);
     }
 
     @Override

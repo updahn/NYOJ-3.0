@@ -24,7 +24,7 @@ public interface TrainingMapper extends BaseMapper<Training> {
             @Param("auth") String auth,
             @Param("keyword") String keyword);
 
-    List<Training> getAdminTrainingList(IPage page,
+    List<Training> getAdminTrainingList(
             @Param("categoryId") Long categoryId,
             @Param("auth") String auth,
             @Param("keyword") String keyword);

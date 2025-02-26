@@ -2,6 +2,8 @@ package top.hcode.hoj.dao.group.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.scheduling.annotation.Async;
+
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.group.GroupMemberEntityService;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.manager.msg.AdminNoticeManager;
@@ -10,7 +12,6 @@ import top.hcode.hoj.pojo.entity.group.GroupMember;
 import top.hcode.hoj.pojo.entity.user.UserInfo;
 import top.hcode.hoj.pojo.vo.GroupMemberVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,18 +39,16 @@ public class GroupMemberEntityServiceImpl extends ServiceImpl<GroupMemberMapper,
 
     @Override
     public IPage<GroupMemberVO> getMemberList(int limit, int currentPage, String keyword, Integer auth, Long gid) {
-        IPage<GroupMemberVO> iPage = new Page<>(currentPage, limit);
-        List<GroupMemberVO> memberList = groupMemberMapper.getMemberList(iPage, keyword, auth, gid);
+        List<GroupMemberVO> memberList = groupMemberMapper.getMemberList(keyword, auth, gid);
 
-        return iPage.setRecords(memberList);
+        return Paginate.paginateListToIPage(memberList, currentPage, limit);
     }
 
     @Override
     public IPage<GroupMemberVO> getApplyList(int limit, int currentPage, String keyword, Integer auth, Long gid) {
-        IPage<GroupMemberVO> iPage = new Page<>(currentPage, limit);
-        List<GroupMemberVO> applyList = groupMemberMapper.getApplyList(iPage, keyword, auth, gid);
+        List<GroupMemberVO> applyList = groupMemberMapper.getApplyList(keyword, auth, gid);
 
-        return iPage.setRecords(applyList);
+        return Paginate.paginateListToIPage(applyList, currentPage, limit);
     }
 
     @Override

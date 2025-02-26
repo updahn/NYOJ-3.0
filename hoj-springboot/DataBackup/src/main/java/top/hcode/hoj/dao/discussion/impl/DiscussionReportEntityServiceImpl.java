@@ -1,9 +1,10 @@
 package top.hcode.hoj.dao.discussion.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.discussion.DiscussionReportEntityService;
 import top.hcode.hoj.mapper.DiscussionReportMapper;
 import top.hcode.hoj.pojo.entity.discussion.DiscussionReport;
@@ -25,7 +26,6 @@ public class DiscussionReportEntityServiceImpl extends ServiceImpl<DiscussionRep
 
     @Override
     public IPage<DiscussionReportVO> getDiscussionReportList(Integer limit, Integer currentPage) {
-        Page<DiscussionReportVO> page = new Page<>(currentPage, limit);
-        return discussionReportMapper.getDiscussionReportList(page);
+        return Paginate.paginateListToIPage(discussionReportMapper.getDiscussionReportList(), currentPage, limit);
     }
 }

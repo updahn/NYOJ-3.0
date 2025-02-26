@@ -4,7 +4,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Component;
@@ -13,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.vo.ACMContestRankVO;
 import top.hcode.hoj.pojo.vo.StatisticVO;
@@ -82,7 +82,7 @@ public class ContestRankManager {
                     .collect(Collectors.toList());
         }
         // 计算好排行榜，然后进行分页
-        return getPagingRankList(orderResultList, currentPage, limit);
+        return Paginate.paginateListToIPage(orderResultList, currentPage, limit);
     }
 
     public IPage<ACMContestRankVO> getSynchronousACMRankPage(Boolean isOpenSealRank,
@@ -120,7 +120,7 @@ public class ContestRankManager {
         }
 
         // 计算好排行榜，然后进行分页
-        return getPagingRankList(orderResultList, currentPage, limit);
+        return Paginate.paginateListToIPage(orderResultList, currentPage, limit);
     }
 
     /**
@@ -170,7 +170,7 @@ public class ContestRankManager {
         }
 
         // 计算好排行榜，然后进行分页
-        return getPagingRankList(orderResultList, currentPage, limit);
+        return Paginate.paginateListToIPage(orderResultList, currentPage, limit);
     }
 
     /**
@@ -261,7 +261,7 @@ public class ContestRankManager {
                                     rankVo.getNickname())))
                     .collect(Collectors.toList());
         }
-        return getPagingRankList(acmContestRankVOS, currentPage, limit);
+        return Paginate.paginateListToIPage(acmContestRankVOS, currentPage, limit);
     }
 
     // 筛选关键词 + 比例调整 + 重新排序
@@ -331,7 +331,7 @@ public class ContestRankManager {
                                     rankVo.getNickname())))
                     .collect(Collectors.toList());
         }
-        return getPagingRankList(oiContestRankVOList, currentPage, limit);
+        return Paginate.paginateListToIPage(oiContestRankVOList, currentPage, limit);
     }
 
     /**
@@ -417,21 +417,6 @@ public class ContestRankManager {
         userContestsRankingVO.setSolvedList(contestPids);
         userContestsRankingVO.setDataList(dataList);
         return userContestsRankingVO;
-    }
-
-    public <T> Page<T> getPagingRankList(List<T> rankList, int currentPage, int limit) {
-        Page<T> page = new Page<>(currentPage, limit);
-        int count = rankList.size();
-        List<T> pageList = new ArrayList<>();
-        int currId = currentPage > 1 ? (currentPage - 1) * limit : 0;
-        for (int i = 0; i < limit && i < count - currId; i++) {
-            pageList.add(rankList.get(currId + i));
-        }
-        page.setSize(limit);
-        page.setCurrent(currentPage);
-        page.setTotal(count);
-        page.setRecords(pageList);
-        return page;
     }
 
     private String getUserRankShowName(String contestRankShowName, String username, String realName, String nickname) {

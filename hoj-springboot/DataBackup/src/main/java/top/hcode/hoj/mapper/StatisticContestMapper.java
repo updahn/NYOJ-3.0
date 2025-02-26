@@ -1,7 +1,7 @@
 package top.hcode.hoj.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -12,7 +12,7 @@ import top.hcode.hoj.pojo.entity.contest.StatisticContest;
 @Repository
 public interface StatisticContestMapper extends BaseMapper<StatisticContest> {
 
-    IPage<StatisticContest> getAdminStatisticContestList(IPage page, @Param("keyword") String keyword);
+    List<StatisticContest> getAdminStatisticContestList(@Param("keyword") String keyword);
 
-    IPage<StatisticContest> getStatisticContestList(IPage page, @Param("keyword") String keyword);
+    List<StatisticContest> getStatisticContestList(@Param("keyword") String keyword);
 }

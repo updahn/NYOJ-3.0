@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
 import top.hcode.hoj.common.exception.StatusNotFoundException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.common.AnnouncementEntityService;
 import top.hcode.hoj.dao.contest.*;
 import top.hcode.hoj.dao.group.GroupEntityService;
@@ -796,14 +797,7 @@ public class ContestManager {
                                 Comparator.reverseOrder()) // 按照提交时间排序
                         ).collect(Collectors.toList());
 
-                // 重新分页
-                int total = result.size();
-                int fromIndex = (currentPage - 1) * limit;
-                int toIndex = Math.min(fromIndex + limit, total);
-                List<JudgeVO> pagedList = result.subList(fromIndex, toIndex);
-
-                newContestJudgeList.setRecords(pagedList);
-                newContestJudgeList.setTotal(total);
+                newContestJudgeList = Paginate.paginateListToIPage(result, currentPage, limit);
             }
             if (newContestJudgeList.getTotal() == 0) { // 未查询到一条数据
                 return contestJudgeList;

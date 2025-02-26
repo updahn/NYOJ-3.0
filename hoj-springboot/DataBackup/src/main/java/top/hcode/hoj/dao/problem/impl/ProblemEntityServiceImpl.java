@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.contest.ContestProblemEntityService;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
@@ -956,20 +957,20 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
     @Override
     public IPage<ProblemResDTO> getAdminProblemList(IPage<ProblemResDTO> iPage, String keyword, Integer auth, String oj,
             Integer difficulty, Integer type, Boolean isRemote) {
-        return getProblemListPage(iPage,
+        return Paginate.paginateWithExistingPage(iPage,
                 problemMapper.getAdminProblemList(StrUtil.trimToNull(keyword), auth, oj, difficulty, type, isRemote));
     }
 
     @Override
-    public IPage<ProblemResDTO> getAdminGroupProblemList(IPage<ProblemResDTO> iPage, String keyword, Long gid) {
-        return getProblemListPage(iPage, problemMapper.getAdminGroupProblemList(keyword, gid));
+    public List<ProblemResDTO> getAdminGroupProblemList(String keyword, Long gid) {
+        return problemMapper.getAdminGroupProblemList(keyword, gid);
     }
 
     @Override
     public IPage<ProblemResDTO> getAdminContestProblemList(IPage<ProblemResDTO> iPage, String keyword, Long cid,
             Integer problemType, String oj, Integer difficulty, Integer type, Long gid, Boolean isRemote,
             Long contestGid, List<Long> pidList) {
-        return getProblemListPage(iPage,
+        return Paginate.paginateWithExistingPage(iPage,
                 problemMapper.getAdminContestProblemList(keyword, cid, problemType, oj, difficulty, type, gid, isRemote,
                         contestGid, pidList));
     }
@@ -977,7 +978,7 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
     @Override
     public IPage<ProblemResDTO> getAdminTrainingProblemList(IPage<ProblemResDTO> iPage, String keyword,
             Boolean queryExisted, Long tid, List<Long> pidList) {
-        return getProblemListPage(iPage,
+        return Paginate.paginateWithExistingPage(iPage,
                 problemMapper.getAdminTrainingProblemList(keyword, queryExisted, tid, pidList));
     }
 
@@ -1035,20 +1036,6 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
                     .isNull(gid == null, "gid");
         }
         return problemMapper.selectOne(wrapper);
-    }
-
-    public IPage<ProblemResDTO> getProblemListPage(IPage<ProblemResDTO> iPage, List<ProblemResDTO> allProblems) {
-        // 获取分页信息
-        long pageSize = iPage.getSize();
-        long currentPage = iPage.getCurrent();
-        long fromIndex = (currentPage - 1) * pageSize;
-        long toIndex = Math.min(fromIndex + pageSize, allProblems.size());
-
-        // 创建分页结果
-        Page<ProblemResDTO> resultPage = new Page<>(currentPage, pageSize, allProblems.size());
-        resultPage.setRecords(allProblems.subList((int) fromIndex, (int) toIndex));
-
-        return resultPage;
     }
 
     // 更新对应的题面

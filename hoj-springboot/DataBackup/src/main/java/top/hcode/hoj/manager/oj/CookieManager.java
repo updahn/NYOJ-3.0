@@ -13,10 +13,10 @@ import org.springframework.stereotype.Component;
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.config.NacosSwitchConfig;
 import top.hcode.hoj.config.SwitchConfig;
 import top.hcode.hoj.crawler.cookie.*;
@@ -51,23 +51,7 @@ public class CookieManager {
 
         List<AliveVO> aliveVoList = getAliveList(finalScraper);
 
-        List<AliveVO> pageList = new ArrayList<>();
-
-        int count = aliveVoList.size();
-
-        // 计算当前页第一条数据的下标
-        int currId = currentPage > 1 ? (currentPage - 1) * limit : 0;
-        for (int i = 0; i < limit && i < count - currId; i++) {
-            AliveVO aliveVO = aliveVoList.get(currId + i);
-            pageList.add(aliveVO);
-        }
-
-        Page<AliveVO> page = new Page<>(currentPage, limit);
-        page.setSize(limit);
-        page.setCurrent(currentPage);
-        page.setTotal(count);
-        page.setRecords(pageList);
-        return page;
+        return Paginate.paginateListToIPage(aliveVoList, currentPage, limit);
     }
 
     public Map<String, String> getCookieMap(String scraper, String user) throws Exception {

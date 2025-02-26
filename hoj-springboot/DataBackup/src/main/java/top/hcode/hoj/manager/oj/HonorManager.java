@@ -2,12 +2,12 @@ package top.hcode.hoj.manager.oj;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.stream.Collectors;
 import java.util.*;
 import javax.annotation.Resource;
 
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.honor.HonorEntityService;
 import top.hcode.hoj.mapper.HonorMapper;
 import top.hcode.hoj.pojo.entity.honor.Honor;
@@ -91,19 +91,7 @@ public class HonorManager {
         // 按照Year从大到小排序
         honorVoList.sort((o1, o2) -> Integer.compare(Integer.parseInt(o2.getYear()), Integer.parseInt(o1.getYear())));
 
-        // 新建分页
-        Page<HonorVO> page = new Page<>(currentPage, limit);
-
-        // 分页处理
-        int totalSize = honorVoList.size();
-        int startIndex = (currentPage - 1) * limit;
-        int endIndex = Math.min(startIndex + limit, totalSize);
-
-        List<HonorVO> paginatedList = honorVoList.subList(startIndex, endIndex);
-
-        page.setRecords(paginatedList);
-        page.setTotal(totalSize);
-        return page;
+        return Paginate.paginateListToIPage(honorVoList, currentPage, limit);
     }
 
     /**

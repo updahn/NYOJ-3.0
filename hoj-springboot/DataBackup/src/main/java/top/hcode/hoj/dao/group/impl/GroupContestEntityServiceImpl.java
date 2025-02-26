@@ -1,11 +1,11 @@
 package top.hcode.hoj.dao.group.impl;
 
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.group.GroupContestEntityService;
 import top.hcode.hoj.mapper.GroupContestMapper;
 import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.vo.ContestVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,19 +26,17 @@ public class GroupContestEntityServiceImpl extends ServiceImpl<GroupContestMappe
 
     @Override
     public IPage<ContestVO> getContestList(int limit, int currentPage, Long gid, String keyword) {
-        IPage<ContestVO> iPage = new Page<>(currentPage, limit);
 
-        List<ContestVO> contestList = groupContestMapper.getContestList(iPage, gid, keyword);
+        List<ContestVO> contestList = groupContestMapper.getContestList(gid, keyword);
 
-        return iPage.setRecords(contestList);
+        return Paginate.paginateListToIPage(contestList, currentPage, limit);
     }
 
     @Override
     public IPage<Contest> getAdminContestList(int limit, int currentPage, Long gid, String keyword) {
-        IPage<Contest> iPage = new Page<>(currentPage, limit);
 
-        List<Contest> contestList = groupContestMapper.getAdminContestList(iPage, gid, keyword);
+        List<Contest> contestList = groupContestMapper.getAdminContestList(gid, keyword);
 
-        return iPage.setRecords(contestList);
+        return Paginate.paginateListToIPage(contestList, currentPage, limit);
     }
 }

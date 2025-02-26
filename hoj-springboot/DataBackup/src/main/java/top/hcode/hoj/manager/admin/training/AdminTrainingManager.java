@@ -3,7 +3,6 @@ package top.hcode.hoj.manager.admin.training;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.stereotype.Component;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.training.MappingTrainingCategoryEntityService;
 import top.hcode.hoj.dao.training.TrainingCategoryEntityService;
 import top.hcode.hoj.dao.training.TrainingEntityService;
@@ -56,7 +56,7 @@ public class AdminTrainingManager {
 
     @Resource
     private TrainingValidator trainingValidator;
-    
+
     @Resource
     private TrainingMapper trainingMapper;
 
@@ -68,15 +68,9 @@ public class AdminTrainingManager {
         if (limit == null || limit < 1)
             limit = 10;
 
-        // 新建分页
-        Page<Training> page = new Page<>(currentPage, limit);
+        List<Training> trainingList = trainingMapper.getAdminTrainingList(categoryId, auth, keyword);
 
-        List<Training> trainingList = trainingMapper.getAdminTrainingList(page, categoryId, auth, keyword);
-
-        page.setRecords(trainingList);
-
-        return page;
-
+        return Paginate.paginateListToIPage(trainingList, currentPage, limit);
     }
 
     public TrainingDTO getTraining(Long tid) throws StatusFailException, StatusForbiddenException {

@@ -1,7 +1,7 @@
 package top.hcode.hoj.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -20,9 +20,9 @@ import top.hcode.hoj.pojo.vo.AnnouncementVO;
 @Mapper
 @Repository
 public interface AnnouncementMapper extends BaseMapper<Announcement> {
-    IPage<AnnouncementVO> getAnnouncementList(Page<AnnouncementVO> page, @Param("notAdmin") Boolean notAdmin,
+    List<AnnouncementVO> getAnnouncementList(@Param("notAdmin") Boolean notAdmin,
             @Param("id") Long id);
 
-    IPage<AnnouncementVO> getContestAnnouncement(Page<AnnouncementVO> page, @Param("cid") Long cid,
+    List<AnnouncementVO> getContestAnnouncement(@Param("cid") Long cid,
             @Param("notAdmin") Boolean notAdmin, @Param("id") Long id);
 }

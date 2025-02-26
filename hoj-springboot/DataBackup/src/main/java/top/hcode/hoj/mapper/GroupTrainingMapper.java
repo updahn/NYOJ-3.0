@@ -21,6 +21,6 @@ public interface GroupTrainingMapper extends BaseMapper<Training> {
 
     List<TrainingVO> getTrainingList(IPage iPage, @Param("gid") Long gid);
 
-    List<Training> getAdminTrainingList(IPage iPage, @Param("gid") Long gid);
+    List<Training> getAdminTrainingList(@Param("gid") Long gid);
 
 }

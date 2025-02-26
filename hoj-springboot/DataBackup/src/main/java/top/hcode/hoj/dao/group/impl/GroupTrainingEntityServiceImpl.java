@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.group.GroupTrainingEntityService;
 import top.hcode.hoj.dao.training.TrainingProblemEntityService;
 import top.hcode.hoj.mapper.GroupTrainingMapper;
@@ -66,11 +68,10 @@ public class GroupTrainingEntityServiceImpl extends ServiceImpl<GroupTrainingMap
 
     @Override
     public IPage<Training> getAdminTrainingList(int limit, int currentPage, Long gid) {
-        IPage<Training> iPage = new Page<>(currentPage, limit);
 
-        List<Training> trainingList = groupTrainingMapper.getAdminTrainingList(iPage, gid);
+        List<Training> trainingList = groupTrainingMapper.getAdminTrainingList(gid);
 
-        return iPage.setRecords(trainingList);
+        return Paginate.paginateListToIPage(trainingList, currentPage, limit);
     }
 
 }

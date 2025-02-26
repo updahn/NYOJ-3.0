@@ -8,10 +8,10 @@ import org.springframework.util.StringUtils;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import lombok.extern.slf4j.Slf4j;
 import top.hcode.hoj.common.exception.StatusFailException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.school.ContestSeatService;
 import top.hcode.hoj.dao.school.ExaminationRoomService;
@@ -109,21 +109,7 @@ public class ExaminationManager {
 
         }
 
-        // 初始化 schoolRoomVOList
-        List<ExaminationRoomVO> schoolRoomVOList = new ArrayList<>();
-
-        // 根据当前页数和每页数量进行分页
-        schoolRoomVOList = allSchoolRoomVOList.stream()
-                .skip((currentPage - 1) * limit)
-                .limit(limit)
-                .collect(Collectors.toList());
-
-        // 创建 Page 对象并设置分页信息和记录列表
-        Page<ExaminationRoomVO> page = new Page<>(currentPage, limit);
-        page.setTotal(allSchoolRoomVOList.size());
-        page.setRecords(schoolRoomVOList);
-
-        return page;
+        return Paginate.paginateListToIPage(allSchoolRoomVOList, currentPage, limit);
     }
 
     public ExaminationRoomVO getExaminationRoom(Long eid) throws StatusFailException {
@@ -298,18 +284,13 @@ public class ExaminationManager {
         if (limit == null || limit < 1)
             limit = 10;
 
-        // 新建分页
-        Page<ExaminationRoomVO> page = new Page<>(currentPage, limit);
-
         List<ExaminationRoomVO> schoolSeatVoList = examinationRoomMapper.getContestEidList(cid, keyword);
 
         if (CollectionUtils.isEmpty(schoolSeatVoList)) {
             throw new StatusFailException("比赛未布置考场！");
         }
 
-        page.setRecords(schoolSeatVoList);
-
-        return page;
+        return Paginate.paginateListToIPage(schoolSeatVoList, currentPage, limit);
     }
 
     public ExaminationRoomVO getExaminationSeat(Long eid, Long cid) throws StatusFailException {

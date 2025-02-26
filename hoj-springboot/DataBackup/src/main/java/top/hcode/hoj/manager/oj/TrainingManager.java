@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -14,6 +13,7 @@ import org.springframework.util.StringUtils;
 import top.hcode.hoj.common.exception.StatusAccessDeniedException;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.group.GroupMemberEntityService;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
 import top.hcode.hoj.dao.training.*;
@@ -379,20 +379,7 @@ public class TrainingManager {
                         .thenComparing(TrainingRankVO::getTotalRunTime) // 再以总耗时升序
                 ).collect(Collectors.toList());
 
-        // 计算好排行榜，然后进行分页
-        Page<TrainingRankVO> page = new Page<>(currentPage, limit);
-        int count = orderResultList.size();
-        List<TrainingRankVO> pageList = new ArrayList<>();
-        // 计算当前页第一条数据的下标
-        int currId = currentPage > 1 ? (currentPage - 1) * limit : 0;
-        for (int i = 0; i < limit && i < count - currId; i++) {
-            pageList.add(orderResultList.get(currId + i));
-        }
-        page.setSize(limit);
-        page.setCurrent(currentPage);
-        page.setTotal(count);
-        page.setRecords(pageList);
-        return page;
+        return Paginate.paginateListToIPage(orderResultList, currentPage, limit);
     }
 
     private boolean matchKeywordIgnoreCase(String keyword, String content) {

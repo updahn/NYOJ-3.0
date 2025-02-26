@@ -1,7 +1,6 @@
 package top.hcode.hoj.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
@@ -14,7 +13,7 @@ import java.util.List;
 @Repository
 public interface HonorMapper extends BaseMapper<Honor> {
 
-	List<Honor> getAdminHonorList(IPage page,
+	List<Honor> getAdminHonorList(
 			@Param("keyword") String keyword,
 			@Param("type") String type,
 			@Param("year") String year);

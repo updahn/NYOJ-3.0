@@ -3,7 +3,6 @@ package top.hcode.hoj.manager.tools;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
@@ -18,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.config.NacosSwitchConfig;
 import top.hcode.hoj.config.SwitchConfig;
 import top.hcode.hoj.dao.tools.StatisticContestEntityService;
@@ -66,9 +66,8 @@ public class StatisticManager {
         if (limit == null || limit < 1)
             limit = 30;
 
-        IPage<StatisticContest> iPage = new Page<>(currentPage, limit);
-
-        return statisticContestMapper.getStatisticContestList(iPage, keyword);
+        return Paginate.paginateListToIPage(statisticContestMapper.getStatisticContestList(keyword), currentPage,
+                limit);
     }
 
     public String getStatisticRankCids(String scid) {
@@ -88,7 +87,7 @@ public class StatisticManager {
             limit = 30;
 
         List<ACMContestRankVO> acmContestRankList = getStatisticRankList(statisticRankDto);
-        return contestRankManager.getPagingRankList(acmContestRankList, currentPage, limit);
+        return Paginate.paginateListToIPage(acmContestRankList, currentPage, limit);
     }
 
     public IPage<StatisticContest> getAdminStatisticList(Integer currentPage, Integer limit,
@@ -100,9 +99,8 @@ public class StatisticManager {
         if (limit == null || limit < 1)
             limit = 30;
 
-        IPage<StatisticContest> iPage = new Page<>(currentPage, limit);
-
-        return statisticContestMapper.getAdminStatisticContestList(iPage, keyword);
+        return Paginate.paginateListToIPage(statisticContestMapper.getAdminStatisticContestList(keyword),
+                currentPage, limit);
     }
 
     public void addStatisticRank(StatisticRankDTO statisticRankDto)
@@ -204,7 +202,7 @@ public class StatisticManager {
         List<ACMContestRankVO> acmContestRankList = contestRankManager.getDealList(percentList, contestList, keyword,
                 result);
 
-        return contestRankManager.getPagingRankList(acmContestRankList, currentPage, limit);
+        return Paginate.paginateListToIPage(acmContestRankList, currentPage, limit);
     }
 
     private String getLoginPassword(String loginUsername, List<String> usernameList, List<String> passwordList) {

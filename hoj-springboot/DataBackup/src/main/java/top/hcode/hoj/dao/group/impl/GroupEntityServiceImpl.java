@@ -1,11 +1,11 @@
 package top.hcode.hoj.dao.group.impl;
 
+import top.hcode.hoj.common.result.Paginate;
 import top.hcode.hoj.dao.group.GroupEntityService;
 import top.hcode.hoj.mapper.GroupMapper;
 import top.hcode.hoj.pojo.entity.group.Group;
 import top.hcode.hoj.pojo.vo.GroupVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,9 +31,8 @@ public class GroupEntityServiceImpl extends ServiceImpl<GroupMapper, Group> impl
             String uid,
             Boolean onlyMine,
             Boolean isRoot) {
-        IPage<GroupVO> iPage = new Page<>(currentPage, limit);
-        List<GroupVO> groupList = groupMapper.getGroupList(iPage, keyword, auth, uid, onlyMine, isRoot);
+        List<GroupVO> groupList = groupMapper.getGroupList(keyword, auth, uid, onlyMine, isRoot);
 
-        return iPage.setRecords(groupList);
+        return Paginate.paginateListToIPage(groupList, currentPage, limit);
     }
 }
