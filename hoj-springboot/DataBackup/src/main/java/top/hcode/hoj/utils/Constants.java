@@ -311,6 +311,8 @@ public class Constants {
 
         SCHOOL_BASE_FOLDER("/hoj/file/school"),
 
+        MOSS_BASE_FOLDER("/hoj/file/moss"),
+
         TESTCASE_BASE_FOLDER("/hoj/testcase"),
 
         FILE_DOWNLOAD_TMP_FOLDER("/hoj/file/zip/download"),

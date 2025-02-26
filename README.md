@@ -1238,3 +1238,73 @@ $body$
    ![image.png](docs/docs/.vuepress/public/65555be4a0524b08a035a33073a6942d.png)
    ![image.png](docs/docs/.vuepress/public/fadcdfb4e72e46e6b669c5546ea02624.png)
 2024 年 10 月 7 日 24 点
+
+# 修改 Moss 查重的 gif 图片显示问题
+
+```python
+import aiohttp
+import asyncio
+import os
+import aiofiles
+from tqdm.asyncio import tqdm_asyncio  # 可选：进度条支持
+
+# 下载参数
+CONCURRENCY = 10  # 并发连接数
+SAVE_DIR = "downloaded_images"
+
+
+async def download_file(session, semaphore, j, i):
+    url = f"http://moss.stanford.edu/bitmaps/tm_{j}_{i}.gif"
+    filename = os.path.join(SAVE_DIR, f"tm_{j}_{i}.gif")  # 修复文件名覆盖问题
+
+    async with semaphore:
+        try:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    content = await response.read()
+                    async with aiofiles.open(filename, "wb") as f:
+                        await f.write(content)
+                    return filename
+                else:
+                    print(f"失败: {url} (HTTP {response.status})")
+        except Exception as e:
+            print(f"失败: {url} - {str(e)}")
+        return None
+
+
+async def main():
+    # 创建保存目录
+    os.makedirs(SAVE_DIR, exist_ok=True)
+
+    # 控制并发量
+    semaphore = asyncio.Semaphore(CONCURRENCY)
+
+    # 创建连接会话
+    async with aiohttp.ClientSession(
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        }
+    ) as session:
+        # 生成所有任务
+        tasks = [
+            download_file(session, semaphore, j, i)
+            for j in range(0, 5)
+            for i in range(1, 101)
+        ]
+
+        # 带进度条执行（需要安装 tqdm）
+        results = await tqdm_asyncio.gather(*tasks, desc="下载进度")
+
+        # 统计结果
+        success = sum(1 for res in results if res)
+        print(f"\n下载完成！成功: {success}, 失败: {len(tasks)-success}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+```
+
+1. 将形如 `http://moss.stanford.edu/bitmaps/tm_X_X.gif` 的替换为 `/api/public/img/tm_X_X.gif`
+
+2025 年 2 月 26 日 12 点

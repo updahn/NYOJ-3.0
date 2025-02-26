@@ -66,17 +66,7 @@ export default {
       isMobile: false,
       contestID: null,
       mossID: null,
-      mossResultInfo: {
-        username1: "",
-        username2: "",
-        percent1: "",
-        percent2: "",
-        href: "",
-        code1: "",
-        language1: "",
-        code2: "",
-        language2: "",
-      },
+      mossResultInfo: {},
       mossIndexList: [],
     };
   },
@@ -102,13 +92,25 @@ export default {
         .then((res) => {
           this.loadingTable = false;
           let data = res.data.data;
-          let profile = data;
-          Object.keys(this.mossResultInfo).forEach((element) => {
-            if (profile[element] !== undefined) {
-              this.mossResultInfo[element] = profile[element];
-            }
-          });
-          this.mossIndexList = profile.indexList;
+
+          const replace = (s) =>
+            s?.replace(
+              /http:\/\/moss\.stanford\.edu\/bitmaps\/(.+?)\.gif/g,
+              "/api/public/img/$1.gif"
+            );
+
+          this.mossResultInfo = {
+            ...data,
+            code1: replace(data.code1),
+            code2: replace(data.code2),
+          };
+
+          this.mossIndexList =
+            data.indexList?.map((item) => ({
+              ...item,
+              icon1: replace(item.icon1),
+              icon2: replace(item.icon2),
+            })) || [];
         });
     },
     getUserACSubmit(username) {
