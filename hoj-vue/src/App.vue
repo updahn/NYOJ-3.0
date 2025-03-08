@@ -1,7 +1,5 @@
 <template>
   <div class="main">
-    <!-- 暗色模式 -->
-    <interpolator :dark="getTheme()" :watch-system="true" />
     <div id="app">
       <!-- 添加返回上下功能键 -->
       <Back id="back"></Back>
@@ -145,9 +143,9 @@ import storage from "@/common/storage";
 import utils from "@/common/utils";
 import Back from "@/components/oj/common/Back";
 
-import interpolator from "vue-apply-darkmode/src/vue-apply-darkmode.vue";
 import {
   enable as enableDarkMode,
+  disable as disableDarkMode,
   setFetchMethod as setFetch,
 } from "darkreader";
 
@@ -155,7 +153,6 @@ export default {
   name: "app-content",
   components: {
     NavBar,
-    interpolator,
     Back,
   },
   data() {
@@ -166,9 +163,6 @@ export default {
   },
   methods: {
     ...mapActions(["changeDomTitle", "getWebsiteConfig"]),
-    getTheme() {
-      return this.webTheme == "Dark";
-    },
     goRoute(path) {
       this.$router.push({
         path: path,
@@ -179,6 +173,7 @@ export default {
     },
     changeWebTheme(theme) {
       this.$store.commit("changeWebTheme", { theme: theme });
+      this.applyDarkMode();
     },
     autoChangeLanguge() {
       /**
@@ -240,6 +235,19 @@ export default {
         }
       }
     },
+    applyDarkMode() {
+      if (this.webTheme === "Dark") {
+        // 启用暗黑模式
+        enableDarkMode({
+          brightness: 100,
+          contrast: 90,
+          sepia: 10,
+        });
+      } else {
+        // 禁用暗黑模式
+        disableDarkMode();
+      }
+    },
   },
   watch: {
     $route(newVal, oldVal) {
@@ -292,15 +300,13 @@ export default {
       this.showFooter = true;
     }
 
-    //解决跨域报错
-    setFetch(window.fetch);
-    enableDarkMode();
     window.addEventListener("visibilitychange", this.autoRefreshUserInfo);
   },
   mounted() {
-    // console.log(LOGO);
-    // console.log(MOTTO);
+    console.log(LOGO);
+    console.log(MOTTO);
     this.autoChangeLanguge();
+    this.applyDarkMode();
     this.getWebsiteConfig();
   },
 };

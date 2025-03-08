@@ -93,9 +93,6 @@ Vue.prototype.$axios = axios;
 
 Vue.prototype.$markDown = mavonEditor.mavonEditor.getMarkdownIt().use(Md_Katex); // 挂载到vue
 
-import MetaInfo from 'vue-meta-info'; // meta标签
-Vue.use(MetaInfo);
-
 Vue.config.productionTip = false;
 new Vue({
   router,
