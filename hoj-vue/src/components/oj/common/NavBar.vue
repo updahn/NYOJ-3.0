@@ -83,11 +83,11 @@
                 $t("m.NavBar_MultiOj_Rank")
                 }}
               </el-menu-item>
-              <el-menu-item index="/code-rank">
+              <!-- <el-menu-item index="/code-rank">
                 {{
                 $t("m.NavBar_Code_Rank")
                 }}
-              </el-menu-item>
+              </el-menu-item>-->
             </el-submenu>
           </template>
           <template v-else-if="mode == 'group'">
@@ -725,7 +725,7 @@
                   }}
                 </mu-list-item-title>
               </mu-list-item>
-              <mu-list-item
+              <!-- <mu-list-item
                 button
                 :ripple="false"
                 slot="nested"
@@ -738,7 +738,7 @@
                   $t("m.NavBar_Code_Rank")
                   }}
                 </mu-list-item-title>
-              </mu-list-item>
+              </mu-list-item>-->
             </mu-list-item>
           </mu-list>
 

@@ -362,12 +362,12 @@ const ojRoutes = [
     component: OJRank,
     meta: { title: 'OJ Rank' },
   },
-  {
-    path: '/code-rank',
-    name: 'CODE Rank',
-    component: CODERank,
-    meta: { title: 'CODE Rank' },
-  },
+  // {
+  //   path: '/code-rank',
+  //   name: 'CODE Rank',
+  //   component: CODERank,
+  //   meta: { title: 'CODE Rank' },
+  // },
   {
     path: '/acm-rank-static',
     name: 'Static Rank List',
