@@ -313,15 +313,13 @@ import {
 import { mapState, mapGetters } from "vuex";
 import Avatar from "vue-avatar";
 import myMessage from "@/common/message";
-const Announcements = () => import("@/components/oj/common/Announcements.vue");
 const SubmissionStatistic = () =>
   import("@/components/oj/home/SubmissionStatistic.vue");
-const Announcement = () => import("@/views/oj/about/Switch_Announcement.vue");
+const Announcement = () => import("@/views/oj/announcement/Announcement.vue");
 
 export default {
   name: "home",
   components: {
-    Announcements,
     Announcement,
     SubmissionStatistic,
     Avatar,

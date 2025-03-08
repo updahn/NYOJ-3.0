@@ -2,10 +2,9 @@
   <div v-if="announcements.length > 0">
     <el-row :gutter="20">
       <div class="textBox">
-        <!-- 使用 <router-link> 包裹 <transition> -->
         <router-link
-          :to="{ name: route_name, params: { announcementID: text.val.id } }"
           class="announcement-item"
+          :to="{ name: route_name, params: { announcementID: text.val.id } }"
         >
           <transition name="slide">
             <p class="text" :key="text.id">
@@ -29,7 +28,6 @@ export default {
       number: 0,
       timer: null,
       length: 5,
-      refreshInterval: null, // 添加刷新间隔的定时器
     };
   },
   computed: {
@@ -51,18 +49,26 @@ export default {
       return this.isContest ? "ContestAnnouncementList" : "Announcements";
     },
   },
+  watch: {
+    // 监听announcements数组长度变化
+    "announcements.length": function (newLength, oldLength) {
+      if (newLength !== oldLength) {
+        this.number = 0; // 重置number为0
+      }
+    },
+  },
   mounted() {
     this.init();
     this.startRefreshInterval(); // 启动定时器
   },
   methods: {
     init() {
-      this.startMove();
       if (this.isContest) {
         this.getContestAnnouncementList();
       } else {
         this.getAnnouncementList();
       }
+      this.startMove();
     },
     getAnnouncementList(page = 1) {
       api.getAnnouncementList(page, this.limit, null).then(
@@ -92,27 +98,49 @@ export default {
         );
     },
     startMove() {
-      this.timer = setTimeout(() => {
+      // 清除之前的定时器，避免重复
+      if (this.timer) {
+        clearInterval(this.timer);
+      }
+
+      // 使用setInterval代替递归的setTimeout
+      this.timer = setInterval(() => {
         if (this.number === this.announcements.length - 1) {
           this.number = 0;
         } else {
           this.number += 1;
         }
-        this.startMove();
-      }, 2500);
+      }, 3000); // 滚动时间为3秒
     },
     startRefreshInterval() {
-      // 每1分钟调用init
+      // 根据isContest设置不同的刷新间隔
+      const refreshTime = this.isContest ? 30000 : 60000; // 比赛模式30秒，其他情况60秒
+
       this.refreshInterval = setInterval(() => {
-        this.init(); // 重新初始化
-        clearTimeout(this.timer); // 清除当前的移动定时器
-        this.startMove(); // 重新开始移动
-      }, 60000);
+        // 清除当前的移动定时器
+        if (this.timer) {
+          clearInterval(this.timer);
+        }
+
+        // 重新获取公告数据
+        if (this.isContest) {
+          this.getContestAnnouncementList();
+        } else {
+          this.getAnnouncementList();
+        }
+
+        // 重新开始移动
+        this.startMove();
+      }, refreshTime);
     },
   },
   beforeDestroy() {
-    clearTimeout(this.timer);
-    clearInterval(this.refreshInterval); // 清除刷新定时器
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
   },
 };
 </script>

@@ -7,7 +7,7 @@
         <NavBar></NavBar>
         <div
           id="oj-content"
-          :style="{ marginTop: $route.path.includes('full-screen') ? '120px' : '20px' }"
+          :style="{ marginTop: $route.path.includes('full-screen') ? '70px' : '20px' }"
         >
           <transition name="el-zoom-in-bottom">
             <router-view></router-view>

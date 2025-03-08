@@ -708,7 +708,7 @@ import myMessage from "@/common/message";
 import storage from "@/common/storage";
 import Markdown from "@/components/oj/common/Markdown";
 import Timebar from "@/components/oj/common/Timebar.vue";
-const Announcement = () => import("@/views/oj/about/Switch_Announcement.vue");
+const Announcement = () => import("@/views/oj/announcement/Announcement.vue");
 import BoxFile from "@/components/oj/common/BoxFile";
 import utils from "@/common/utils";
 

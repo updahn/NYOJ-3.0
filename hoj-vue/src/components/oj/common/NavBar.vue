@@ -335,14 +335,6 @@
                 </el-dropdown-menu>
               </el-dropdown>
             </template>
-            <template v-else-if="mode == 'contest'">
-              <el-tag class="drop-avatar" size="large" :style="countdownColor()">
-                <i class="fa fa-hourglass-end" aria-hidden="true"></i>
-                <span
-                  style="font-weight: bold; font-size: 15px;"
-                >{{ " " + $t('m.EndAt') }}：{{ contest.endTime | localtime }}</span>
-              </el-tag>
-            </template>
           </div>
         </el-menu>
       </div>
@@ -934,7 +926,6 @@ import MsgSvg from "@/components/oj/msg/msgSvg";
 import { mapGetters, mapActions } from "vuex";
 import Avatar from "vue-avatar";
 import api from "@/common/api";
-import { CONTEST_STATUS_REVERSE } from "@/common/constants";
 
 export default {
   components: {
@@ -951,7 +942,6 @@ export default {
       this.page_width();
       this.setHiddenHeaderHeight();
     };
-    this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
   },
   mounted() {
     this.switchMode();
@@ -984,8 +974,6 @@ export default {
       imgUrl: require("@/assets/logo.png"),
       avatarStyle:
         "display: inline-flex;width: 30px;height: 30px;border-radius: 50%;align-items: center;justify-content: center;text-align: center;user-select: none;",
-      CONTEST_STATUS_REVERSE: {},
-      contest: {},
       groupTitle: null,
     };
   },
@@ -1094,13 +1082,6 @@ export default {
       } else {
         this.mode = "defalut";
       }
-      this.contestID = this.$route.params.contestID;
-
-      if (this.contestID) {
-        this.$store.dispatch("getContest").then((res) => {
-          this.contest = res.data.data;
-        });
-      }
       this.groupID = this.$route.params.groupID;
       if (this.groupID) {
         this.$store.dispatch("getGroup").then((res) => {
@@ -1120,9 +1101,6 @@ export default {
       this.$router.push({
         name: "ACM Rank",
       });
-    },
-    countdownColor() {
-      return "color:" + this.CONTEST_STATUS_REVERSE[this.contest.status].color;
     },
   },
   computed: {
