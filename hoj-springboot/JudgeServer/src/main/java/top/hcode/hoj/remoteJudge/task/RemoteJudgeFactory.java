@@ -32,6 +32,8 @@ public class RemoteJudgeFactory {
                 return new NEWOJJudge();
             case VJ_JUDGE:
                 return new VJJudge();
+            case DOTCPP_JUDGE:
+                return new DotcppJudge();
             default:
                 return null;
         }

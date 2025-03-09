@@ -1308,3 +1308,10 @@ if __name__ == "__main__":
 1. 将形如 `http://moss.stanford.edu/bitmaps/tm_X_X.gif` 的替换为 `/api/public/img/tm_X_X.gif`
 
 2025 年 2 月 26 日 12 点
+
+# 增加 Dotcpp 远程评测
+
+1. 增加 Dotcpp 远程评测
+   ![image.png](docs/docs/.vuepress/public/aad4ae6c93544dfd884be596e90c3a4e.png)
+   ![image.png](docs/docs/.vuepress/public/9797d78ba4ba48189fb2bb891b013ea0.png)
+2025 年 3 月 9 日 23 点

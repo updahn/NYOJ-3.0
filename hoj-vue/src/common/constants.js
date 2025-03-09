@@ -257,6 +257,10 @@ export const REMOTE_OJ = [
     name: 'VJ',
     key: 'VJ',
   },
+  {
+    name: 'DOTCPP',
+    key: 'DOTCPP',
+  },
 ];
 
 export const CONTEST_STATUS = {

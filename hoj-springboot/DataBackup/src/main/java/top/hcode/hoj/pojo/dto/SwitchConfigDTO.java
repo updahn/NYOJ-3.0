@@ -146,6 +146,10 @@ public class SwitchConfigDTO {
 
     private List<String> vjPasswordList;
 
+    private List<String> dotcppUsernameList;
+
+    private List<String> dotcppPasswordList;
+
     private List<String> nowcoderUsernameList;
 
     private List<String> nowcoderPasswordList;

@@ -59,6 +59,10 @@ public class SwitchConfig {
 
     private List<String> vjPasswordList = new ArrayList<>();
 
+    private List<String> dotcppUsernameList = new ArrayList<>();
+
+    private List<String> dotcppPasswordList = new ArrayList<>();
+
     private List<String> nowcoderUsernameList = new ArrayList<>();
 
     private List<String> nowcoderPasswordList = new ArrayList<>();
@@ -187,6 +191,8 @@ public class SwitchConfig {
         this.setNewojPasswordList(format2Unicode(this.newojPasswordList));
         this.setVjUsernameList(format2Unicode(this.vjUsernameList));
         this.setVjPasswordList(format2Unicode(this.vjPasswordList));
+        this.setDotcppUsernameList(format2Unicode(this.dotcppUsernameList));
+        this.setDotcppPasswordList(format2Unicode(this.dotcppPasswordList));
         this.setNowcoderUsernameList(format2Unicode(this.nowcoderUsernameList));
         this.setNowcoderPasswordList(format2Unicode(this.nowcoderPasswordList));
         this.setAcwingUsernameList(format2Unicode(this.acwingUsernameList));
@@ -227,6 +233,8 @@ public class SwitchConfig {
         this.setNewojPasswordList(convertUnicode2Str(this.newojPasswordList));
         this.setVjUsernameList(convertUnicode2Str(this.vjUsernameList));
         this.setVjPasswordList(convertUnicode2Str(this.vjPasswordList));
+        this.setDotcppUsernameList(convertUnicode2Str(this.dotcppUsernameList));
+        this.setDotcppPasswordList(convertUnicode2Str(this.dotcppPasswordList));
         this.setNowcoderUsernameList(convertUnicode2Str(this.nowcoderUsernameList));
         this.setNowcoderPasswordList(convertUnicode2Str(this.nowcoderPasswordList));
         this.setAcwingUsernameList(convertUnicode2Str(this.acwingUsernameList));

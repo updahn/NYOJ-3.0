@@ -104,6 +104,9 @@ public class RemoteProblemManager {
             case "VJ":
                 problemStrategy = new VJProblemStrategy();
                 break;
+            case "DOTCPP":
+                problemStrategy = new DotcppProblemStrategy();
+                break;
             default:
                 throw new Exception("未知的OJ的名字，暂时不支持！");
         }

@@ -69,6 +69,8 @@ newoj-username-list: ${NEWOJ_ACCOUNT_USERNAME_LIST:}
 newoj-password-list: ${NEWOJ_ACCOUNT_PASSWORD_LIST:}
 vj-username-list: ${VJ_ACCOUNT_USERNAME_LIST:}
 vj-password-list: ${VJ_ACCOUNT_PASSWORD_LIST:}
+dotcpp-username-list: ${DOTCPP_ACCOUNT_USERNAME_LIST:}
+dotcpp-password-list: ${DOTCPP_ACCOUNT_PASSWORD_LIST:}
 nowcoder-username-list: ${NOWCODER_ACCOUNT_PASSWORD_LIST:}
 nowcoder-password-list: ${NOWCODER_ACCOUNT_USERNAME_LIST:}
 acwing-username-list: ${ACWING_ACCOUNT_PASSWORD_LIST:}

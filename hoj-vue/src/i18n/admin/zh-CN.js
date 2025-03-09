@@ -272,7 +272,8 @@ export const m = {
   Remote_Tips_QOJ: '示例网址：\n 普通题目：`https://qoj.ac/problem/1000` - 对应的题目ID为 [1000]\n 比赛题目：`https://qoj.ac/contest/1000/problem/4721` - 对应的题目ID为 [1000_4721]',
   Remote_Tips_NSWOJ: '示例网址：`https://acm.nyist.edu.cn/p/100` - 对应的题目ID为 [100]',
   Remote_Tips_NEWOJ: '示例网址：`http://oj.ecustacm.cn/problem.php?id=1000` - 对应的题目ID为 [1000]',
-  Remote_Tips_VJ: '示例网址：`https://vjudge.net/problem/Gym-101350M` - 对应的题目ID为 [Gym-101350M]',
+  Remote_Tips_VJ: '示例网址：`https://vjudge.net/problem/Gym-101350M` - 对应的题目ID为 [101350M]',
+  Remote_Tips_DOTCPP: '示例网址：`https://www.dotcpp.com/oj/problem1000.html` - 对应的题目ID为 [1000]',
   Update_RemoteDescription: '更新远程题目题面',
   Update_RemoteDescription_Tips: '该操作会将原题链接中的所有题面，添加到已有题面中，你是否确定？',
 

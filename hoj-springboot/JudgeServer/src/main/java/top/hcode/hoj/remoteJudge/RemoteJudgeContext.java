@@ -48,7 +48,7 @@ public class RemoteJudgeContext {
     public void judge(ToJudgeDTO toJudgeDTO) {
         String remoteJudgeProblem = toJudgeDTO.getRemoteJudgeProblem();
         String[] source = remoteJudgeProblem.split("-");
-        String remoteOj = remoteJudgeProblem.startsWith("VJ-") ? "VJ" : source[0];
+        String remoteOj = remoteJudgeProblem.startsWith("VJ-") ? "VJ" : source[0].toUpperCase();
         String remoteProblemId = remoteJudgeProblem.startsWith("VJ-")
                 ? remoteJudgeProblem.replace("VJ-", "")
                 : source[1];
@@ -172,6 +172,9 @@ public class RemoteJudgeContext {
                 if (completeProblemId2 != null) {
                     remoteJudgeDTO.setCompleteProblemId(completeProblemId2);
                 }
+                break;
+            case "DOTCPP":
+                remoteJudgeDTO.setProblemNum(remoteJudgeDTO.getCompleteProblemId());
                 break;
         }
     }

@@ -205,6 +205,12 @@ public class StartupRunner implements CommandLineRunner {
     @Value("${vj-password-list}")
     private List<String> vjPasswordList;
 
+    @Value("${dotcpp-username-list}")
+    private List<String> dotcppUsernameList;
+
+    @Value("${dotcpp-password-list}")
+    private List<String> dotcppPasswordList;
+
     @Value("${nowcoder-username-list}")
     private List<String> nowcoderUsernameList;
 
@@ -254,6 +260,8 @@ public class StartupRunner implements CommandLineRunner {
         upsertHOJLanguageV5();
 
         upsertHOJLanguageV6();
+
+        upsertHOJLanguageV7();
     }
 
     /**
@@ -477,6 +485,20 @@ public class StartupRunner implements CommandLineRunner {
             isChanged = true;
         }
 
+        if ((CollectionUtils.isEmpty(switchConfig.getDotcppUsernameList())
+                && !CollectionUtils.isEmpty(dotcppUsernameList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setDotcppUsernameList(dotcppUsernameList);
+            isChanged = true;
+        }
+
+        if ((CollectionUtils.isEmpty(switchConfig.getDotcppPasswordList())
+                && !CollectionUtils.isEmpty(dotcppPasswordList))
+                || forcedUpdateRemoteJudgeAccount) {
+            switchConfig.setDotcppPasswordList(dotcppPasswordList);
+            isChanged = true;
+        }
+
         if ((CollectionUtils.isEmpty(switchConfig.getNowcoderUsernameList())
                 && !CollectionUtils.isEmpty(nowcoderUsernameList))
                 || forcedUpdateRemoteJudgeAccount) {
@@ -568,6 +590,9 @@ public class StartupRunner implements CommandLineRunner {
                     switchConfig.getVjPasswordList(),
                     switchConfig.getVjAliveList(),
                     null, null);
+            addRemoteJudgeAccountToMySQL(Constants.RemoteOJ.DOTCPP.getName(),
+                    switchConfig.getDotcppUsernameList(),
+                    switchConfig.getDotcppPasswordList());
             addRemoteJudgeAccountToMySQL2(Constants.RemoteOJ.NOWCODER.getName(),
                     switchConfig.getNowcoderUsernameList(),
                     switchConfig.getNowcoderPasswordList(),
@@ -1171,6 +1196,39 @@ public class StartupRunner implements CommandLineRunner {
                         .setDescription(languageList.get(i + 1))
                         .setName(languageList.get(i + 2))
                         .setOj(Constants.RemoteOJ.NEWOJ.getName())
+                        .setSeq(0)
+                        .setIsSpj(false));
+            }
+            languageEntityService.saveBatch(languages);
+        }
+
+    }
+
+    private void upsertHOJLanguageV7() {
+
+        int count = languageEntityService.count(new QueryWrapper<Language>()
+                .eq("oj", Constants.RemoteOJ.DOTCPP.getName()));
+        if (count == 0) {
+            List<String> languageList = Arrays.asList(
+                    "text/x-csrc", "C", "C", "0",
+                    "text/x-c++src", "C++", "C++", "1",
+                    "text/x-java", "Java", "Java", "3",
+                    "text/x-python", "Python", "Python", "6",
+                    "text/x-php", "PHP", "PHP", "7",
+                    "text/x-csrc", "C O2", "C O2", "0",
+                    "text/x-c++src", "C++ O2", "C++ O2", "1",
+                    "text/x-java", "Java O2", "Java O2", "3",
+                    "text/x-python", "Python O2", "Python O2", "6",
+                    "text/x-php", "PHP O2", "PHP O2", "7");
+
+            List<Language> languages = new ArrayList<>();
+            for (int i = 0; i <= languageList.size() - 4; i += 4) {
+                languages.add(new Language()
+                        .setContentType(languageList.get(i))
+                        .setDescription(languageList.get(i + 1))
+                        .setName(languageList.get(i + 2))
+                        .setOj(Constants.RemoteOJ.DOTCPP.getName())
+                        .setKey(languageList.get(i + 3))
                         .setSeq(0)
                         .setIsSpj(false));
             }

@@ -606,6 +606,15 @@ public class ConfigManager {
                     Constants.RemoteOJ.VJ.getName());
         }
 
+        if (checkListDiff(config.getDotcppUsernameList(), switchConfig.getDotcppUsernameList()) ||
+                checkListDiff(config.getDotcppPasswordList(), switchConfig.getDotcppPasswordList())) {
+            switchConfig.setDotcppUsernameList(config.getDotcppUsernameList());
+            switchConfig.setDotcppPasswordList(config.getDotcppPasswordList());
+            changeRemoteJudgeAccount(config.getDotcppUsernameList(),
+                    config.getDotcppPasswordList(),
+                    Constants.RemoteOJ.DOTCPP.getName());
+        }
+
         if (checkListDiff(config.getNowcoderUsernameList(), switchConfig.getNowcoderUsernameList()) ||
                 checkListDiff(config.getNowcoderPasswordList(), switchConfig.getNowcoderPasswordList()) ||
                 checkListDiff2(config.getNowcoderAliveList(), switchConfig.getNowcoderAliveList()) ||

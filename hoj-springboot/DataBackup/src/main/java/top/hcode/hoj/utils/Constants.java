@@ -94,6 +94,7 @@ public class Constants {
         NSWOJ("NSWOJ"),
         NEWOJ("NEWOJ"),
         VJ("VJ"),
+        DOTCPP("DOTCPP"),
         NOWCODER("NOWCODER"),
         ACWING("ACWING"),
         MOSS("MOSS");

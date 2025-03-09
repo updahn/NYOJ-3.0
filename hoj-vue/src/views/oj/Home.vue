@@ -414,6 +414,12 @@ export default {
           status: true,
         },
         {
+          url: "https://www.dotcpp.com/oj/problemset.php",
+          name: "DOTCPP",
+          logo: require("@/assets/dotcpp-logo.png"),
+          status: true,
+        },
+        {
           url: "https://acm.nyist.edu.cn",
           name: "NSWOJ",
           logo: require("@/assets/nswoj-logo.png"),
