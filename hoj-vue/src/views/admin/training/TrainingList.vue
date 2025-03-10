@@ -18,14 +18,14 @@
               :placeholder="$t('m.Enter_keyword')"
               type="search"
               size="medium"
-              @search-click="filterByKeyword"
-              @keyup.enter.native="filterByKeyword"
+              @search-click="onKeywordChange"
+              @keyup.enter.native="onKeywordChange"
             ></vxe-input>
           </span>
           <span>
             <el-select
-              v-model="traningCategory"
-              @change="TraningListChangeFilter"
+              v-model="categoryId"
+              @change="onCategoryChange"
               size="small"
               style="width: 180px"
             >
@@ -33,7 +33,7 @@
               <el-option
                 :label="category.name"
                 :key="index"
-                :value="index + 1"
+                :value="category.id"
                 v-for="(category, index) in categoryList"
               ></el-option>
             </el-select>
@@ -41,7 +41,7 @@
           <span>
             <el-select
               v-model="traingAuth"
-              @change="TraningListChangeFilter"
+              @change="onAuthChange"
               size="small"
               style="width: 180px"
             >
@@ -144,6 +144,8 @@ import api from "@/common/api";
 import { TRAINING_TYPE } from "@/common/constants";
 import { mapGetters } from "vuex";
 import myMessage from "@/common/message";
+import utils from "@/common/utils";
+
 export default {
   name: "TrainingList",
   data() {
@@ -152,7 +154,7 @@ export default {
       total: 0,
       trainingList: [],
       categoryList: [],
-      traningCategory: 0,
+      categoryId: 0,
       traingAuth: "All",
       keyword: "",
       loading: false,
@@ -161,9 +163,21 @@ export default {
       currentId: 1,
       downloadDialogVisible: false,
       TRAINING_TYPE: {},
+      query: {
+        cid: 0,
+        keyword: "",
+        auth: "All",
+      },
     };
   },
   mounted() {
+    let route = this.$route.query;
+    if (route) {
+      this.categoryId = parseInt(route.cid) || 0;
+      this.traingAuth = route.auth || "All";
+      this.keyword = route.keyword || "";
+    }
+
     this.getTrainingList(this.currentPage);
     this.TRAINING_TYPE = Object.assign({}, TRAINING_TYPE);
     this.getTrainingCategoryList();
@@ -192,7 +206,7 @@ export default {
           page,
           this.pageSize,
           this.keyword,
-          this.traningCategory,
+          this.categoryId,
           this.traingAuth
         )
         .then(
@@ -235,9 +249,6 @@ export default {
         myMessage.success(this.$i18n.t("m.Update_Successfully"));
       });
     },
-    filterByKeyword() {
-      this.currentChange(1);
-    },
     goCreateTraining() {
       this.$router.push({ name: "admin-create-training" });
     },
@@ -253,9 +264,29 @@ export default {
         }
       );
     },
-    TraningListChangeFilter() {
+    onKeywordChange() {
+      this.query.keyword = this.keyword;
       this.currentPage = 1;
-      this.getTrainingList();
+      this.filterByChange();
+    },
+    onCategoryChange(category) {
+      this.query.cid = category;
+      this.currentPage = 1;
+      this.filterByChange();
+    },
+    onAuthChange(auth) {
+      this.query.auth = auth;
+      this.currentPage = 1;
+      this.filterByChange();
+    },
+    filterByChange() {
+      this.getTrainingList(this.currentPage);
+      let query = Object.assign({}, this.query);
+      this.$router.push({
+        name: "admin-training-list",
+        query: utils.filterEmptyValue(query),
+      });
+
     },
   },
 };

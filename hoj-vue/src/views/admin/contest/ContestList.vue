@@ -18,14 +18,14 @@
               :placeholder="$t('m.Enter_keyword')"
               type="search"
               size="medium"
-              @search-click="filterByKeyword"
-              @keyup.enter.native="filterByKeyword"
+              @search-click="onKeywordChange"
+              @keyup.enter.native="onKeywordChange"
             ></vxe-input>
           </span>
           <span>
             <el-select
               v-model="contestType"
-              @change="ContestListChangeFilter"
+              @change="onContestTypeChange"
               size="small"
               style="width: 180px"
             >
@@ -37,7 +37,7 @@
           <span>
             <el-select
               v-model="contestAuth"
-              @change="ContestListChangeFilter"
+              @change="onContestAuthChange"
               size="small"
               style="width: 180px"
             >
@@ -53,7 +53,7 @@
           <span>
             <el-select
               v-model="contestStatus"
-              @change="ContestListChangeFilter"
+              @change="onContestStatusChange"
               size="small"
               style="width: 180px"
             >
@@ -253,14 +253,26 @@ export default {
       currentId: 1,
       downloadDialogVisible: false,
       CONTEST_TYPE_REVERSE: {},
+      query: {
+        keyword: "",
+        auth: "All",
+        type: "All",
+        status: "All",
+      },
     };
   },
   mounted() {
-    this.keyword = this.$route.query.keyword || "";
-    this.contestAuth = this.$route.query.auth || "All";
-    this.$router.replace({ query: {} }); // 隐藏 query
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
+
+    let route = this.$route.query;
+    if (route) {
+      this.keyword = route.keyword || "";
+      this.contestAuth = parseInt(route.auth) || "All";
+      this.contestType = parseInt(route.type) || "All";
+      this.contestStatus = parseInt(route.status) || "All";
+    }
+
     this.getContestList(this.currentPage);
   },
   watch: {
@@ -348,15 +360,36 @@ export default {
         myMessage.success(this.$i18n.t("m.Update_Successfully"));
       });
     },
-    filterByKeyword() {
-      this.currentChange(1);
+    onKeywordChange() {
+      this.query.keyword = this.keyword;
+      this.currentPage = 1;
+      this.filterByChange();
+    },
+    onContestTypeChange(contestType) {
+      this.query.type = contestType;
+      this.currentPage = 1;
+      this.filterByChange();
+    },
+    onContestAuthChange(contestAuth) {
+      this.query.auth = contestAuth;
+      this.currentPage = 1;
+      this.filterByChange();
+    },
+    onContestStatusChange(contestStatus) {
+      this.query.status = contestStatus;
+      this.currentPage = 1;
+      this.filterByChange();
+    },
+    filterByChange() {
+      this.getContestList(this.currentPage);
+      let query = Object.assign({}, this.query);
+      this.$router.push({
+        name: "admin-contest-list",
+        query: utils.filterEmptyValue(query),
+      });
     },
     goCreateContest() {
       this.$router.push({ name: "admin-create-contest" });
-    },
-    ContestListChangeFilter() {
-      this.currentPage = 1;
-      this.getContestList();
     },
     getContestPdf(contestId) {
       api.admin_getContestPdf(contestId).then((res) => {
