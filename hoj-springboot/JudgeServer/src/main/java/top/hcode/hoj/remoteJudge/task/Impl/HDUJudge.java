@@ -32,8 +32,8 @@ public class HDUJudge extends RemoteJudgeStrategy {
     public static final String LOGIN_URL = "/userloginex.php?action=login";
     public static final String SUBMIT_URL = "/submit.php?action=submit";
     public static final String STATUS_URL = "/status.php?user=%s&pid=%s";
-    public static final String QUERY_URL = "/status.php?first=%d";
-    public static final String ERROR_URL = "/viewerror.php?rid=%d";
+    public static final String QUERY_URL = "/status.php?first=%s";
+    public static final String ERROR_URL = "/viewerror.php?rid=%s";
     public static Map<String, String> headers = MapUtil
             .builder(new HashMap<String, String>())
             .put("Host", "acm.hdu.edu.cn")
