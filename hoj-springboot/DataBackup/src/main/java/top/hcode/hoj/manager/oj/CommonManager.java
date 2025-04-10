@@ -168,8 +168,8 @@ public class CommonManager {
         if (pid != null) {
             Problem problem = problemEntityService.getById(pid);
             if (problem.getIsRemote()) {
-                if (problem.getProblemId().startsWith("VJ_")) {
-                    oj = "VJ_" + ReUtil.get("VJ-(\\d+)\\(([^-]+)-", problem.getProblemId(), 2);
+                if (problem.getProblemId().startsWith("VJ")) {
+                    oj = "VJ_" + ReUtil.get("\\(([^-]+)-", problem.getProblemId(), 1);
                 } else {
                     oj = problem.getProblemId().split("-")[0];
                 }

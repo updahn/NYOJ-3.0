@@ -47,11 +47,12 @@ public class RemoteJudgeContext {
     @Async
     public void judge(ToJudgeDTO toJudgeDTO) {
         String remoteJudgeProblem = toJudgeDTO.getRemoteJudgeProblem();
-        String[] source = remoteJudgeProblem.split("-");
-        String remoteOj = remoteJudgeProblem.startsWith("VJ-") ? "VJ" : source[0].toUpperCase();
-        String remoteProblemId = remoteJudgeProblem.startsWith("VJ-")
-                ? remoteJudgeProblem.replace("VJ-", "")
-                : source[1];
+
+        String remoteOj = remoteJudgeProblem.startsWith("VJ") ? "VJ" : remoteJudgeProblem.split("-")[0];
+        String remoteProblemId = remoteJudgeProblem.startsWith("VJ")
+                ? ReUtil.get("\\(([^)]+)\\)", remoteJudgeProblem, 1)
+                : remoteJudgeProblem.split("-", 2)[1];
+
         RemoteJudgeDTO remoteJudgeDTO = RemoteJudgeDTO.builder()
                 .judgeId(toJudgeDTO.getJudge().getSubmitId())
                 .uid(toJudgeDTO.getJudge().getUid())

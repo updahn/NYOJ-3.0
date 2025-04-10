@@ -234,9 +234,9 @@ public class RemoteProblemManager {
 
     public Boolean addProblemLanguage(ProblemStrategy.RemoteProblemInfo remoteProblemInfo, String OJName,
             Problem problem) {
-        String oj = OJName.equals("VJ")
-                ? "VJ_" + ReUtil.get("VJ-(\\d+)\\(([^-]+)-", problem.getProblemId(), 2)
-                : OJName;
+        String problemId = problem.getProblemId();
+
+        String oj = problemId.startsWith("VJ") ? "VJ" : problemId.split("-")[0];
 
         QueryWrapper<Language> languageQueryWrapper = new QueryWrapper<>();
         if (OJName.equals("GYM")) {

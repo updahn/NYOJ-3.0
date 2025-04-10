@@ -89,7 +89,7 @@ public class VJProblemStrategy extends ProblemStrategy {
 		Elements listItems = document.select("#prob-descs li");
 
 		String title = document.selectFirst("h2") != null ? document.selectFirst("h2").text()
-				: JUDGE_NAME + "_" + problemId;
+				: JUDGE_NAME + "(" + problemId + ")";
 
 		List<Pair_<String, String>> descriptionList = new ArrayList<>();
 
@@ -138,8 +138,7 @@ public class VJProblemStrategy extends ProblemStrategy {
 				languagesMap = getLanguages(oj);
 			}
 
-			String realProblemId = String.valueOf((Integer) map.get("problemId"));
-			problemId = JUDGE_NAME + "-" + realProblemId + "(" + problemId + ")";
+			problemId = JUDGE_NAME + "(" + problemId + ")";
 
 			info.setProblemId(problemId);
 

@@ -319,10 +319,12 @@ public class AdminProblemManager {
 
         // 分割并处理每个题目ID
         problemIdList.parallelStream().forEach(problemId -> {
+
             // 检查题目是否已存在
             QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-            queryWrapper.like("problem_id",
-                    ojName.equals("VJ") ? problemId.toUpperCase() : ojName + "-" + problemId.toUpperCase());
+
+            queryWrapper.eq("problem_id",
+                    ojName.equals("VJ") ? "VJ(" + problemId + ")" : ojName + "-" + problemId.toUpperCase());
 
             if (finalGid == null) {
                 queryWrapper.isNull("gid");
@@ -428,13 +430,10 @@ public class AdminProblemManager {
         int rankIndex = problemDescriptionList.isEmpty() ? 1 : problemDescriptionList.get(0).getRank() + 1;
 
         String problemId = problem.getProblemId().toUpperCase();
-        String[] source = problemId.split("-");
-        String remoteOj = problemId.startsWith("VJ-") ? "VJ" : source[0];
-        String remoteProblemId = problemId.startsWith("VJ-") ? problemId.replace("VJ-", "") : source[1];
-
-        if (remoteOj.equals("VJ")) {
-            remoteProblemId = ReUtil.get("(\\d+)\\(([^)]+)\\)", remoteProblemId, 2);
-        }
+        String remoteOj = problemId.startsWith("VJ") ? "VJ" : problemId.split("-")[0];
+        String remoteProblemId = problemId.startsWith("VJ")
+                ? ReUtil.get("\\(([^)]+)\\)", problemId, 1)
+                : problemId.split("-", 2)[1];
 
         // 批量保存或更新的列表
         List<ProblemDescription> descriptionsToUpdate = new ArrayList<>();

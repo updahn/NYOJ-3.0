@@ -359,10 +359,12 @@ public class AdminTrainingProblemManager {
         }
 
         problemIdList.parallelStream().forEach(problemId -> {
+
             // 检查题目是否已存在
             QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-            queryWrapper.like("problem_id",
-                    ojName.equals("VJ") ? problemId.toUpperCase() : ojName + "-" + problemId.toUpperCase());
+
+            queryWrapper.eq("problem_id",
+                    ojName.equals("VJ") ? "VJ(" + problemId + ")" : ojName + "-" + problemId.toUpperCase());
 
             Problem problem = problemEntityService.getOne(queryWrapper, false);
 
