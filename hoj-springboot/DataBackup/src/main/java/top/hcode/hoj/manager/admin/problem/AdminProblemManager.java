@@ -433,7 +433,7 @@ public class AdminProblemManager {
         String remoteOj = problemId.startsWith("VJ") ? "VJ" : problemId.split("-")[0];
         String remoteProblemId = problemId.startsWith("VJ")
                 ? ReUtil.get("\\(([^)]+)\\)", problemId, 1)
-                : problemId.split("-", 2)[1];
+                : problemId.split("-", 2)[1].split("\\(")[0];
 
         // 批量保存或更新的列表
         List<ProblemDescription> descriptionsToUpdate = new ArrayList<>();
