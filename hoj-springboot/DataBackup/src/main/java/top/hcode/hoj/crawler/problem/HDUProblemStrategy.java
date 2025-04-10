@@ -64,9 +64,11 @@ public class HDUProblemStrategy extends ProblemStrategy {
                                 ">Sample Output</div><div .*?monospace;\">([\\s\\S]*?)(<div style=.*?</div><i style=.*?</i>)*?</div></pre>",
                                 html, 1)).append("</output>");
                 problemDescription.setExamples(sb.toString());
-                problemDescription.setHint("<pp>" + HtmlUtil.unescape(
-                                ReUtil.get("<i>Hint</i></div>([\\s\\S]*?)</div><i .*?<br><[^<>]*?panel_title[^<>]*?>",
-                                                html, 1).replaceAll("(?<=\\>)\\s+(?=\\<)", "")));
+                String hintHtml = ReUtil.get(
+                                "<div class=\"panel_title\"[^>]*?>Hint</div>\\s*<div class=\"panel_content\">([\\s\\S]*?)</div>",
+                                html, 1);
+                problemDescription.setHint(HtmlUtil.unescape(
+                                hintHtml == null ? "" : "<pp>" + hintHtml.replaceAll("(?<=\\>)\\s+(?=\\<)", "")));
                 info.setIsRemote(true);
                 problemDescription.setSource(String.format(
                                 "<a style='color:#1A5CC8' href='https://acm.hdu.edu.cn/showproblem.php?pid=%s'>%s</a>",

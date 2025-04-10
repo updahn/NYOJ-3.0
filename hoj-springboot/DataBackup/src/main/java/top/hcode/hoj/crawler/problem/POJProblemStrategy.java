@@ -63,9 +63,13 @@ public class POJProblemStrategy extends ProblemStrategy {
                                 html, 1))
                                 .append("</output>");
                 problemDescription.setExamples(sb.toString());
-                problemDescription.setHint("<pp>" + HtmlUtil.unescape(ReUtil.get(
+                String hintHtml = ReUtil.get(
                                 "<p class=.*?>Hint</p><div class=.*?>([\\s\\S]*?)</div><p class=\"pst\">", html,
-                                1).replaceAll("(?<=\\>)\\s+(?=\\<)", "").replaceAll("(?<=\\>)\\s+(?=\\<)", "")));
+                                1);
+                problemDescription.setHint(HtmlUtil.unescape(
+                                hintHtml == null ? ""
+                                                : "<pp>" + hintHtml.replaceAll("(?<=\\>)\\s+(?=\\<)", "")
+                                                                .replaceAll("(?<=\\>)\\s+(?=\\<)", "")));
                 info.setIsRemote(true);
                 problemDescription.setSource(
                                 String.format("<a style='color:#1A5CC8' href='http://poj.org/problem?id=%s'>%s</a>",
