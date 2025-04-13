@@ -343,7 +343,7 @@ public class Constants {
                 Boolean isLinux = isLinux();
 
                 if (!isLinux) {
-                    String winPath = "\\\\wsl.localhost\\Ubuntu-20.04\\home\\hoj";
+                    String winPath = "\\\\wsl.localhost\\Ubuntu-22.04\\home\\dym\\workspace\\hoj";
                     return winPath + path.replace("/", "\\");
                 } else {
                     String linuxPath = "/home/dym/hoj";
