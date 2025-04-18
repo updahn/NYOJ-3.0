@@ -1,5 +1,8 @@
 # 默认以下配置默认会读取环境变量的值
 
+# 主服务器ip
+backend-server-ip: ${BACKEND_SERVER_IP:172.17.0.1}
+
 # redis配置
 redis-host: ${REDIS_HOST:172.20.0.2}
 redis-port: ${REDIS_PORT:6379}

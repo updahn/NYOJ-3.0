@@ -10,6 +10,8 @@ import cn.hutool.system.oshi.OshiUtil;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.dockerjava.api.DockerClient;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,8 +36,10 @@ import top.hcode.hoj.pojo.entity.judge.RemoteJudgeAccount;
 import top.hcode.hoj.pojo.vo.ConfigVO;
 import top.hcode.hoj.utils.ConfigUtils;
 import top.hcode.hoj.utils.Constants;
+import top.hcode.hoj.utils.DockerClientUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author: Himit_ZH
@@ -101,6 +105,9 @@ public class ConfigManager {
     @Value("${spring.cloud.nacos.config.password}")
     private String nacosPassword;
 
+    @Value("${backend-server-ip:172.17.0.1}")
+    private String backendServerIp;
+
     /**
      * @MethodName getServiceInfo
      * @Params * @param null
@@ -157,6 +164,80 @@ public class ConfigManager {
                 Comparator.comparing(o -> o.getJSONObject("service").getJSONObject("metadata").getStr("judgeName")));
 
         return serviceInfoList;
+    }
+
+    public List<JSONObject> getDockerServiceInfo() throws StatusFailException {
+        String[] headers = {
+                "CONTAINER ID", "NAME", "IMAGE", "COMMAND", "CREATED", "STATUS",
+                "PORTS", "CPU %", "MEM USAGE / LIMIT", "MEM %", "NET I/O", "BLOCK I/O"
+        };
+
+        try {
+            DockerClient dockerclient = new DockerClientUtils().connect(backendServerIp, null);
+            List<List<String>> containerDetails = DockerClientUtils.getDockerContainerDetails(dockerclient);
+
+            // 定义状态优先级映射
+            Map<String, Integer> statusPriority = new HashMap<>();
+            statusPriority.put("Up", 1);
+            statusPriority.put("Created", 2);
+            statusPriority.put("Exited", 3);
+
+            // 对容器详情按状态进行排序
+            containerDetails.sort(Comparator.comparingInt(row -> {
+                String status = row.size() > 5 ? row.get(5) : "";
+                return statusPriority.entrySet().stream()
+                        .filter(entry -> status.startsWith(entry.getKey()))
+                        .map(Map.Entry::getValue)
+                        .findFirst()
+                        .orElse(Integer.MAX_VALUE);
+            }));
+
+            return containerDetails.stream().map(row -> {
+                JSONObject json = new JSONObject();
+                for (int i = 0; i < headers.length && i < row.size(); i++) {
+                    json.put(headers[i], row.get(i));
+                }
+                return json;
+            }).collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("[Admin Dashboard] get docker service info error, uri={}, error={}", backendServerIp,
+                    e.getMessage());
+            throw new StatusFailException("获取容器详情失败！");
+        }
+    }
+
+    public void setDockerServer(DockerConfigDTO config) throws StatusFailException {
+        String containerId = config.getContainerId();
+        String method = config.getMethod().toLowerCase();
+        String serverIp = config.getServerIp();
+
+        if (StringUtils.isEmpty(serverIp)) {
+            serverIp = backendServerIp;
+        }
+
+        try {
+            DockerClient dockerclient = new DockerClientUtils().connect(serverIp, null);
+
+            Boolean isOk = false;
+
+            if (method.equals("start")) {
+                isOk = DockerClientUtils.startContainer(dockerclient, containerId);
+            } else if (method.equals("stop")) {
+                isOk = DockerClientUtils.stopContainer(dockerclient, containerId);
+            } else if (method.equals("restart")) {
+                isOk = DockerClientUtils.restartContainer(dockerclient, containerId);
+            } else if (method.equals("pull")) {
+                isOk = DockerClientUtils.pullImage(dockerclient, containerId);
+            } else {
+                throw new StatusFailException("未知的命令！");
+            }
+
+            if (!isOk) {
+                throw new StatusFailException("操作失败！");
+            }
+        } catch (Exception e) {
+            throw new StatusFailException("操作失败！");
+        }
     }
 
     public WebConfigDTO getWebConfig() {

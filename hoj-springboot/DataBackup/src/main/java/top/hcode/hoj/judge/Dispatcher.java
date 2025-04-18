@@ -14,6 +14,7 @@ import top.hcode.hoj.dao.judge.JudgeEntityService;
 import top.hcode.hoj.dao.judge.JudgeServerEntityService;
 import top.hcode.hoj.dao.judge.impl.RemoteJudgeAccountEntityServiceImpl;
 import top.hcode.hoj.pojo.dto.CompileDTO;
+import top.hcode.hoj.pojo.dto.DockerConfigDTO;
 import top.hcode.hoj.pojo.dto.TestJudgeReq;
 import top.hcode.hoj.pojo.dto.TestJudgeRes;
 import top.hcode.hoj.pojo.dto.ToJudgeDTO;
@@ -75,6 +76,8 @@ public class Dispatcher {
             case COMPILE_SPJ:
             case COMPILE_INTERACTIVE:
                 return compile((CompileDTO) data, taskType.getPath());
+            case DOCKER:
+                return docker((DockerConfigDTO) data, taskType.getPath());
             default:
                 throw new IllegalArgumentException("判题机不支持此调用类型");
         }
@@ -259,6 +262,27 @@ public class Dispatcher {
             } finally {
                 // 无论成功与否，都要将对应的当前判题机当前判题数减1
                 releaseJudgeServer(judgeServer.getId());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 判题机docker管理
+     *
+     * @param data
+     * @param path
+     */
+    public CommonResult docker(DockerConfigDTO data, String path) {
+        CommonResult result = CommonResult.errorResponse("没有可用的判题管理服务，请重新尝试！");
+        JudgeServer judgeServer = chooseUtils.chooseDockerServer(data.getServerIp());
+        if (judgeServer != null) {
+            try {
+                result = restTemplate.postForObject("http://" + judgeServer.getUrl() + path, data,
+                        CommonResult.class);
+            } catch (Exception e) {
+                log.error("[Docker] Request the judge server [" + judgeServer.getUrl() + "] error-------------->",
+                        e.getMessage());
             }
         }
         return result;

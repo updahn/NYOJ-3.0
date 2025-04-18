@@ -184,7 +184,8 @@
         {{ $t('m.Server_Number') }}：
         <el-tag effect="dark" color="rgb(25, 190, 107)" size="mini">{{ judgeInfo.length }}</el-tag>
       </div>
-      <vxe-table stripe auto-resize :data="judgeInfo" align="center">
+      <vxe-table stripe auto-resize :data="judgeInfo" :loading="judgeLoading" align="center">
+        <!-- 主条目行 -->
         <vxe-table-column type="seq" width="50"></vxe-table-column>
         <vxe-table-column :title="$t('m.Name')" min-width="150">
           <template v-slot="{ row }">
@@ -230,6 +231,111 @@
             </el-tag>
           </template>
         </vxe-table-column>
+
+        <!-- Docker 子项渲染 -->
+        <vxe-table-column field="docker" type="expand" :title="$t('m.Unfold')" width="100">
+          <!-- 子表格 -->
+          <template #content="{ row: parentRow }">
+            <vxe-table stripe auto-resize :data="parentRow.docker" border="center">
+              <vxe-table-column type="seq" width="50" title="#"></vxe-table-column>
+              <vxe-table-column field="CONTAINER ID" :title="$t('m.Container_ID')" min-width="60"></vxe-table-column>
+              <vxe-table-column field="NAME" :title="$t('m.Container_Name')" min-width="100"></vxe-table-column>
+              <vxe-table-column field="IMAGE" :title="$t('m.Container_Image')" min-width="150"></vxe-table-column>
+              <vxe-table-column field="CPU %" :title="$t('m.Container_CPU')" min-width="20"></vxe-table-column>
+              <vxe-table-column
+                field="MEM USAGE / LIMIT"
+                :title="$t('m.Container_MEM')"
+                min-width="150"
+              ></vxe-table-column>
+              <vxe-table-column field="MEM %" :title="$t('m.Container_MEM_Usage')" min-width="20"></vxe-table-column>
+              <vxe-table-column field="NET I/O" :title="$t('m.Container_NET')" min-width="150"></vxe-table-column>
+              <vxe-table-column field="BLOCK I/O" :title="$t('m.Container_BLOCK')" min-width="100"></vxe-table-column>
+              <vxe-table-column field="COMMAND" :title="$t('m.Container_Command')" show-overflow></vxe-table-column>
+              <vxe-table-column field="PORTS" :title="$t('m.Container_Ports')" show-overflow>
+                <template v-slot="{ row }">
+                  <span>{{ row.PORTS }}</span>
+                </template>
+              </vxe-table-column>
+              <vxe-table-column field="CREATED" :title="$t('m.Container_Created')" min-width="100"></vxe-table-column>
+              <vxe-table-column field="STATUS" :title="$t('m.Container_Status')" min-width="150">
+                <template v-slot="{ row }">
+                  <span>{{ row.STATUS }}</span>
+                  <p></p>
+                  <el-tag effect="dark" color="#2d8cf0" v-if="row.STATUS.startsWith('Up')">Up</el-tag>
+                  <el-tag
+                    effect="dark"
+                    color="#f90"
+                    v-else-if="row.STATUS.startsWith('Created')"
+                  >Created</el-tag>
+                  <el-tag
+                    effect="dark"
+                    color="#ed3f14"
+                    v-else-if="row.STATUS.startsWith('Exited')"
+                  >Exited</el-tag>
+                </template>
+              </vxe-table-column>
+              <vxe-table-column min-width="150" :title="$t('m.Option')">
+                <template v-slot="{ row }">
+                  <el-button
+                    v-for="action in ['start', 'stop', 'restart', 'pull']"
+                    :key="action"
+                    type="text"
+                    size="mini"
+                    @click="editContainer(row['CONTAINER ID'], row['NAME'], action, true, parentRow.service.host)"
+                  >{{ action.charAt(0).toUpperCase() + action.slice(1) }}</el-button>
+                </template>
+              </vxe-table-column>
+            </vxe-table>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
+    </el-card>
+
+    <el-card style="margin-top:10px">
+      <div slot="header">
+        <span class="panel-title home-title">{{ $t('m.Docker_Server') }}</span>
+      </div>
+      <div style="margin-bottom: 10px;font-size: 15px;">
+        {{ $t('m.Docker_Number') }}：
+        <el-tag effect="dark" color="rgb(25, 190, 107)" size="mini">{{ dockerInfo.length }}</el-tag>
+      </div>
+      <vxe-table stripe auto-resize :data="dockerInfo" :loading="dockerLoading" align="center">
+        <vxe-table-column field="CONTAINER ID" :title="$t('m.Container_ID')" min-width="60"></vxe-table-column>
+        <vxe-table-column field="NAME" :title="$t('m.Container_Name')" min-width="100"></vxe-table-column>
+        <vxe-table-column field="IMAGE" :title="$t('m.Container_Image')" min-width="150"></vxe-table-column>
+        <vxe-table-column field="CPU %" :title="$t('m.Container_CPU')" min-width="20"></vxe-table-column>
+        <vxe-table-column field="MEM USAGE / LIMIT" :title="$t('m.Container_MEM')" min-width="150"></vxe-table-column>
+        <vxe-table-column field="MEM %" :title="$t('m.Container_MEM_Usage')" min-width="20"></vxe-table-column>
+        <vxe-table-column field="NET I/O" :title="$t('m.Container_NET')" min-width="150"></vxe-table-column>
+        <vxe-table-column field="BLOCK I/O" :title="$t('m.Container_BLOCK')" min-width="100"></vxe-table-column>
+
+        <vxe-table-column field="COMMAND" :title="$t('m.Container_Command')" show-overflow></vxe-table-column>
+        <vxe-table-column field="PORTS" :title="$t('m.Container_Ports')" show-overflow>
+          <template v-slot="{ row }">
+            <span>{{ row.PORTS }}</span>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column field="CREATED" :title="$t('m.Container_Created')" min-width="100"></vxe-table-column>
+        <vxe-table-column field="STATUS" :title="$t('m.Container_Status')" min-width="150">
+          <template v-slot="{ row }">
+            <span>{{ row.STATUS }}</span>
+            <p></p>
+            <el-tag effect="dark" color="#2d8cf0 " v-if="row.STATUS.startsWith('Up')">Up</el-tag>
+            <el-tag effect="dark" color="#f90" v-else-if="row.STATUS.startsWith('Created')">Created</el-tag>
+            <el-tag effect="dark" color="#ed3f14" v-else-if="row.STATUS.startsWith('Exited')">Exited</el-tag>
+          </template>
+        </vxe-table-column>
+        <vxe-table-column min-width="150" :title="$t('m.Option')">
+          <template v-slot="{ row }">
+            <el-button
+              v-for="action in ['start', 'stop', 'restart', 'pull']"
+              :key="action"
+              type="text"
+              size="mini"
+              @click="editContainer(row['CONTAINER ID'], row['NAME'], action, false)"
+            >{{ action.charAt(0).toUpperCase() + action.slice(1) }}</el-button>
+          </template>
+        </vxe-table-column>
       </vxe-table>
     </el-card>
   </div>
@@ -241,6 +347,8 @@ import browserDetector from "browser-detect";
 const InfoCard = () => import("@/components/admin/infoCard.vue");
 import api from "@/common/api";
 import Avatar from "vue-avatar";
+import myMessage from "@/common/message";
+
 export default {
   name: "dashboard",
   components: {
@@ -263,16 +371,21 @@ export default {
       },
       judgeInfo: [],
       session: {},
+      dockerInfo: [],
+      dockerLoading: false,
+      judgeLoading: false,
     };
   },
   mounted() {
     this.refreshJudgeServerList();
     this.refreshGeneralSystemInfo();
-    // 每5秒刷新判题机服务和后台服务的情况
+    this.refreshDockerServerList();
+    // 每10秒刷新判题机服务和后台服务的情况
     this.intervalId = setInterval(() => {
       this.refreshJudgeServerList();
       this.refreshGeneralSystemInfo();
-    }, 5000);
+      this.refreshDockerServerList();
+    }, 10000);
     api.admin_getDashboardInfo().then(
       (resp) => {
         this.infoData = resp.data.data;
@@ -289,12 +402,15 @@ export default {
   },
   methods: {
     refreshJudgeServerList() {
+      this.judgeLoading = true;
       api.getJudgeServer().then(
         (res) => {
           this.judgeInfo = res.data.data;
+          this.judgeLoading = false;
         },
         (err) => {
           clearInterval(this.intervalId);
+          this.judgeLoading = false;
         }
       );
     },
@@ -313,6 +429,48 @@ export default {
           clearInterval(this.intervalId);
         }
       );
+    },
+    refreshDockerServerList() {
+      this.dockerLoading = true;
+      api.admin_getDockerServer().then(
+        (res) => {
+          this.dockerInfo = res.data.data;
+          this.dockerLoading = false;
+        },
+        (err) => {
+          clearInterval(this.intervalId);
+          this.dockerLoading = false;
+        }
+      );
+    },
+    editContainer(containerId, containerName, action, isJudge, serverIp) {
+      this.$confirm(
+        "确定对容器 [ " +
+          containerName +
+          " ] 要执行 [ " +
+          action +
+          " ] 操作吗？",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      ).then(() => {
+        api.admin_setDockerConfig(containerId, action, serverIp, isJudge).then(
+          (res) => {
+            myMessage.success("success");
+            if (isJudge) {
+              this.refreshJudgeServerList();
+            } else {
+              this.refreshDockerServerList();
+            }
+          },
+          () => {
+            myMessage.error("error");
+          }
+        );
+      });
     },
   },
   computed: {

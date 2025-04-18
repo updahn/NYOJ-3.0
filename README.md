@@ -1315,3 +1315,102 @@ if __name__ == "__main__":
    ![image.png](docs/docs/.vuepress/public/aad4ae6c93544dfd884be596e90c3a4e.png)
    ![image.png](docs/docs/.vuepress/public/9797d78ba4ba48189fb2bb891b013ea0.png)
 2025 年 3 月 9 日 23 点
+
+# 增加 Docker 管理
+
+generate-docker-tls.sh 如下：
+
+```
+#!/bin/bash
+
+# 设置证书相关的路径
+CERT_DIR="/etc/docker/certs.d"
+KEY_DIR="$CERT_DIR"
+CA_CERT="$CERT_DIR/ca.pem"
+CA_KEY="$CERT_DIR/ca-key.pem"
+SERVER_KEY="$CERT_DIR/server-key.pem"
+SERVER_CERT="$CERT_DIR/server-cert.pem"
+CLIENT_KEY="$CERT_DIR/key.pem"
+CLIENT_CERT="$CERT_DIR/cert.pem"
+OPENSSL_CONF="/etc/ssl/openssl.cnf"
+
+# 获取本机的 IP 地址
+HOST_IP=$(hostname -I | awk '{print $1}')
+LOCALHOST="127.0.0.1"
+HOSTNAME="localhost"
+
+# 设置密码
+PASSWORD="hoj123456"
+
+# 确保证书目录存在
+mkdir -p "$CERT_DIR"
+
+# 修改 openssl.cnf 文件，支持 IP 和 localhost
+cat > "$OPENSSL_CONF" <<EOL
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+req_extensions     = v3_req
+prompt             = no
+
+[ req_distinguished_name ]
+CN = $HOST_IP
+
+[ v3_req ]
+keyUsage = digitalSignature, keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+IP.1 = $HOST_IP
+DNS.1 = $LOCALHOST
+DNS.2 = $HOSTNAME
+EOL
+
+# 创建 CA 证书
+if [ ! -f "$CA_CERT" ]; then
+    openssl genpkey -algorithm RSA -out "$CA_KEY" -aes256 -pass pass:$PASSWORD
+    openssl req -x509 -new -key "$CA_KEY" -out "$CA_CERT" -days 3650 -subj "/CN=localhost" -passin pass:$PASSWORD
+fi
+
+# 生成服务器证书
+openssl genpkey -algorithm RSA -out "$SERVER_KEY" -aes256 -pass pass:$PASSWORD
+openssl req -new -key "$SERVER_KEY" -out "$CERT_DIR/server.csr" -config "$OPENSSL_CONF" -passin pass:$PASSWORD
+openssl x509 -req -in "$CERT_DIR/server.csr" -CA "$CA_CERT" -CAkey "$CA_KEY" -CAcreateserial -out "$SERVER_CERT" -days 365 -extensions v3_req -extfile "$OPENSSL_CONF" -passin pass:$PASSWORD
+
+# 生成客户端证书
+openssl genpkey -algorithm RSA -out "$CLIENT_KEY" -aes256 -pass pass:$PASSWORD
+openssl req -new -key "$CLIENT_KEY" -out "$CERT_DIR/client.csr" -subj "/CN=client" -passin pass:$PASSWORD
+openssl x509 -req -in "$CERT_DIR/client.csr" -CA "$CA_CERT" -CAkey "$CA_KEY" -CAcreateserial -out "$CLIENT_CERT" -days 365 -passin pass:$PASSWORD
+
+# 解密密钥文件，以便 Docker 使用
+openssl rsa -in "$SERVER_KEY" -out "$SERVER_KEY" -passin pass:$PASSWORD
+openssl rsa -in "$CLIENT_KEY" -out "$CLIENT_KEY" -passin pass:$PASSWORD
+
+# 修复证书文件权限
+echo "修复证书文件权限..."
+chmod 644 "$CERT_DIR"/*
+chown root:root "$CERT_DIR"/*
+
+# 打印证书信息
+openssl x509 -in "$SERVER_CERT" -text -noout
+openssl x509 -in "$CLIENT_CERT" -text -noout
+
+# 修改 Docker 服务配置
+DOCKER_SERVICE="/lib/systemd/system/docker.service"
+
+sed -i "/^ExecStart=/c\ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock -H unix:///var/run/docker.sock --tlsverify --host=tcp://0.0.0.0:2376 --tlsverify --tlscacert=$CA_CERT --tlscert=$SERVER_CERT --tlskey=$SERVER_KEY" "$DOCKER_SERVICE"
+
+# 重新加载 systemd 配置并重启 Docker 服务
+systemctl daemon-reload
+systemctl restart docker
+
+# 检查 Docker 是否启动成功
+if systemctl is-active --quiet docker; then
+    echo "Docker 服务已成功启动，并启用了 TLS"
+else
+    echo "Docker 服务启动失败，请检查日志"
+    exit 1
+fi
+
+```

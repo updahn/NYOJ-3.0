@@ -218,6 +218,18 @@
             <artifactId>playwright</artifactId>
             <version>1.24.0</version>
         </dependency>
+        <!-- docker java -->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java</artifactId>
+            <version>3.2.13</version>
+        </dependency>
+        <!-- docker java httpclient -->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-httpclient5</artifactId>
+            <version>3.2.13</version>
+        </dependency>
 
     </dependencies>
 

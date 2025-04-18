@@ -1,14 +1,18 @@
 package top.hcode.hoj.service.admin.system.impl;
 
 import cn.hutool.json.JSONObject;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusForbiddenException;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.common.result.ResultStatus;
+import top.hcode.hoj.judge.Dispatcher;
 import top.hcode.hoj.manager.admin.system.ConfigManager;
 import top.hcode.hoj.pojo.dto.*;
 import top.hcode.hoj.service.admin.system.ConfigService;
+import top.hcode.hoj.utils.Constants;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -24,6 +28,9 @@ public class ConfigServiceImpl implements ConfigService {
     @Resource
     private ConfigManager configManager;
 
+    @Autowired
+    private Dispatcher dispatcher;
+
     @Override
     public CommonResult<JSONObject> getServiceInfo() {
         return CommonResult.successResponse(configManager.getServiceInfo());
@@ -32,6 +39,32 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public CommonResult<List<JSONObject>> getJudgeServiceInfo() {
         return CommonResult.successResponse(configManager.getJudgeServiceInfo());
+    }
+
+    @Override
+    public CommonResult<List<JSONObject>> getDockerServiceInfo() {
+        try {
+            return CommonResult.successResponse(configManager.getDockerServiceInfo());
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
+        }
+    }
+
+    @Override
+    public CommonResult setDockerServer(DockerConfigDTO config) {
+        Boolean isJudge = config.getIsJudge();
+
+        if (isJudge) {
+            // 调用判题服务,运行管理容器命令
+            return dispatcher.dispatch(Constants.TaskType.DOCKER, config);
+        }
+
+        try {
+            configManager.setDockerServer(config);
+            return CommonResult.successResponse();
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
+        }
     }
 
     @Override

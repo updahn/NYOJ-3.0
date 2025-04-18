@@ -191,7 +191,9 @@ public class Constants {
 
         INTERACTIVE_WORKPLACE_DIR("/judge/interactive"),
 
-        TMPFS_DIR("/w");
+        TMPFS_DIR("/w"),
+
+        DOCKER_DIR("/judge/docker/certs.d");
 
         private final String content;
 

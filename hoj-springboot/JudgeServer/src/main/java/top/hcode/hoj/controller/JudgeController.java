@@ -10,6 +10,7 @@ import top.hcode.hoj.common.ResultStatus;
 import top.hcode.hoj.common.exception.SystemError;
 import top.hcode.hoj.dao.JudgeServerEntityService;
 import top.hcode.hoj.pojo.dto.CompileDTO;
+import top.hcode.hoj.pojo.dto.DockerConfigDTO;
 import top.hcode.hoj.pojo.dto.TestJudgeReq;
 import top.hcode.hoj.pojo.dto.TestJudgeRes;
 import top.hcode.hoj.pojo.entity.judge.Judge;
@@ -133,4 +134,16 @@ public class JudgeController {
 
         return CommonResult.successResponse("提交成功");
     }
+
+    @PostMapping(value = "/docker")
+    public CommonResult<Void> docker(@RequestBody DockerConfigDTO dockerConfigDTO) {
+        Boolean isOk = judgeService.docker(dockerConfigDTO);
+
+        if (!isOk) {
+            return CommonResult.errorResponse("操作失败！");
+        }
+
+        return CommonResult.successResponse("提交成功");
+    }
+
 }

@@ -1,6 +1,7 @@
 package top.hcode.hoj.service;
 
 import top.hcode.hoj.common.exception.SystemError;
+import top.hcode.hoj.pojo.dto.DockerConfigDTO;
 import top.hcode.hoj.pojo.dto.TestJudgeReq;
 import top.hcode.hoj.pojo.dto.TestJudgeRes;
 import top.hcode.hoj.pojo.entity.judge.Judge;
@@ -22,4 +23,5 @@ public interface JudgeService {
     public Boolean compileInteractive(String code, Long pid, String interactiveLanguage,
             HashMap<String, String> extraFiles) throws SystemError;
 
+    public Boolean docker(DockerConfigDTO dockerConfigDTO);
 }

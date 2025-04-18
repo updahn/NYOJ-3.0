@@ -12,6 +12,10 @@ public interface ConfigService {
 
     public CommonResult<List<JSONObject>> getJudgeServiceInfo();
 
+    public CommonResult<List<JSONObject>> getDockerServiceInfo();
+
+    public CommonResult setDockerServer(DockerConfigDTO config);
+
     public CommonResult<Void> deleteHomeCarousel(Long id);
 
     public CommonResult<Void> editHomeCarousel(Long id, String addLink, String addHint);

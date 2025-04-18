@@ -1,7 +1,10 @@
 package top.hcode.hoj.service.impl;
 
+import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.github.dockerjava.api.DockerClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -10,6 +13,7 @@ import top.hcode.hoj.common.exception.SystemError;
 import top.hcode.hoj.dao.JudgeEntityService;
 import top.hcode.hoj.dao.ProblemEntityService;
 import top.hcode.hoj.judge.JudgeContext;
+import top.hcode.hoj.pojo.dto.DockerConfigDTO;
 import top.hcode.hoj.pojo.dto.TestJudgeReq;
 import top.hcode.hoj.pojo.dto.TestJudgeRes;
 import top.hcode.hoj.pojo.dto.ToJudgeDTO;
@@ -18,6 +22,8 @@ import top.hcode.hoj.pojo.entity.problem.Problem;
 import top.hcode.hoj.remoteJudge.RemoteJudgeContext;
 import top.hcode.hoj.service.JudgeService;
 import top.hcode.hoj.util.Constants;
+import top.hcode.hoj.util.DockerClientUtils;
+import top.hcode.hoj.util.IpUtils;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -153,4 +159,34 @@ public class JudgeServiceImpl implements JudgeService {
         return judgeContext.compileInteractive(code, pid, interactiveLanguage, extraFiles);
     }
 
+    @Override
+    public Boolean docker(DockerConfigDTO dockerConfigDTO) {
+        Boolean isOk = false;
+
+        String containerId = dockerConfigDTO.getContainerId();
+        String method = dockerConfigDTO.getMethod().toLowerCase();
+        String serverIp = dockerConfigDTO.getServerIp();
+
+        if (StringUtils.isEmpty(serverIp)) {
+            serverIp = IpUtils.getServiceIp();
+        }
+
+        try {
+            DockerClient dockerclient = new DockerClientUtils().connect(serverIp, null);
+
+            if (method.equals("start")) {
+                isOk = DockerClientUtils.startContainer(dockerclient, containerId);
+            } else if (method.equals("stop")) {
+                isOk = DockerClientUtils.stopContainer(dockerclient, containerId);
+            } else if (method.equals("restart")) {
+                isOk = DockerClientUtils.restartContainer(dockerclient, containerId);
+            } else if (method.equals("pull")) {
+                isOk = DockerClientUtils.pullImage(dockerclient, containerId);
+            }
+
+            return isOk;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

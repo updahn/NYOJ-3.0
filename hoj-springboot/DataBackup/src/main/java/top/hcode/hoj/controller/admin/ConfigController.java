@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.pojo.dto.ClocDTO;
 import top.hcode.hoj.pojo.dto.DBAndRedisConfigDTO;
+import top.hcode.hoj.pojo.dto.DockerConfigDTO;
 import top.hcode.hoj.pojo.dto.EmailConfigDTO;
 import top.hcode.hoj.pojo.dto.TestEmailDTO;
 import top.hcode.hoj.pojo.dto.WebConfigDTO;
@@ -46,6 +47,18 @@ public class ConfigController {
     @RequestMapping("/get-judge-service-info")
     public CommonResult<List<JSONObject>> getJudgeServiceInfo() {
         return configService.getJudgeServiceInfo();
+    }
+
+    @RequiresRoles(value = { "root", "problem_admin", "admin" }, logical = Logical.OR)
+    @RequestMapping("/get-docker-service-info")
+    public CommonResult<List<JSONObject>> getDockerServiceInfo() {
+        return configService.getDockerServiceInfo();
+    }
+
+    @RequiresRoles(value = { "root", "problem_admin", "admin" }, logical = Logical.OR)
+    @PostMapping("/set-docker-server")
+    public CommonResult setDockerServer(@RequestBody DockerConfigDTO config) {
+        return configService.setDockerServer(config);
     }
 
     @RequiresPermissions("system_info_admin")

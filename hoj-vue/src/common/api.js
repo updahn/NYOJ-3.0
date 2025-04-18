@@ -1543,6 +1543,16 @@ const adminApi = {
     return ajax('/api/admin/config/get-judge-service-info', 'get');
   },
 
+  admin_getDockerServer() {
+    return ajax('/api/admin/config/get-docker-service-info', 'get');
+  },
+
+  admin_setDockerConfig(containerId, method, serverIp, isJudge) {
+    return ajax('/api/admin/config/set-docker-server', 'post', {
+      data: { containerId, method, serverIp, isJudge },
+    });
+  },
+
   // 获取用户列表
   admin_getUserList(currentPage, limit, keyword, type) {
     let params = { currentPage, limit };

@@ -301,11 +301,6 @@ public class Constants {
 
         PROBLEM_FILE_FOLDER("/hoj/file/problem"),
 
-        // docker 容器中的映像路径
-        DOCKER_PROBLEM_FILE_FOLDER("/tmp/htmltopdf"),
-
-        DOCKER_CODE_FOLDE("/tmp/code"),
-
         CONTEST_TEXT_PRINT_FOLDER("/hoj/file/contest_print"),
 
         IMG_API("/api/public/img/"),
@@ -326,7 +321,14 @@ public class Constants {
 
         CONTEST_AC_SUBMISSION_TMP_FOLDER("/hoj/file/zip/contest_ac"),
 
-        CODE_FOLDER("/hoj/file/code");
+        CODE_FOLDER("/hoj/file/code"),
+
+        // docker 容器中的映像路径
+        DOCKER_PROBLEM_FILE_FOLDER("/tmp/htmltopdf"),
+
+        DOCKER_CODE_FOLDE("/tmp/code"),
+
+        DOCKER_CERT_PATH("/tmp/docker/certs.d");
 
         private final String path;
 
@@ -558,7 +560,12 @@ public class Constants {
         /**
          * 编译交互程序
          */
-        COMPILE_INTERACTIVE("/compile-interactive");
+        COMPILE_INTERACTIVE("/compile-interactive"),
+
+        /**
+         * 判题机docker管理
+         */
+        DOCKER("/docker");
 
         private final String path;
 

@@ -212,4 +212,25 @@ public class ChooseUtils {
         return null;
     }
 
+    /**
+     * @param
+     * @MethodName chooseDockerServer
+     * @Description 选择可以调用docker的判题服务器
+     * @Return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public JudgeServer chooseDockerServer(String serverIp) {
+        QueryWrapper<JudgeServer> judgeServerQueryWrapper = new QueryWrapper<>();
+        List<JudgeServer> judgeServerList = judgeServerEntityService.list(judgeServerQueryWrapper);
+
+        // 获取可用判题机
+        for (JudgeServer judgeServer : judgeServerList) {
+            if (judgeServer.getIp().equals(serverIp)) {
+                return judgeServer;
+            }
+        }
+
+        return null;
+    }
+
 }
