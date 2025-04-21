@@ -180,7 +180,7 @@ public class RemoteJudgeContext {
     }
 
     private RemoteJudgeStrategy buildJudgeStrategy(RemoteJudgeDTO remoteJudgeDTO) {
-        RemoteJudgeStrategy remoteJudgeStrategy = RemoteJudgeFactory.selectJudge(remoteJudgeDTO.getOj());
+        RemoteJudgeStrategy remoteJudgeStrategy = RemoteJudgeFactory.selectJudge(remoteJudgeDTO.getOj().toUpperCase());
         if (remoteJudgeStrategy == null) {
             // 更新此次提交状态为系统失败！
             UpdateWrapper<Judge> judgeUpdateWrapper = new UpdateWrapper<>();
