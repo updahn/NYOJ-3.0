@@ -8,6 +8,7 @@ import top.hcode.hoj.pojo.vo.ProblemFullScreenListVO;
 import top.hcode.hoj.pojo.vo.ProblemInfoVO;
 import top.hcode.hoj.pojo.vo.ProblemVO;
 import top.hcode.hoj.pojo.vo.RandomProblemVO;
+import top.hcode.hoj.pojo.vo.RemotejudgeVO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,4 +35,5 @@ public interface ProblemService {
 
     public CommonResult<List<ProblemFullScreenListVO>> getFullScreenProblemList(Long tid, Long cid);
 
+    public CommonResult<List<RemotejudgeVO>> getRemoteJudgeStatusList(String remoteOj);
 }

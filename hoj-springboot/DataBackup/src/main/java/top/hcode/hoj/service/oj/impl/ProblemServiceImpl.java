@@ -15,6 +15,7 @@ import top.hcode.hoj.pojo.vo.ProblemFullScreenListVO;
 import top.hcode.hoj.pojo.vo.ProblemInfoVO;
 import top.hcode.hoj.pojo.vo.ProblemVO;
 import top.hcode.hoj.pojo.vo.RandomProblemVO;
+import top.hcode.hoj.pojo.vo.RemotejudgeVO;
 import top.hcode.hoj.service.oj.ProblemService;
 
 import javax.annotation.Resource;
@@ -101,5 +102,10 @@ public class ProblemServiceImpl implements ProblemService {
         } catch (StatusAccessDeniedException e) {
             return CommonResult.errorResponse(e.getMessage(), ResultStatus.ACCESS_DENIED);
         }
+    }
+
+    @Override
+    public CommonResult<List<RemotejudgeVO>> getRemoteJudgeStatusList(String remoteOj) {
+        return CommonResult.successResponse(problemManager.getRemoteJudgeStatusList(remoteOj));
     }
 }

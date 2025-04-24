@@ -265,4 +265,28 @@
         GROUP BY us.uid, ui.username, us.realname
         ORDER BY COUNT(DISTINCT j.ip) DESC
     </select>
+
+    <select id="getRemoteJudgeList" resultType="top.hcode.hoj.pojo.entity.judge.Judge">
+        SELECT j.submit_id, j.display_pid, j.gmt_create, j.status
+        FROM judge j
+        LEFT JOIN problem p ON j.pid = p.id
+        <where>
+            j.cid = 0 AND j.gid IS NULL
+            AND p.status = 0 AND p.is_remote = 1
+            <if test="statusList!=null and statusList.size > 0">
+                AND j.status NOT IN
+                <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                    #{status}
+                </foreach>
+            </if>
+            <if test="remoteOJName!=null">
+                AND j.display_pid LIKE CONCAT(#{remoteOJName}, '%')
+            </if>
+            <if test="strTime != null">
+                AND UNIX_TIMESTAMP(j.gmt_create) > UNIX_TIMESTAMP(#{strTime})
+            </if>
+        </where>
+        ORDER BY j.gmt_create DESC
+    </select>
+
 </mapper>

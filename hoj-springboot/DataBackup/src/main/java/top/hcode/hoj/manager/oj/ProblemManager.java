@@ -17,6 +17,7 @@ import top.hcode.hoj.common.exception.StatusForbiddenException;
 import top.hcode.hoj.common.exception.StatusNotFoundException;
 import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
+import top.hcode.hoj.dao.judge.RemoteJudgeEntityService;
 import top.hcode.hoj.dao.problem.*;
 import top.hcode.hoj.dao.training.TrainingProblemEntityService;
 import top.hcode.hoj.exception.AccessException;
@@ -25,6 +26,7 @@ import top.hcode.hoj.pojo.dto.PidListDTO;
 import top.hcode.hoj.pojo.dto.ProblemRes;
 import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.entity.judge.Judge;
+import top.hcode.hoj.pojo.entity.judge.RemoteJudge;
 import top.hcode.hoj.pojo.entity.problem.*;
 import top.hcode.hoj.pojo.entity.training.TrainingProblem;
 import top.hcode.hoj.pojo.vo.*;
@@ -93,6 +95,9 @@ public class ProblemManager {
 
     @Autowired
     private TrainingProblemEntityService trainingProblemEntityService;
+
+    @Autowired
+    private RemoteJudgeEntityService remoteJudgeEntityService;
 
     /**
      * @MethodName getProblemList
@@ -478,4 +483,63 @@ public class ProblemManager {
             throw new StatusFailException("请求参数错误：tid或cid不能为空");
         }
     }
+
+    public List<RemotejudgeVO> getRemoteJudgeStatusList(String remoteOj) {
+        // 查询远程评测记录
+        QueryWrapper<RemoteJudge> queryWrapper = new QueryWrapper<RemoteJudge>()
+                .orderByDesc("gmt_create");
+        if (!StringUtils.isEmpty(remoteOj)) {
+            queryWrapper.eq("oj", remoteOj);
+        }
+
+        List<RemoteJudge> remoteJudgeList = remoteJudgeEntityService.list(queryWrapper);
+
+        // 按OJ分组处理
+        Map<String, RemotejudgeVO> resultMap = new HashMap<>();
+
+        // 处理查询结果
+        for (RemoteJudge judge : remoteJudgeList) {
+            String oj = judge.getOj();
+            RemotejudgeVO vo = resultMap.computeIfAbsent(oj,
+                    k -> new RemotejudgeVO(k, new ArrayList<>(), new ArrayList<>()));
+
+            // 每个OJ只保留最新的25条记录
+            if (vo.getPercentList().size() < 25) {
+                vo.getPercentList().add(judge.getPercent());
+                vo.getCreateTimeList().add(judge.getGmtCreate());
+            }
+        }
+
+        List<Constants.RemoteOJ> remoteOjList = Constants.RemoteOJ.getRemoteOJList();
+
+        // 如果未指定远程OJ，则补充所有支持的OJ
+        if (StringUtils.isEmpty(remoteOj)) {
+            remoteOjList.forEach(oj -> resultMap.putIfAbsent(oj.getName(),
+                    new RemotejudgeVO(oj.getName(), new ArrayList<>(), new ArrayList<>())));
+        }
+
+        // 设置每个OJ的可见性状态（使用最新一条记录的状态）
+        resultMap.values().forEach(vo -> {
+            if (!vo.getPercentList().isEmpty()) {
+                vo.setPercent(vo.getPercentList().get(0));
+            }
+        });
+
+        // 处理并返回结果
+        return resultMap.values().stream()
+                .peek(vo -> {
+                    Collections.reverse(vo.getPercentList());
+                    Collections.reverse(vo.getCreateTimeList());
+                })
+                .sorted(Comparator.comparingInt(vo -> {
+                    for (int i = 0; i < remoteOjList.size(); i++) {
+                        if (remoteOjList.get(i).getName().equals(vo.getOj())) {
+                            return i;
+                        }
+                    }
+                    return -1;
+                }))
+                .collect(Collectors.toList());
+    }
+
 }

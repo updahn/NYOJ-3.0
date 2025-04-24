@@ -232,6 +232,39 @@
           </el-col>
         </el-row>
       </el-card>
+      <el-card v-if="remotejudgeStatusList.length > 0" :padding="10" style="margin-top:20px">
+        <div slot="header" style="text-align: center;">
+          <span class="taglist-title">{{ $t('m.Remote_Judge_Status') }}</span>
+        </div>
+        <div v-loading="loadings.remotejudge">
+          <div v-for="item in remotejudgeStatusList" :key="item.oj" class="remote-judge-item">
+            <div class="remote-judge-title">{{ item.oj }}</div>
+            <div class="remote-judge-status">
+              <el-tooltip
+                v-for="(status, i) in item.percentList"
+                :key="i"
+                effect="dark"
+                placement="top"
+              >
+                <template
+                  #content
+                >{{ item.createTimeList[i] | localtime }}: {{ item.percentList[i] }}%</template>
+                <div class="status-bar" :style="'background-color:' + (status ? 'green' : 'red')"></div>
+              </el-tooltip>
+            </div>
+
+            <div class="remote-judge-percent">
+              <i
+                type="primary"
+                size="mini"
+                class="el-icon-s-opportunity"
+                v-if="item.percent != null"
+                :style="'color:' + (item.percent == 100 ? 'green' : item.percent == 0 ? 'red' : 'orange')"
+              >{{ item.percent == 100 ? 'Up' : item.percent == 0 ? 'Down' : 'Normal' }}</i>
+            </div>
+          </div>
+        </div>
+      </el-card>
       <el-card :padding="10" style="margin-top:20px">
         <div slot="header" style="text-align: center;">
           <span class="taglist-title">{{ OJName + ' ' + $t('m.Tags') }}</span>
@@ -247,7 +280,7 @@
             ></el-input>
           </div>
         </div>
-        <template v-if="searchTagClassificationList.length > 0" v-loading="loadings.tag">
+        <div v-if="searchTagClassificationList.length > 0" v-loading="loadings.tag">
           <el-row :gutter="10" v-for="(item,index) in secondClassificationTemp" :key="index">
             <el-col
               v-for="(tagsAndClassification,i) in item"
@@ -282,10 +315,10 @@
             <i class="fa fa-random"></i>
             {{ $t('m.Pick_a_random_question') }}
           </el-button>
-        </template>
-        <template v-else>
+        </div>
+        <div v-else>
           <el-empty :description="$t('m.No_Data')"></el-empty>
-        </template>
+        </div>
       </el-card>
     </el-col>
   </el-row>
@@ -328,6 +361,7 @@ export default {
       loadings: {
         table: true,
         tag: true,
+        remotejudge: true,
       },
       filterConfig: { remote: true },
       filterTagList: [],
@@ -351,6 +385,7 @@ export default {
       searchTag: "",
       searchTagClassificationList: [],
       activeTagClassificationIdList: [],
+      remotejudgeStatusList: [],
     };
   },
   created() {
@@ -376,6 +411,7 @@ export default {
       { status: 4, count: 100 },
     ];
     this.getTagList(this.query.oj);
+    this.getremotejudgeStatusList(this.query.oj);
     this.loadings.table = true;
     setTimeout(() => {
       // 将指定列设置为隐藏状态
@@ -629,6 +665,7 @@ export default {
       }
       this.query.currentPage = 1;
       this.getTagList(this.query.oj);
+      this.getremotejudgeStatusList(this.query.oj);
       this.pushRouter();
     },
     filterByKeyword() {
@@ -707,6 +744,21 @@ export default {
       } else {
         return this.$i18n.t("m.Unclassified");
       }
+    },
+    getremotejudgeStatusList(oj) {
+      if (oj == "All") {
+        oj = null;
+      }
+      this.loadings.remotejudge = true;
+      api.getremotejudgeStatusList(oj).then(
+        (res) => {
+          this.remotejudgeStatusList = res.data.data;
+          this.loadings.remotejudge = false;
+        },
+        (err) => {
+          this.loadings.remotejudge = false;
+        }
+      );
     },
   },
   computed: {
@@ -845,5 +897,34 @@ ul {
 }
 /deep/.el-collapse-item__content {
   padding-bottom: 10px !important;
+}
+
+.remote-judge-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.remote-judge-title {
+  flex: 1;
+  font-weight: bold;
+}
+
+.remote-judge-percent {
+  flex: 0.5;
+  font-weight: bold;
+}
+
+.remote-judge-status {
+  flex: 2;
+  display: flex;
+  align-items: center;
+}
+
+.status-bar {
+  height: 15px;
+  width: 5px;
+  margin-right: 1px;
+  cursor: pointer;
 }
 </style>

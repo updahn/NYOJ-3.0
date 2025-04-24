@@ -282,6 +282,7 @@ export const m = {
   Touch_Get_Status: 'Please touch or hover the mouse to the designated problem line to view the submission status',
   Good_luck_to_you: 'Good luck to you!',
   Problem_Type: 'Type',
+  Remote_Judge_Status: 'Remote Judge Status',
 
   // /views/oj/problem/Problem.vue
   Problem_Description: 'Problem Description',

@@ -17,11 +17,13 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import top.hcode.hoj.crawler.problem.ProblemStrategy;
 import top.hcode.hoj.dao.common.FileEntityService;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
+import top.hcode.hoj.dao.judge.RemoteJudgeEntityService;
 import top.hcode.hoj.dao.msg.AdminSysNoticeEntityService;
 import top.hcode.hoj.dao.msg.UserSysNoticeEntityService;
 import top.hcode.hoj.dao.multiOj.UserMultiOjEntityService;
@@ -32,11 +34,14 @@ import top.hcode.hoj.dao.user.UserRecordEntityService;
 import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.manager.admin.multiOj.MultiOjInfoManager;
 import top.hcode.hoj.manager.admin.problem.RemoteProblemManager;
+import top.hcode.hoj.manager.admin.rejudge.RejudgeManager;
 import top.hcode.hoj.manager.msg.AdminNoticeManager;
 import top.hcode.hoj.manager.oj.CookieManager;
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.dto.MultiOjDto;
 import top.hcode.hoj.pojo.entity.common.File;
 import top.hcode.hoj.pojo.entity.judge.Judge;
+import top.hcode.hoj.pojo.entity.judge.RemoteJudge;
 import top.hcode.hoj.pojo.entity.msg.AdminSysNotice;
 import top.hcode.hoj.pojo.entity.msg.UserSysNotice;
 import top.hcode.hoj.pojo.entity.problem.Problem;
@@ -50,6 +55,7 @@ import top.hcode.hoj.utils.ClocUtils;
 import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.JsoupUtils;
 import top.hcode.hoj.utils.RedisUtils;
+import top.hcode.hoj.utils.Constants.RemoteOJ;
 
 import javax.annotation.Resource;
 import javax.net.ssl.SSLException;
@@ -57,6 +63,7 @@ import javax.net.ssl.SSLException;
 import java.net.HttpCookie;
 import java.net.SocketTimeoutException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -140,6 +147,18 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Resource
     private RemoteProblemManager remoteProblemManager;
+
+    @Resource
+    private RejudgeManager rejudgeManager;
+
+    @Resource
+    private RemoteJudgeEntityService remoteJudgeEntityService;
+
+    private List<Integer> notInStatuses = Arrays.asList(
+        Constants.Judge.STATUS_PENDING.getStatus(),
+        Constants.Judge.STATUS_SYSTEM_ERROR.getStatus(),
+        Constants.Judge.STATUS_SUBMITTED_FAILED.getStatus()
+    );
 
     /**
      * @MethodName deleteAvatar
@@ -669,21 +688,46 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    @Scheduled(cron = "0 0/20 * * * ?")
+    @Scheduled(cron = "0 0/20 8-23 * * ?")
+    // @Scheduled(cron = "0 0/20 * * * ?")
     public void check20MPendingSubmission() {
-        DateTime dateTime = DateUtil.offsetMinute(new Date(), -15);
+        DateTime dateTime = DateUtil.offsetDay(new Date(), -1);
         String strTime = DateFormatUtils.format(dateTime, "yyyy-MM-dd HH:mm:ss");
 
         QueryWrapper<Judge> judgeQueryWrapper = new QueryWrapper<>();
         judgeQueryWrapper.select("distinct submit_id");
         judgeQueryWrapper.eq("status", Constants.Judge.STATUS_PENDING.getStatus());
-        judgeQueryWrapper.apply("UNIX_TIMESTAMP('" + strTime + "') > UNIX_TIMESTAMP(gmt_modified)");
+        judgeQueryWrapper.apply("UNIX_TIMESTAMP(gmt_modified) > " + "UNIX_TIMESTAMP('" + strTime + "')");
         List<Judge> judgeList = judgeEntityService.list(judgeQueryWrapper);
         if (!CollectionUtils.isEmpty(judgeList)) {
-            log.info("Half An Hour Check Pending Submission to Rejudge:" + Arrays.toString(judgeList.toArray()));
-            for (Judge judge : judgeList) {
-                rejudgeService.rejudge(judge.getSubmitId());
-            }
+            log.info("Half An Hour Check Pending Submission to Rejudge: Size(): " + judgeList.size() + " List(): "
+                    + Arrays.toString(judgeList.toArray()));
+            judgeList.parallelStream().forEach(judge -> {
+                String displayId = judge.getDisplayPid();
+                String remoteOJName = displayId.startsWith("VJ") ? "VJ" : displayId.split("-")[0].toUpperCase();
+
+                Judge updatedJudge = judgeEntityService.getById(judge.getSubmitId());
+
+                // 获取对应的redis key
+                String redisKey = Constants.Schedule.CHECK_REMOTE_JUDGE.getCode() + "_" + remoteOJName;
+
+                if (redisUtils.get(redisKey) == null) {
+                    try {
+                        rejudgeRemoteOj(updatedJudge);
+                    } catch (Exception e) {
+                        // 记录这次检查的judge
+                        redisUtils.set(redisKey, judge.getSubmitId());
+                    }
+                }
+
+                // 获取judge的状态
+                int status = judgeEntityService.getById(judge.getSubmitId()).getStatus();
+
+                if (!notInStatuses.contains(status)) {
+                    // 如果有提交成功的，则删除
+                    redisUtils.del(redisKey);
+                }
+            });
         }
     }
 
@@ -747,6 +791,146 @@ public class ScheduleServiceImpl implements ScheduleService {
             // 更新题目状态为废弃
             problemEntityService.updateById(problem);
         });
+    }
+
+    @Override
+    @Transactional
+    // @Scheduled(cron = "0 0/20 * * * ?")
+    @Scheduled(cron = "0 0 8-23 * * ?") // 每小时第0分钟执行一次，8点到23点之间
+    public void check30MRemoteJudgeVisible() {
+
+        List<RemoteOJ> remoteOJList = Constants.RemoteOJ.getRemoteOJList();
+
+        // 获取一小时前的时间
+        String strTime = DateFormatUtils.format(DateUtil.offsetMinute(new Date(), -55), "yyyy-MM-dd HH:mm:ss");
+
+        // 获取 judge 列表
+        List<Judge> judgeList = Optional.ofNullable(
+            judgeEntityService.getRemoteJudgeList(notInStatuses, null, strTime)
+        ).orElse(new ArrayList<>());
+
+        // 封装为 Pair 列表
+        List<Pair_<Judge, Boolean>> checkJudgeList = judgeList.stream()
+            .map(judge -> new Pair_<Judge, Boolean>(judge, false))
+            .collect(Collectors.toCollection(ArrayList::new));
+
+        // 再获取所有 remote judge（不限制时间）
+        List<Judge> remoteJudgeList = judgeEntityService.getRemoteJudgeList(notInStatuses, null, null);
+
+        // 每个 remoteOJName 只保留第一条 Judge
+        Map<String, Judge> uniqueOJJudgeMap = new ConcurrentHashMap<>();
+
+        remoteJudgeList.parallelStream().forEach(judge -> {
+            String displayId = judge.getDisplayPid();
+            String remoteOJName = displayId.startsWith("VJ") ? "VJ" : displayId.split("-")[0].toUpperCase();
+
+            if (uniqueOJJudgeMap.putIfAbsent(remoteOJName, judge) == null) {
+                checkJudgeList.add(new Pair_<Judge, Boolean>(judge, true));
+                judgeList.add(judge);
+            }
+        });
+
+        if (!CollectionUtils.isEmpty(judgeList)) {
+            log.info("An Hour Check Remote Judge Visible: Size(): " + judgeList.size() + " List(): " + Arrays.toString(judgeList.toArray()));
+
+            Map<String, List<Long>> successSubmitIds = new HashMap<>();
+            Map<String, List<Long>> totalSubmitIds = new HashMap<>();
+
+            checkJudgeList.parallelStream().forEach(judge_pair -> {
+                Judge judge = judge_pair.getKey();
+
+                String displayId = judge.getDisplayPid();
+                String remoteOJName = displayId.startsWith("VJ") ? "VJ" : displayId.split("-")[0].toUpperCase();
+
+                totalSubmitIds.computeIfAbsent(remoteOJName, k -> new ArrayList<>()).add(judge.getSubmitId());
+
+                Judge updatedJudge = judgeEntityService.getById(judge.getSubmitId());
+
+                // 获取对应的redis key
+                String redisKey = Constants.Schedule.CHECK_REMOTE_JUDGE.getCode() + "_" + remoteOJName;
+
+                // 如果judge_pair.getValue()为true，则进行重测
+                if (judge_pair.getValue()) {
+                    if (redisUtils.get(redisKey) == null) {
+                        try {
+                            rejudgeRemoteOj(updatedJudge);
+                        } catch (Exception e) {
+                            // 记录这次检查的judge
+                            redisUtils.set(redisKey, judge.getSubmitId());
+                        }
+                    }
+                }
+
+                // 获取judge的状态
+                int status = judgeEntityService.getById(judge.getSubmitId()).getStatus();
+
+                if (!notInStatuses.contains(status)) {
+                    // 如果有提交成功的，则删除
+                    redisUtils.del(redisKey);
+                    successSubmitIds.computeIfAbsent(remoteOJName, k -> new ArrayList<>()).add(judge.getSubmitId());
+                } else {
+                    log.info("Remote Judge Visible: OJ: {} SubmitId: {} Failed", remoteOJName, judge.getSubmitId());
+                }
+            });
+
+            // 保存各远程OJ的可用性比例
+            for(RemoteOJ remoteOJ : remoteOJList) {
+                String name = remoteOJ.getName();
+                int successCount = successSubmitIds.getOrDefault(name, Collections.emptyList()).size();
+                int totalCount = totalSubmitIds.getOrDefault(name, Collections.emptyList()).size();
+
+                if (totalCount > 0) {
+                    remoteJudgeEntityService.save(new RemoteJudge().setOj(name).setPercent(successCount / totalCount * 100));
+                }
+            }
+        }
+    }
+
+    /**
+     * @MethodName deleteRemoteJudgeVisible
+     * @Params * @param null
+     * @Description 每天3点定时删除一个月前的远程评测状态
+     * @Return
+     */
+    @Scheduled(cron = "0 0 3 * * *")
+    @Override
+    public void deleteRemoteJudgeVisible() {
+        UpdateWrapper<RemoteJudge> remoteJudgeUpdateWrapper = new UpdateWrapper<>();
+        DateTime dateTime = DateUtil.offsetMonth(new Date(), -1);
+        String strTime = DateFormatUtils.format(dateTime, "yyyy-MM-dd HH:mm:ss");
+        remoteJudgeUpdateWrapper.apply("UNIX_TIMESTAMP(gmt_create) >= UNIX_TIMESTAMP('" + strTime + "')");
+
+        boolean isOk = remoteJudgeEntityService.remove(remoteJudgeUpdateWrapper);
+        if (!isOk) {
+            log.error("=============数据库remote_judge表定时删除一个月前的远程评测状态失败===============");
+        }
+    }
+
+    public void rejudgeRemoteOj(Judge judge) throws Exception {
+        // 重测
+        rejudgeManager.rejudge(judge.getSubmitId(), true);
+
+        long start = System.currentTimeMillis();
+        long maxWaitMillis = TimeUnit.MINUTES.toMillis(30);
+
+        Judge judgeResult = judgeEntityService.getById(judge.getSubmitId());
+
+        while (judgeResult.getStatus() == Constants.Judge.STATUS_PENDING.getStatus()
+                && System.currentTimeMillis() - start < maxWaitMillis
+                ) {
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException ignored) {
+            }
+            judgeResult = judgeEntityService.getById(judgeResult.getSubmitId());
+        }
+
+        if (!notInStatuses.contains(judgeResult.getStatus())) {
+            // 更新回原来的状态
+            judgeEntityService.saveOrUpdate(judge);
+        } else {
+            throw new Exception("Remote judge failed");
+        }
     }
 
     private String getDissolutionGroupContent(int count) {

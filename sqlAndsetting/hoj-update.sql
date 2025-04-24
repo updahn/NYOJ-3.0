@@ -3003,5 +3003,35 @@ CALL add_Problem_Status;
 DROP PROCEDURE add_Problem_Status;
 
 
+/*
+* 添加 remote_judge
 
+*/
+DROP PROCEDURE
+IF EXISTS add_remoteJudge;
+DELIMITER $$
+
+CREATE PROCEDURE add_remoteJudge ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'remote_judge'
+) THEN
+	CREATE TABLE `remote_judge` (
+		`oj` varchar(255) NOT NULL COMMENT '题目id',
+		`percent` int(11) DEFAULT NULL COMMENT '通过率, 0~100',
+		`gmt_create` datetime DEFAULT CURRENT_TIMESTAMP
+	) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_remoteJudge ;
+
+DROP PROCEDURE add_remoteJudge;
 

@@ -281,6 +281,7 @@ export const m = {
   Touch_Get_Status: '请点击或悬停鼠标至问题行查看提交状态',
   Good_luck_to_you: '祝你好运!',
   Problem_Type: '题型',
+  Remote_Judge_Status: '远程评测状态',
 
   // /views/oj/problem/Problem.vue
   Problem_Description: '题目描述',

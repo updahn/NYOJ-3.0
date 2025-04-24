@@ -77,4 +77,6 @@ public interface JudgeEntityService extends IService<Judge> {
             List<String> removeUidList);
 
     public List<SessionVO> getContestJudgeUserList(Long cid);
+
+    public List<Judge> getRemoteJudgeList(List<Integer> statusList, String remoteOJName, String strTime);
 }

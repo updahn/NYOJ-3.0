@@ -278,16 +278,24 @@
             </span>
           </div>
           <el-row :gutter="20">
-            <el-col :md="8" :sm="24" v-for="(oj, index) in remoteJudgeList" :key="index">
+            <el-col :md="8" :sm="24" v-for="(oj, index) in remotejudgeStatusList" :key="index">
               <a :href="oj.url" target="_blank">
-                <el-tooltip :content="oj.name" placement="top">
+                <el-tooltip placement="top">
+                  <div slot="content">
+                    <span>{{ oj.name }} `</span>
+                    <i
+                      type="primary"
+                      size="mini"
+                      class="el-icon-s-opportunity"
+                      v-if="oj.percent != null"
+                      :style="'color:' + (oj.percent == 100 ? 'green' : oj.percent == 0 ? 'red' : 'orange')"
+                    >{{ oj.percent == 100 ? 'Up' : oj.percent == 0 ? 'Down' : 'Normal' }}</i>
+                  </div>
                   <el-image
                     :src="oj.logo"
                     fit="fill"
                     class="oj-logo"
-                    :class="
-                      oj.status ? 'oj-normal ' + oj.name : 'oj-error ' + oj.name
-                    "
+                    :class="(oj.percent == 100 ? 'oj-up ' : oj.percent == 0 ? 'oj-down ' : 'oj-part ') + oj.name"
                   >
                     <div slot="error" class="image-slot">
                       <i class="el-icon-picture-outline"></i>
@@ -336,7 +344,9 @@ export default {
         recent7ACRankLoading: false,
         recentUpdatedProblemsLoading: false,
         recentContests: false,
+        remotejudge: false,
       },
+      remotejudgeStatusList: [],
       carouselImgList: [
         {
           url: "https://z1.ax1x.com/2023/12/09/pi20luQ.jpg",
@@ -351,79 +361,66 @@ export default {
           url: "http://acm.hdu.edu.cn",
           name: "HDU",
           logo: require("@/assets/hdu-logo.png"),
-          status: true,
         },
         {
           url: "http://poj.org",
           name: "POJ",
           logo: require("@/assets/poj-logo.png"),
-          status: true,
         },
         {
           url: "https://codeforces.com",
           name: "Codeforces",
           logo: require("@/assets/codeforces-logo.png"),
-          status: true,
         },
         {
           url: "https://codeforces.com/gyms",
           name: "GYM",
           logo: require("@/assets/gym-logo.png"),
-          status: true,
         },
         {
           url: "https://atcoder.jp",
           name: "AtCoder",
           logo: require("@/assets/atcoder-logo.png"),
-          status: true,
         },
         {
           url: "https://www.spoj.com",
           name: "SPOJ",
           logo: require("@/assets/spoj-logo.png"),
-          status: true,
         },
         {
           url: "https://loj.ac/",
           name: "LibreOJ",
           logo: require("@/assets/libre-logo.png"),
-          status: true,
         },
         {
           url: "http://scpc.fun",
           name: "SCPC",
           logo: require("@/assets/scpc-logo.png"),
-          status: true,
         },
         {
           url: "https://qoj.ac/",
           name: "QOJ",
           logo: require("@/assets/qoj-logo.png"),
-          status: true,
         },
         {
           url: "http://oj.ecustacm.cn/",
           name: "NEWOJ",
           logo: require("@/assets/newoj-logo.png"),
-          status: true,
         },
         {
           url: "https://vjudge.net",
           name: "VJ",
           logo: require("@/assets/vj-logo.png"),
-          status: true,
         },
         {
           url: "https://www.dotcpp.com/oj/problemset.php",
           name: "DOTCPP",
           logo: require("@/assets/dotcpp-logo.png"),
-          status: true,
         },
         {
           url: "https://acm.nyist.edu.cn",
           name: "NSWOJ",
           logo: require("@/assets/nswoj-logo.png"),
-          status: true,
         },
       ],
     };
@@ -441,6 +438,7 @@ export default {
     this.getRecentContests();
     this.getRecent7ACRank();
     this.getRecentUpdatedProblemList();
+    this.getremotejudgeStatusList();
   },
   methods: {
     linkTo() {
@@ -546,6 +544,32 @@ export default {
     getRankTagClass(rowIndex) {
       return "rank-tag no" + (rowIndex + 1);
     },
+    getremotejudgeStatusList() {
+      this.loading.remotejudge = true;
+      api.getremotejudgeStatusList().then(
+        (res) => {
+          const remotejudgeStatusList = res.data.data;
+          this.loading.remotejudge = false;
+
+          this.remotejudgeStatusList = this.remoteJudgeList.map((item) => ({
+            ...item,
+            percent: remotejudgeStatusList.find((item2) =>
+              item.name.toUpperCase().includes(this.getOJName(item2.oj))
+            )?.percent,
+          }));
+        },
+        () => {
+          this.loading.remotejudge = false;
+        }
+      );
+    },
+
+    getOJName(oj) {
+      return (
+        { CF: "CODEFORCES", AC: "ATCODER", LIBRE: "LIBREOJ" }[oj] ||
+        oj.toUpperCase()
+      );
+    },
   },
   computed: {
     ...mapState(["websiteConfig"]),
@@ -593,11 +617,17 @@ export default {
   background: rgb(255, 255, 255);
   min-height: 47px;
 }
-.oj-normal {
+.oj-up {
   border-color: #409eff;
 }
-.oj-error {
-  border-color: #e65c47;
+.oj-part {
+  border-color: orange;
+}
+.oj-down {
+  border-color: red;
+}
+.oj-info {
+  border-color: #475669;
 }
 
 .el-carousel__item h3 {

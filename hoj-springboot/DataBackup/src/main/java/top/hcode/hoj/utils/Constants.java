@@ -2,6 +2,9 @@ package top.hcode.hoj.utils;
 
 import top.hcode.hoj.utils.SpringContextUtil;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @Author: Himit_ZH
  * @Date: 2021/1/1 13:00
@@ -126,6 +129,10 @@ public class Constants {
                 }
             }
             return null;
+        }
+
+        public static List<RemoteOJ> getRemoteOJList() {
+            return Arrays.asList(HDU, CODEFORCES, POJ, GYM, ATCODER, SPOJ, LIBRE, SCPC, QOJ, NSWOJ, NEWOJ, VJ, DOTCPP);
         }
     }
 
@@ -391,7 +398,9 @@ public class Constants {
     }
 
     public enum Schedule {
-        RECENT_OTHER_CONTEST("recent-other-contest");
+        RECENT_OTHER_CONTEST("recent-other-contest"),
+
+        CHECK_REMOTE_JUDGE("check-remote-judge");
 
         private final String code;
 

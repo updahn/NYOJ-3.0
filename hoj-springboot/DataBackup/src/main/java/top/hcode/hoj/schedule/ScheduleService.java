@@ -34,4 +34,8 @@ public interface ScheduleService {
     void checkUnHandleGroupProblemApplyProgress();
 
     void checkRemoteProblem();
+
+    void check30MRemoteJudgeVisible();
+
+    void deleteRemoteJudgeVisible();
 }

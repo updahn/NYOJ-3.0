@@ -79,4 +79,7 @@ public interface JudgeMapper extends BaseMapper<Judge> {
             @Param("uidList") List<String> uidList);
 
     List<SessionVO> getContestJudgeUserList(@Param("cid") Long cid);
+
+    List<Judge> getRemoteJudgeList(@Param("statusList") List<Integer> statusList,
+            @Param("remoteOJName") String remoteOJName, @Param("strTime") String strTime);
 }

@@ -173,6 +173,11 @@ public class JudgeEntityServiceImpl extends ServiceImpl<JudgeMapper, Judge> impl
         return judgeMapper.getProblemListCount(pidList);
     }
 
+    @Override
+    public List<Judge> getRemoteJudgeList(List<Integer> statusList, String remoteOJName, String strTime) {
+        return judgeMapper.getRemoteJudgeList(statusList, remoteOJName, strTime);
+    }
+
     public List<ContestScrollBoardSubmissionVO> getContestScrollBoardSubmission(Long cid, List<String> removeUidList) {
         return judgeMapper.getContestScrollBoardSubmission(cid, removeUidList);
     }

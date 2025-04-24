@@ -135,4 +135,17 @@ public class ProblemController {
         return problemService.getFullScreenProblemList(tid, cid);
     }
 
+    /**
+     * 获取当前远程评测的状态
+     *
+     * @param remoteOj
+     * @return
+     */
+    @GetMapping("/get-remote-judge-status-list")
+    @AnonApi
+    public CommonResult<List<RemotejudgeVO>> getRemoteJudgeStatus(
+            @RequestParam(value = "remoteOj", required = false) String remoteOj) {
+        return problemService.getRemoteJudgeStatusList(remoteOj);
+    }
+
 }
