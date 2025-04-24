@@ -471,6 +471,12 @@ const ojApi = {
     });
   },
 
+  admin_pageProblemRejudge(submitIds) {
+    return ajax('/api/admin/judge/rejudge-page-problem', 'post', {
+      data: { submitIds },
+    });
+  },
+
   // ------------------------------------训练模块的请求---------------------------------------------
 
   // 获取训练分类列表

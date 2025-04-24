@@ -367,6 +367,8 @@ export const m = {
   Cancel_Judge_Tips: '你是否确定将该提交标记为已取消？',
   Cancel_Successfully: '取消成功',
   Click_to_Manually_Judge: '点击进行人工评测',
+  Rejudge_AllPage: '重测整页',
+  Rejudge_AllPage_Tips: '该操作会将显示的该页全部内容重测，是否确定？',
 
   // /views/oj/status/SubmissionDetails.vue
   Test_point_details: '测试点详情',
@@ -565,6 +567,7 @@ export const m = {
   Rejudge_All: '重测',
   Contest_Rejudge_Tips: '您确定重测所有提交记录?',
   Rejudge_successfully: '重测成功',
+  Rejudge_failed: '重测失败',
 
   // /views/oj/contest/children/ScrollBoard.vue
   ScrollBoard_Parameter_Config: '滚榜参数配置',

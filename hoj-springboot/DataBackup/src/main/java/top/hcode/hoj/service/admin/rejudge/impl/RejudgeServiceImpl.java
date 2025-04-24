@@ -1,5 +1,7 @@
 package top.hcode.hoj.service.admin.rejudge.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.hcode.hoj.common.exception.StatusFailException;
@@ -53,6 +55,15 @@ public class RejudgeServiceImpl implements RejudgeService {
     public CommonResult<Judge> cancelJudge(Long submitId) {
         try {
             return CommonResult.successResponse(rejudgeManager.cancelJudge(submitId));
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
+        }
+    }
+
+    @Override
+    public CommonResult<List<Judge>> rejudgePageProblem(List<Long> submitIds) {
+        try {
+            return CommonResult.successResponse(rejudgeManager.rejudgePageProblem(submitIds));
         } catch (StatusFailException e) {
             return CommonResult.errorResponse(e.getMessage());
         }

@@ -5,12 +5,17 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import top.hcode.hoj.common.result.CommonResult;
+import top.hcode.hoj.pojo.dto.SubmitIdListDTO;
 import top.hcode.hoj.pojo.entity.judge.Judge;
 import top.hcode.hoj.service.admin.rejudge.RejudgeService;
+
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -56,5 +61,12 @@ public class AdminJudgeController {
     @RequiresPermissions("rejudge")
     public CommonResult<Judge> cancelJudge(@RequestParam("submitId") Long submitId) {
         return rejudgeService.cancelJudge(submitId);
+    }
+
+    @PostMapping("/rejudge-page-problem")
+    @RequiresAuthentication
+    @RequiresPermissions("rejudge")
+    public CommonResult<List<Judge>> rejudgePageProblem(@RequestBody SubmitIdListDTO submitIdListDto) {
+        return rejudgeService.rejudgePageProblem(submitIdListDto.getSubmitIds());
     }
 }

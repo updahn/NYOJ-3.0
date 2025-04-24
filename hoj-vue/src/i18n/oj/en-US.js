@@ -367,6 +367,8 @@ export const m = {
   Cancel_Judge_Tips: 'Are you sure you want to mark this submission as Cancelled?',
   Cancel_Successfully: 'Cancel Successfully',
   Click_to_Manually_Judge: 'Click to Manually Judge',
+  Rejudge_AllPage: 'Rejudge All Page',
+  Rejudge_AllPage_Tips: 'The operation will rejudge all the content displayed on this page. Are you sure?',
 
   // /views/oj/status/SubmissionDetails.vue
   Test_point_details: 'Test point details',
@@ -565,6 +567,7 @@ export const m = {
   Contest_Rejudge_Tips: 'Are you sure you want to rejudge all submissions of the questions?',
   Rejudge_All: 'Rejudge All',
   Rejudge_successfully: 'Rejudge successfully',
+  Rejudge_failed: 'Rejudge failed',
 
   // /views/oj/contest/children/ScrollBoard.vue
   ScrollBoard_Parameter_Config: 'Scroll Board Config',

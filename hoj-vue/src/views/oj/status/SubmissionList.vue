@@ -322,8 +322,14 @@
               </span>
             </template>
           </vxe-table-column>
-          <!-- 非比赛提交记录，超级管理员可以对提交进行重判 -->
           <vxe-table-column v-if="rejudgeColumnVisible" :title="$t('m.Option')" min-width="90">
+            <template v-slot:header>
+              <vxe-button
+                size="mini"
+                @click="handleRejudgePageProblem()"
+                :loading="rejudgeAllPageStatus"
+              >{{ $t('m.Rejudge_AllPage') }}</vxe-button>
+            </template>
             <template v-slot="{ row }">
               <vxe-button
                 v-if="!row.synchronous"
@@ -447,6 +453,7 @@ export default {
         status: null,
         score: null,
       },
+      rejudgeAllPageStatus: false,
     };
   },
   created() {
@@ -962,6 +969,66 @@ export default {
           }
         )
         .catch(() => {});
+    },
+    // 弹出确认框
+    handleRejudgePageProblem() {
+      this.$confirm(
+        this.$i18n.t("m.Rejudge_AllPage_Tips"),
+        this.$i18n.t("m.Warning"),
+        {
+          confirmButtonText: this.$i18n.t("m.OK"),
+          cancelButtonText: this.$i18n.t("m.Cancel"),
+          type: "warning",
+        }
+      ).then(() => {
+        const submitIdList = this.submissions.map((item) => item.submitId);
+        this.rejudgeAllPageStatus = true;
+        let xTable = this.$refs.xTable;
+
+        api
+          .admin_pageProblemRejudge(submitIdList)
+          .then((res) => {
+            let dataList = res.data.data;
+
+            myMessage.success(this.$i18n.t("m.Rejudge_successfully"));
+
+            for (let i = 0; i < this.submissions.length; i++) {
+              let row = this.submissions[i];
+              let data = dataList[i];
+
+              if (data != null) {
+                // 重判开始，需要将该提交的部分参数初始化
+                row.status = data.status;
+                row.score = null;
+                row.time = data.time;
+                row.memory = data.memory;
+                row.errorMessage = data.errorMessage;
+                row.judger = data.judger;
+                row.loading = false;
+                row.isManual = false;
+                // 重新加载该行数据到view
+                xTable.reloadRow(row, null, null);
+
+                this.submissions[row.index] = data;
+                this.submissions[row.index].loading = false;
+
+                // 加入待重判列表
+                this.needCheckSubmitIds[row.submitId] = row.index;
+                this.checkStatusNum = 0;
+                if (!this.autoCheckOpen) {
+                  // 如果当前未开启自动检查提交状态的定时任务，则开启
+                  this.checkSubmissionsStatus();
+                }
+              }
+            }
+          })
+          .catch(() => {
+            myMessage.error(this.$i18n.t("m.Rejudge_failed"));
+          })
+          .finally(() => {
+            this.rejudgeAllPageStatus = false;
+          });
+      });
     },
   },
   computed: {

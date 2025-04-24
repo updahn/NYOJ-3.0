@@ -1,5 +1,7 @@
 package top.hcode.hoj.service.admin.rejudge;
 
+import java.util.List;
+
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.pojo.entity.judge.Judge;
 
@@ -12,4 +14,7 @@ public interface RejudgeService {
     CommonResult<Judge> manualJudge(Long submitId, Integer status, Integer score);
 
     CommonResult<Judge> cancelJudge(Long submitId);
+
+    CommonResult<List<Judge>> rejudgePageProblem(List<Long> submitIds);
+
 }

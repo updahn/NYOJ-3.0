@@ -378,4 +378,20 @@ public class RejudgeManager {
                 .setStatus(Constants.Judge.STATUS_CANCELLED.getStatus());
         return res;
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    public List<Judge> rejudgePageProblem(List<Long> submitIds) throws StatusFailException {
+        List<Judge> res = new ArrayList<>();
+
+        // 遍历发送评测
+        for (Long submitId : submitIds) {
+            try {
+                Judge judge = rejudge(submitId);
+                res.add(judge);
+            } catch (Exception e) {
+                res.add(null); // 如果评测失败，则添加null
+            }
+        }
+        return res;
+    }
 }
