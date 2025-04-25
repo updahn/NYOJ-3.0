@@ -23,4 +23,9 @@ public class UserFileServiceImpl implements UserFileService {
     public void generateUserExcel(String key, HttpServletResponse response) throws IOException {
         userFileManager.generateUserExcel(key, response);
     }
+
+    @Override
+    public void generateUserBar(String key, HttpServletResponse response) throws IOException {
+        userFileManager.generateUserBar(key, response);
+    }
 }

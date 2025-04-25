@@ -46,4 +46,14 @@ public class UserFileManager {
         }
         return result;
     }
+
+    public void generateUserBar(String key, HttpServletResponse response) throws IOException {
+        String htmlContent = (String) redisUtils.get(key);
+        response.setContentType("text/html;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        // 设置文件名，防止中文乱码
+        String fileName = URLEncoder.encode(key, "UTF-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".html");
+        response.getWriter().write(htmlContent);
+    }
 }

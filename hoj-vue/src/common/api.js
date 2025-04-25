@@ -1642,6 +1642,11 @@ const adminApi = {
       params: params,
     });
   },
+  admin_resetUserPassword(users) {
+    return ajax('/api/admin/user/reset-user-password', 'post', {
+      data: { users },
+    });
+  },
   admin_generateUser(data) {
     return ajax('/api/admin/user/generate-user', 'post', {
       data,

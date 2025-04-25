@@ -28,4 +28,6 @@ public interface AdminUserService {
 
     public CommonResult<Void> applyUsersAccount(List<List<String>> users, String contestUrl, String contestTitle);
 
+    public CommonResult<Map<Object, Object>> resetUserPassword(List<List<String>> users);
+
 }

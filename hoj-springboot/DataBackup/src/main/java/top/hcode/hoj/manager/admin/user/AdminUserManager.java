@@ -25,16 +25,19 @@ import top.hcode.hoj.dao.user.UserSignEntityService;
 import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.manager.email.EmailManager;
 import top.hcode.hoj.manager.msg.AdminNoticeManager;
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.dto.AdminEditUserDTO;
 import top.hcode.hoj.pojo.entity.user.UserInfo;
 import top.hcode.hoj.pojo.entity.user.UserPreferences;
 import top.hcode.hoj.pojo.entity.user.UserSign;
 import top.hcode.hoj.pojo.entity.user.UserRecord;
 import top.hcode.hoj.pojo.entity.user.UserRole;
+import top.hcode.hoj.pojo.vo.PasswordBarVO;
 import top.hcode.hoj.pojo.vo.UserRolesVO;
 import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.Md5Utils;
+import top.hcode.hoj.utils.PasswordBarUtils;
 import top.hcode.hoj.utils.PasswordUtils;
 import top.hcode.hoj.utils.RedisUtils;
 
@@ -248,10 +251,13 @@ public class AdminUserManager {
 
         if (user.size() >= 5) {
             String gender = user.get(4);
-            if ("male".equals(gender.toLowerCase()) || "0".equals(gender)) {
-                userInfo.setGender("male");
-            } else if ("female".equals(gender.toLowerCase()) || "1".equals(gender)) {
-                userInfo.setGender("female");
+
+            if (!StringUtils.isEmpty(gender)) {
+                if ("male".equals(gender.toLowerCase()) || "0".equals(gender)) {
+                    userInfo.setGender("male");
+                } else if ("female".equals(gender.toLowerCase()) || "1".equals(gender)) {
+                    userInfo.setGender("female");
+                }
             }
         }
 
@@ -395,12 +401,73 @@ public class AdminUserManager {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public Map<Object, Object> resetUserPassword(List<List<String>> users) throws StatusFailException {
+
+        List<UserInfo> userInfoList = new LinkedList<>();
+        List<UserRolesVO> userRolesVOList = new LinkedList<>();
+
+        String htmlContent = "";
+
+        HashMap<String, Object> userInfoMap = new HashMap<>(); // 存储账号密码放入redis中，等待导出excel
+        List<Pair_<String, String>> uidList = new LinkedList<>();
+        for (List<String> user : users) {
+            String username = user.get(0);
+            String password = user.size() < 2 || StringUtils.isEmpty(user.get(1)) ? null : user.get(1);
+
+            if (StringUtils.isEmpty(password)) {
+                password = PasswordUtils.generateRamdomPassword(8);
+            }
+
+            QueryWrapper<UserInfo> usernameUserInfoQueryWrapper = new QueryWrapper<>();
+            usernameUserInfoQueryWrapper.eq("username", username);
+            UserInfo userInfo = userInfoEntityService.getOne(usernameUserInfoQueryWrapper, false);
+
+            if (userInfo != null) {
+                // 重置密码
+                userInfoList.add(userInfo.setPassword(Md5Utils.generateSaltMD5Password(password)));
+                uidList.add(new Pair_<>(userInfo.getUuid(), password));
+            }
+
+            userInfoMap.put(username, password);
+
+            userRolesVOList.add(userRoleEntityService.getUserRoles(null, username));
+        }
+
+        boolean result1 = userInfoEntityService.saveOrUpdateBatch(userInfoList);
+
+        List<PasswordBarVO> passwordBarList = new LinkedList<>();
+        for (UserRolesVO userRolesVo : userRolesVOList) {
+            String password = userInfoMap.get(userRolesVo.getUsername()).toString();
+            passwordBarList.add(new PasswordBarVO(userRolesVo.getCourse(), userRolesVo.getRealname(),
+                    userRolesVo.getUsername(), password, null));
+        }
+
+        // 生成密码条
+        htmlContent = PasswordBarUtils.createHtmlContent(passwordBarList);
+
+        if (result1) {
+            String csvKey = IdUtil.simpleUUID();
+            redisUtils.hmset(csvKey, userInfoMap, 1800); // 存储半小时
+
+            String htmlKey = IdUtil.simpleUUID();
+            redisUtils.set(htmlKey, htmlContent, 1800); // 存储半小时
+
+            // 异步同步系统通知
+            adminNoticeManager.syncNoticeToResetPasswordBatchUser(uidList);
+
+            return MapUtil.builder().put("csv", csvKey).put("html", htmlKey).map();
+        } else {
+            throw new StatusFailException("重置密码失败！注意查看用户名是否存在！");
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public String sendUserAccount(List<String> user, String contestUrl, String contestTitle)
             throws StatusFailException {
         String username = user.get(0);
         String password = user.get(1);
         String email = user.get(2);
-        String school = user.size() <= 6 || StringUtils.isEmpty(user.get(6)) ? null : user.get(6);
+        String school = user.size() <= 3 || StringUtils.isEmpty(user.get(3)) ? null : user.get(3);
 
         if (StringUtils.isEmpty(email)) {
             return null;

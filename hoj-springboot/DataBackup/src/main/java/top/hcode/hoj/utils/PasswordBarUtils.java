@@ -194,7 +194,7 @@ public class PasswordBarUtils {
      * @param passwordBarList 账号信息列表
      * @return 生成的 HTML 字符串
      */
-    private static String createHtmlContent(List<PasswordBarVO> passwordBarList) {
+    public static String createHtmlContent(List<PasswordBarVO> passwordBarList) {
         StringBuilder sb = new StringBuilder();
         sb.append("<!DOCTYPE html>\n<html>\n<head>\n")
                 .append("<meta charset=\"UTF-8\">\n")
@@ -231,10 +231,10 @@ public class PasswordBarUtils {
                     .append("    <th>密码</th>\n")
                     .append("  </tr>\n")
                     .append("  <tr>\n")
-                    .append("    <td><pre>").append(vo.getCourse()).append("</pre></td>\n")
-                    .append("    <td><pre>").append(vo.getName()).append("</pre></td>\n")
-                    .append("    <td><pre>").append(vo.getAccount()).append("</pre></td>\n")
-                    .append("    <td><pre>").append(vo.getPassword()).append("</pre></td>\n")
+                    .append("    <td><pre>").append(vo.getCourse() == null ? "" : vo.getCourse()).append("</pre></td>\n")
+                    .append("    <td><pre>").append(vo.getName() == null ? "" : vo.getName()).append("</pre></td>\n")
+                    .append("    <td><pre>").append(vo.getAccount() == null ? "" : vo.getAccount()).append("</pre></td>\n")
+                    .append("    <td><pre>").append(vo.getPassword() == null ? "" : vo.getPassword()).append("</pre></td>\n")
                     .append("  </tr>\n")
                     .append("</table><br/>\n\n");
         }

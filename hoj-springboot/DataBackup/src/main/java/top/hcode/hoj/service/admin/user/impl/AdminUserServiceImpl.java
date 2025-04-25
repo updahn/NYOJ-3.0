@@ -84,4 +84,12 @@ public class AdminUserServiceImpl implements AdminUserService {
         }
     }
 
+    @Override
+    public CommonResult<Map<Object, Object>> resetUserPassword(List<List<String>> users) {
+        try {
+            return CommonResult.successResponse(adminUserManager.resetUserPassword(users));
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
+        }
+    }
 }

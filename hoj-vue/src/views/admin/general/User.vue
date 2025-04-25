@@ -115,104 +115,250 @@
 
     <!-- 导入csv用户数据 -->
     <el-card style="margin-top:20px">
-      <div slot="header">
-        <span class="panel-title home-title">{{ $t('m.Import_User') }} / {{ $t('m.Apply_Account')}}</span>
-      </div>
-      <p>1. {{ $t('m.Import_User_Tips2') }}</p>
-      <p>2. {{ $t('m.Import_User_Tips3') }}</p>
-      <p>3. {{ $t('m.Import_User_Tips4') }}</p>
-      <el-upload
-        v-if="!uploadUsers.length"
-        action
-        :show-file-list="false"
-        accept=".csv, .xlsx, .xls"
-        :before-upload="handleUsersCSV"
-      >
-        <el-button size="small" icon="el-icon-folder-opened" type="primary">
-          {{
-          $t('m.Choose_File')
-          }}
-        </el-button>
-      </el-upload>
-      <template v-else>
-        <vxe-table :data="uploadUsersPage" stripe auto-resize>
-          <vxe-table-column :title="$t('m.Username')" field="username" min-width="96" show-overflow>
-            <template v-slot="{ row }">{{ row[0] }}</template>
-          </vxe-table-column>
-          <vxe-table-column
-            :title="$t('m.Password')"
-            field="password"
-            min-width="130"
-            show-overflow
+      <el-tabs style="margin-top:1rem;" @tab-click="handleTabClick" v-model="activeTab">
+        <el-tab-pane name="importUser">
+          <template #label>
+            <span class="panel-title home-title">{{ $t('m.Import_User') }}</span>
+          </template>
+          <p>1. {{ $t('m.Import_User_Tips2') }}</p>
+          <p>2. {{ $t('m.Import_User_Tips3') }}</p>
+          <p>3. {{ $t('m.Import_User_Tips4') }}</p>
+          <el-upload
+            v-if="!uploadUsers.length"
+            action
+            :show-file-list="false"
+            accept=".csv, .xlsx, .xls"
+            :before-upload="handleUsersCSV"
           >
-            <template v-slot="{ row }">{{ row[1] }}</template>
-          </vxe-table-column>
-          <vxe-table-column :title="$t('m.Email')" field="email" min-width="120" show-overflow>
-            <template v-slot="{ row }">{{ row[2] }}</template>
-          </vxe-table-column>
-          <vxe-table-column
-            :title="$t('m.RealName')"
-            field="realname"
-            min-width="150"
-            show-overflow
-          >
-            <template v-slot="{ row }">{{ row[3] }}</template>
-          </vxe-table-column>
-          <vxe-table-column :title="$t('m.Gender')" field="gender" min-width="60" show-overflow>
-            <template v-slot="{ row }">{{ row[4] }}</template>
-          </vxe-table-column>
-          <vxe-table-column
-            :title="$t('m.Nickname')"
-            field="nickname"
-            min-width="100"
-            show-overflow
-          >
-            <template v-slot="{ row }">{{ row[5] }}</template>
-          </vxe-table-column>
-          <vxe-table-column :title="$t('m.School')" field="school" min-width="100" show-overflow>
-            <template v-slot="{ row }">{{ row[6] }}</template>
-          </vxe-table-column>
-          <vxe-table-column :title="$t('m.Course')" field="course" min-width="96" show-overflow>
-            <template v-slot="{ row }">{{ row[7] }}</template>
-          </vxe-table-column>
-          <vxe-table-column
-            :title="$t('m.Student_Number')"
-            field="number"
-            min-width="96"
-            show-overflow
-          >
-            <template v-slot="{ row }">{{ row[8] }}</template>
-          </vxe-table-column>
-        </vxe-table>
+            <el-button size="small" icon="el-icon-folder-opened" type="primary">
+              {{
+              $t('m.Choose_File')
+              }}
+            </el-button>
+          </el-upload>
+          <template v-else>
+            <vxe-table :data="uploadUsersPage" stripe auto-resize>
+              <vxe-table-column
+                :title="$t('m.Username')"
+                field="username"
+                min-width="96"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[0] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.Password')"
+                field="password"
+                min-width="130"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[1] }}</template>
+              </vxe-table-column>
+              <vxe-table-column :title="$t('m.Email')" field="email" min-width="120" show-overflow>
+                <template v-slot="{ row }">{{ row[2] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.RealName')"
+                field="realname"
+                min-width="150"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[3] }}</template>
+              </vxe-table-column>
+              <vxe-table-column :title="$t('m.Gender')" field="gender" min-width="60" show-overflow>
+                <template v-slot="{ row }">{{ row[4] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.Nickname')"
+                field="nickname"
+                min-width="100"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[5] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.School')"
+                field="school"
+                min-width="100"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[6] }}</template>
+              </vxe-table-column>
+              <vxe-table-column :title="$t('m.Course')" field="course" min-width="96" show-overflow>
+                <template v-slot="{ row }">{{ row[7] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.Student_Number')"
+                field="number"
+                min-width="96"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[8] }}</template>
+              </vxe-table-column>
+            </vxe-table>
 
-        <div class="panel-options">
-          <el-button
-            type="danger"
-            size="small"
-            icon="el-icon-delete"
-            @click="handleResetData"
-          >{{ $t('m.Clear_All') }}</el-button>
-          <el-button
-            type="primary"
-            size="small"
-            icon="el-icon-upload"
-            @click="handleUsersUpload"
-          >{{ $t('m.Upload_All') }}</el-button>
-          <el-button
-            type="primary"
-            size="small"
-            icon="el-icon-position"
-            @click="handleApplyAccount"
-          >{{ $t('m.Send_All') }}</el-button>
-          <el-pagination
-            class="page"
-            layout="prev, pager, next"
-            :page-size="uploadUsersPageSize"
-            :current-page.sync="uploadUsersCurrentPage"
-            :total="uploadUsers.length"
-          ></el-pagination>
-        </div>
-      </template>
+            <div class="panel-options">
+              <el-button
+                type="danger"
+                size="small"
+                icon="el-icon-delete"
+                @click="handleResetData"
+              >{{ $t('m.Clear_All') }}</el-button>
+              <el-button
+                type="primary"
+                size="small"
+                icon="el-icon-upload"
+                :loading="loadingUserUpload"
+                @click="handleUsersUpload"
+              >{{ $t('m.Upload_All') }}</el-button>
+              <el-pagination
+                class="page"
+                layout="prev, pager, next"
+                :page-size="uploadUsersPageSize"
+                :current-page.sync="uploadUsersCurrentPage"
+                :total="uploadUsers.length"
+              ></el-pagination>
+            </div>
+          </template>
+        </el-tab-pane>
+        <el-tab-pane name="applyAccount">
+          <template #label>
+            <span class="panel-title home-title">{{ $t('m.Apply_Account') }}</span>
+          </template>
+          <p>1. {{ $t('m.Import_User_Tips11') }}</p>
+          <p>2. {{ $t('m.Import_User_Tips12') }}</p>
+          <el-upload
+            v-if="!uploadUsers.length"
+            action
+            :show-file-list="false"
+            accept=".csv, .xlsx, .xls"
+            :before-upload="handleUsersCSV"
+          >
+            <el-button size="small" icon="el-icon-folder-opened" type="primary">
+              {{
+              $t('m.Choose_File')
+              }}
+            </el-button>
+          </el-upload>
+          <template v-else>
+            <vxe-table :data="uploadUsersPage" stripe auto-resize>
+              <vxe-table-column
+                :title="$t('m.Username')"
+                field="username"
+                min-width="96"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[0] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.Password')"
+                field="password"
+                min-width="130"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[1] }}</template>
+              </vxe-table-column>
+              <vxe-table-column :title="$t('m.Email')" field="email" min-width="120" show-overflow>
+                <template v-slot="{ row }">{{ row[2] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.School')"
+                field="school"
+                min-width="100"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[3] }}</template>
+              </vxe-table-column>
+            </vxe-table>
+
+            <div class="panel-options">
+              <el-button
+                type="danger"
+                size="small"
+                icon="el-icon-delete"
+                @click="handleResetData"
+              >{{ $t('m.Clear_All') }}</el-button>
+              <el-button
+                type="primary"
+                size="small"
+                icon="el-icon-position"
+                :loading="loadingApplyAccount"
+                @click="handleApplyAccount"
+              >{{ $t('m.Send_All') }}</el-button>
+              <el-pagination
+                class="page"
+                layout="prev, pager, next"
+                :page-size="uploadUsersPageSize"
+                :current-page.sync="uploadUsersCurrentPage"
+                :total="uploadUsers.length"
+              ></el-pagination>
+            </div>
+          </template>
+        </el-tab-pane>
+        <el-tab-pane name="resetPassword">
+          <template #label>
+            <span class="panel-title home-title">{{ $t('m.Reset_Password') }}</span>
+          </template>
+          <p>1. {{ $t('m.Import_User_Tips13') }}</p>
+          <p>2. {{ $t('m.Import_User_Tips14') }}</p>
+          <el-upload
+            v-if="!uploadUsers.length"
+            action
+            :show-file-list="false"
+            accept=".csv, .xlsx, .xls"
+            :before-upload="handleUsersCSV"
+          >
+            <el-button size="small" icon="el-icon-folder-opened" type="primary">
+              {{
+              $t('m.Choose_File')
+              }}
+            </el-button>
+          </el-upload>
+          <template v-else>
+            <vxe-table :data="uploadUsersPage" stripe auto-resize>
+              <vxe-table-column
+                :title="$t('m.Username')"
+                field="username"
+                min-width="96"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[0] }}</template>
+              </vxe-table-column>
+              <vxe-table-column
+                :title="$t('m.Password')"
+                field="password"
+                min-width="130"
+                show-overflow
+              >
+                <template v-slot="{ row }">{{ row[1] }}</template>
+              </vxe-table-column>
+            </vxe-table>
+
+            <div class="panel-options">
+              <el-button
+                type="danger"
+                size="small"
+                icon="el-icon-delete"
+                @click="handleResetData"
+              >{{ $t('m.Clear_All') }}</el-button>
+              <el-button
+                type="primary"
+                size="small"
+                icon="el-icon-refresh"
+                :loading="loadingResetPassword"
+                @click="handleResetPassword"
+              >{{ $t('m.Reset_All') }}</el-button>
+              <el-pagination
+                class="page"
+                layout="prev, pager, next"
+                :page-size="uploadUsersPageSize"
+                :current-page.sync="uploadUsersCurrentPage"
+                :total="uploadUsers.length"
+              ></el-pagination>
+            </div>
+          </template>
+        </el-tab-pane>
+      </el-tabs>
     </el-card>
 
     <!--生成用户数据-->
@@ -420,7 +566,7 @@
         </el-button>
       </span>
     </el-dialog>
-    <el-dialog :title="$t('m.Apply_Account')" :visible.sync="showApplyAccountDialog" width="400px">
+    <el-dialog :title="$t('m.Apply_Account')" :visible.sync="loadingApplyAccount" width="400px">
       <el-form>
         <el-form-item :label="$t('m.Contest_Url')">
           <el-input v-model="contestUrl" size="small"></el-input>
@@ -528,7 +674,6 @@ export default {
       keyword: "",
       // 是否显示用户对话框
       showUserDialog: false,
-      showApplyAccountDialog: false,
       onlyAdmin: false,
 
       // 当前用户model
@@ -625,6 +770,10 @@ export default {
       isPasswdCustom: false,
       contestUrl: null,
       contestTitle: null,
+      loadingUserUpload: false,
+      loadingApplyAccount: false,
+      loadingResetPassword: false,
+      activeTab: "importUser", // 默认0为导入用户，1为发送账号，2为重置账号密码，获取密码条和修改后的用户表
     };
   },
   mounted() {
@@ -773,13 +922,41 @@ export default {
         // 调用 exel 解析方法
         const results = await exel.parse(file);
 
-        let data = results.filter((user) => {
-          return user[0] && user[1];
-        });
+        let data = [];
+        if (
+          this.activeTab == "importUser" ||
+          this.activeTab == "applyAccount"
+        ) {
+          data = results.filter((user) => {
+            return user[0] && user[1];
+          });
+        } else if (this.activeTab == "applyAccount") {
+          data = results.filter((user) => {
+            return user[0] && user[1] && user[2];
+          });
+        } else if (this.activeTab == "resetPassword") {
+          data = results.filter((user) => {
+            return user[0];
+          });
+        }
+
         let delta = results.length - data.length;
         if (delta > 0) {
-          myMessage.warning(delta + this.$i18n.t("m.Generate_Skipped_Reason"));
+          if (this.activeTab == "importUser") {
+            myMessage.warning(
+              delta + this.$i18n.t("m.Generate_Skipped_Reason")
+            );
+          } else if (this.activeTab == "applyAccount") {
+            myMessage.warning(
+              delta + this.$i18n.t("m.Generate_Skipped_Reason3")
+            );
+          } else if (this.activeTab == "resetPassword") {
+            myMessage.warning(
+              delta + this.$i18n.t("m.Generate_Skipped_Reason4")
+            );
+          }
         }
+
         this.uploadUsersCurrentPage = 1;
         this.uploadUsers = data;
         this.uploadUsersPage = data.slice(0, this.uploadUsersPageSize);
@@ -790,17 +967,44 @@ export default {
       }
     },
     handleUsersUpload() {
+      this.loadingUserUpload = true;
       api
         .admin_importUsers(this.uploadUsers)
         .then((res) => {
           this.getUserList(1);
           this.handleResetData();
           myMessage.success(this.$i18n.t("m.Upload_Users_Successfully"));
+          this.loadingUserUpload = false;
         })
-        .catch(() => {});
+        .catch(() => {
+          this.loadingUserUpload = false;
+        });
     },
     handleApplyAccount() {
-      this.showApplyAccountDialog = true;
+      this.loadingApplyAccount = true;
+    },
+    handleResetPassword() {
+      this.loadingResetPassword = true;
+      api
+        .admin_resetUserPassword(this.uploadUsers)
+        .then((res) => {
+          let csv_url =
+            "/api/file/generate-user-excel?key=" + res.data.data.csv;
+
+          this.$alert(this.$i18n.t("m.Reset_Users_Password_Success"), "Tips");
+
+          utils.downloadFile(csv_url).then(() => {});
+
+          let html_url =
+            "/api/file/generate-user-bar?key=" + res.data.data.html;
+          utils.downloadFile(html_url).then(() => {});
+
+          this.handleResetData();
+          this.loadingResetPassword = false;
+        })
+        .catch(() => {
+          this.loadingResetPassword = false;
+        });
     },
     confirmDialog() {
       api
@@ -811,12 +1015,20 @@ export default {
         )
         .then((res) => {
           myMessage.success(this.$i18n.t("m.Apply_Users_Account_Successfully"));
-          this.showApplyAccountDialog = false;
+          this.loadingApplyAccount = false;
         })
-        .catch(() => {});
+        .catch(() => {
+          this.loadingApplyAccount = false;
+        });
     },
     handleResetData() {
       this.uploadUsers = [];
+    },
+    handleTabClick(tab) {
+      if (tab.name != this.activeTab) {
+        this.activeTab = tab.name;
+        this.uploadUsers = [];
+      }
     },
   },
   computed: {

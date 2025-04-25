@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
+import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.entity.msg.AdminSysNotice;
 import top.hcode.hoj.pojo.entity.msg.UserSysNotice;
 import top.hcode.hoj.pojo.vo.AdminSysNoticeVO;
@@ -85,6 +86,29 @@ public class AdminNoticeManager {
                 userSysNotice.setType("Sys")
                         .setSysNoticeId(adminSysNotice.getId())
                         .setRecipientId(uid);
+                userSysNoticeList.add(userSysNotice);
+            }
+        }
+        userSysNoticeEntityService.saveOrUpdateBatch(userSysNoticeList);
+    }
+
+    @Async
+    public void syncNoticeToResetPasswordBatchUser(List<Pair_<String, String>> uidList) {
+        List<UserSysNotice> userSysNoticeList = new ArrayList<>();
+
+        for (Pair_<String, String> uid : uidList) {
+            AdminSysNotice adminSysNotice = new AdminSysNotice();
+            adminSysNotice.setAdminId(uid.getKey())
+                    .setType("Single")
+                    .setTitle("来自系统的密码重置通知")
+                    .setContent("您的账户密码已重置为：" + uid.getValue())
+                    .setState(true);
+            boolean isOk = adminSysNoticeEntityService.save(adminSysNotice);
+            if (isOk) {
+                UserSysNotice userSysNotice = new UserSysNotice();
+                userSysNotice.setType("Sys")
+                        .setSysNoticeId(adminSysNotice.getId())
+                        .setRecipientId(uid.getKey());
                 userSysNoticeList.add(userSysNotice);
             }
         }

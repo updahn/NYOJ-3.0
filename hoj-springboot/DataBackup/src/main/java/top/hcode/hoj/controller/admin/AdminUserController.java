@@ -72,4 +72,10 @@ public class AdminUserController {
         return adminUserService.applyUsersAccount((List<List<String>>) params.get("users"), contestUrl, contestTitle);
     }
 
+    @PostMapping("/reset-user-password")
+    @RequiresPermissions("user_admin")
+    @RequiresAuthentication
+    public CommonResult<Map<Object, Object>> resetUserPassword(@RequestBody Map<String, Object> params) {
+        return adminUserService.resetUserPassword((List<List<String>>) params.get("users"));
+    }
 }

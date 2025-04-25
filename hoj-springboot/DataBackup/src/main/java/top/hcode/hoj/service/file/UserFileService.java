@@ -6,4 +6,6 @@ import java.io.IOException;
 public interface UserFileService {
 
     public void generateUserExcel(String key, HttpServletResponse response) throws IOException;
+
+    public void generateUserBar(String key, HttpServletResponse response) throws IOException;
 }

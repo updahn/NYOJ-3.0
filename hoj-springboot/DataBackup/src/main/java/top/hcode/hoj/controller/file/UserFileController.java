@@ -30,4 +30,11 @@ public class UserFileController {
         userFileService.generateUserExcel(key, response);
     }
 
+    @RequestMapping("/generate-user-bar")
+    @RequiresAuthentication
+    @RequiresRoles("root")
+    public void generateUserBar(@RequestParam("key") String key, HttpServletResponse response) throws IOException {
+        userFileService.generateUserBar(key, response);
+    }
+
 }
