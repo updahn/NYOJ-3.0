@@ -260,7 +260,9 @@ export const m = {
   Selected_Description: '选择题面',
   PDF_Description_View: 'PDF 题面预览',
   Refresh_PDF_Description: '重置 PDF 题面',
-  Remote_Tips: '对应·`[]` 内的为题目ID',
+  Remote_Tips1: '对应·`[]` 内的为题目ID；',
+  Remote_Tips2: '`-`（英文符号）表示范围，其中 `-` 两边必须为数字，例如 `1-5` 表示从1到5的题目；',
+  Remote_Tips3: '`,`（英文符号）表示分割，一次导入以逗号分隔的多个题目',
   Remote_Tips_HDU: '示例网址：`https://acm.hdu.edu.cn/showproblem.php?pid=1000` - 对应的题目ID为 [1000]',
   Remote_Tips_CF: '示例网址：`https://codeforces.com/contest/1000/problem/A` - 对应的题目ID为 [1000A]',
   Remote_Tips_POJ: '示例网址：`http://poj.org/problem?id=1000` - 对应的题目ID为 [1000]',
@@ -524,6 +526,11 @@ export const m = {
   Sign_Duration_Check: '报名时长不能小于0',
   Sign_EndTime_Check: '报名结束时间不能晚于比赛结束时间',
   Contest_Url: '比赛网址',
+  The_actual_problemId_will_be: '实际的题目ID为：',
+  The_actual_displayId_will_be: '实际的比赛展示ID为：',
+  Range_ID_must_be_valid_number: '范围中的ID必须是有效数字',
+  Range_ID_error: '题目ID范围错误',
+  Problem_ID_and_Display_ID_length_not_match: '题目ID和比赛展示ID数量不一致',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: '讨论ID',

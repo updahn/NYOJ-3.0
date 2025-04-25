@@ -118,7 +118,7 @@ export const m = {
   Generate_Skipped_Reason: 'rows user data are filtered because it may be an empty row or a column(username or password) value is empty.',
   Generate_Skipped_Reason2: 'rows user data are filtered because it may be an empty row or a column(realname or student number) value is empty.',
   Upload_Users_Successfully: 'Upload Users Successfully',
-  Apply_Users_Account_Successfully: 'Apply User\'s Account Successfully',
+  Apply_Users_Account_Successfully: "Apply User's Account Successfully",
 
   // /views/admin/general/Auth.vue
   General_Auth: 'Auth',
@@ -260,7 +260,9 @@ export const m = {
   Selected_Description: 'Selected Description',
   PDF_Description_View: 'PDF Description View',
   Refresh_PDF_Description: 'Refresh PDF Description',
-  Remote_Tips: 'The corresponding `[]` contains the problem ID',
+  Remote_Tips1: 'The corresponding `[]` contains the problem ID;',
+  Remote_Tips2: '`-` (English symbol) represents a range, where `-` must be a number on both sides, such as `1-5` represents problems from 1 to 5;',
+  Remote_Tips3: '`,` (English symbol) represents importing multiple problems separated by commas',
   Remote_Tips_HDU: 'Example url: `https://acm.hdu.edu.cn/showproblem.php?pid=1000` - The corresponding problem ID is [1000]',
   Remote_Tips_CF: 'Example url: `https://codeforces.com/contest/1000/problem/A` - The corresponding problem ID is [1000A]',
   Remote_Tips_POJ: 'Example url: `http://poj.org/problem?id=1000` - The corresponding problem ID is [1000]',
@@ -525,6 +527,11 @@ export const m = {
   Sign_Duration_Check: 'The duration of the sign cannot be less than or equal to zero!',
   Sign_EndTime_Check: 'The EndTime of the sign cannot after the EndTime of the contest',
   Contest_Url: 'Contest Url',
+  The_actual_problemId_will_be: 'The actual problemId will be : ',
+  The_actual_displayId_will_be: 'The actual displayId will be : ',
+  Range_ID_must_be_valid_number: 'Range ID must be valid number',
+  Range_ID_error: 'Range ID error',
+  Problem_ID_and_Display_ID_length_not_match: 'Problem ID and Display ID length not match',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: 'Discussion ID',

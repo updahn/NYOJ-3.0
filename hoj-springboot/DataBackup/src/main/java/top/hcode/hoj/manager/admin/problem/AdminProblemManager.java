@@ -14,6 +14,7 @@ import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -27,6 +28,7 @@ import top.hcode.hoj.dao.problem.ProblemCaseEntityService;
 import top.hcode.hoj.dao.problem.ProblemDescriptionEntityService;
 import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.judge.Dispatcher;
+import top.hcode.hoj.manager.msg.AdminNoticeManager;
 import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.dto.CompileDTO;
 import top.hcode.hoj.pojo.dto.ProblemDTO;
@@ -42,9 +44,15 @@ import top.hcode.hoj.validator.ProblemValidator;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @Author: Himit_ZH
@@ -79,6 +87,9 @@ public class AdminProblemManager {
 
     @Autowired
     private ProblemDescriptionEntityService problemDescriptionEntityService;
+
+    @Autowired
+    private AdminNoticeManager adminNoticeManager;
 
     public IPage<ProblemResDTO> getProblemList(Integer limit, Integer currentPage, String keyword, Integer auth,
             String oj,
@@ -266,39 +277,104 @@ public class AdminProblemManager {
         return dispatcher.dispatch(Constants.TaskType.COMPILE_INTERACTIVE, compileDTO);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void importRemoteOJProblem(String name, String problemId, Long gid) throws StatusFailException {
-        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-
-        String upperName = name.toUpperCase();
-        queryWrapper.like("problem_id",
-                upperName.equals("VJ") ? problemId.toUpperCase() : upperName + "-" + problemId.toUpperCase());
-        if (gid == null) {
-            queryWrapper.isNull("gid");
-        } else {
-            queryWrapper.eq("gid", gid);
-        }
-
-        Problem problem = problemEntityService.getOne(queryWrapper);
-        if (problem != null) {
-            throw new StatusFailException("该题目已添加，请勿重复添加！");
-        }
-
+    @Async
+    public void importRemoteOJProblem(String name, String problemIds, Long gid) throws StatusFailException {
+        // 获取当前登录的用户
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
-        try {
-            ProblemStrategy.RemoteProblemInfo otherOJProblemInfo = remoteProblemManager
-                    .getOtherOJProblemInfo(name.toUpperCase(), problemId, userRolesVo.getUsername());
-            if (otherOJProblemInfo != null) {
-                Problem importProblem = remoteProblemManager.adminAddOtherOJProblem(otherOJProblemInfo, name, gid);
-                if (importProblem == null) {
-                    throw new StatusFailException("导入新题目失败！请重新尝试！");
-                }
-            } else {
-                throw new StatusFailException("导入新题目失败！原因：可能是与该OJ链接超时或题号格式错误！");
-            }
-        } catch (Exception e) {
-            throw new StatusFailException(e.getMessage());
+
+        final Long finalGid = gid;
+        final String ojName = name.toUpperCase();
+        final String finalUsername = userRolesVo.getUsername();
+
+        // 记录导入结果
+        Set<String> failedProblemIds = new HashSet<>();
+        Set<String> existingProblemIds = new HashSet<>();
+        Set<String> successProblemIds = new HashSet<>();
+
+        List<String> problemIdList;
+
+        if (problemIds.contains("-")) {
+            String[] pr = problemIds.trim().split("-");
+            if (pr.length != 2)
+                throw new StatusFailException("范围格式错误！");
+
+            String psStr = pr[0].trim(), peStr = pr[1].trim();
+
+            if (!psStr.matches("\\d+") || !peStr.matches("\\d+"))
+                throw new StatusFailException("题目ID范围应为纯数字！");
+
+            int ps = Integer.parseInt(psStr), pe = Integer.parseInt(peStr);
+
+            if (ps > pe)
+                throw new StatusFailException("题目ID范围错误！");
+
+            problemIdList = IntStream.rangeClosed(ps, pe).mapToObj(String::valueOf).collect(Collectors.toList());
+        } else if (problemIds.contains(",")) {
+            String[] pr = problemIds.split(",");
+
+            problemIdList = Arrays.stream(pr).map(String::trim).collect(Collectors.toList());
+        } else {
+            problemIdList = Collections.singletonList(problemIds.trim());
         }
+
+        // 分割并处理每个题目ID
+        problemIdList.parallelStream().forEach(problemId -> {
+            // 检查题目是否已存在
+            QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+            queryWrapper.like("problem_id",
+                    ojName.equals("VJ") ? problemId.toUpperCase() : ojName + "-" + problemId.toUpperCase());
+
+            if (finalGid == null) {
+                queryWrapper.isNull("gid");
+            } else {
+                queryWrapper.eq("gid", finalGid);
+            }
+
+            Problem problem = problemEntityService.getOne(queryWrapper);
+            if (problem != null) {
+                existingProblemIds.add(problemId);
+                return;
+            }
+
+            // 尝试导入题目
+            try {
+                ProblemStrategy.RemoteProblemInfo problemInfo = remoteProblemManager.getOtherOJProblemInfo(ojName,
+                        problemId, finalUsername);
+
+                if (problemInfo == null
+                        || remoteProblemManager.adminAddOtherOJProblem(problemInfo, ojName, finalGid) == null) {
+                    failedProblemIds.add(problemId);
+                    return;
+                }
+            } catch (Exception e) {
+                log.error("导入题目 [" + ojName + "]" + " [" + problemId + "] 失败，原因: " + e.getMessage(), e);
+                failedProblemIds.add(problemId);
+                return;
+            }
+            successProblemIds.add(problemId);
+        });
+
+        if (!failedProblemIds.isEmpty() || !existingProblemIds.isEmpty()) {
+            int failedCount = failedProblemIds.size();
+            int existCount = existingProblemIds.size();
+            int successCount = problemIdList.size() - failedCount - existCount;
+
+            String errMsg = String.format("[导入结果] 成功数：%d; 失败id：%s, 失败数：%d; 重复id：%s, 重复数：%d " +
+                    "可能是与该OJ链接超时或题号格式错误，或者其他报错！",
+                    successCount, failedProblemIds, failedCount, existingProblemIds, existCount);
+
+            // 异步同步系统通知
+            adminNoticeManager.syncNoticeToNewRemoteProblemBatchUser(errMsg, userRolesVo.getUid());
+
+            log.info("[{}],[{}],errMsg:[{}],operatorUid:[{}],operatorUsername:[{}]",
+                    "Admin_Problem", "Add_Remote_Problem", errMsg, userRolesVo.getUid(), userRolesVo.getUsername());
+
+            throw new StatusFailException(errMsg);
+        }
+
+        log.info("[{}],[{}],problemIds:[{}],operatorUid:[{}],operatorUsername:[{}]",
+                "Admin_Problem", "Add_Remote_Problem", successProblemIds, userRolesVo.getUid(),
+                userRolesVo.getUsername());
     }
 
     public void changeProblemAuth(ProblemResDTO problem) throws StatusFailException, StatusForbiddenException {

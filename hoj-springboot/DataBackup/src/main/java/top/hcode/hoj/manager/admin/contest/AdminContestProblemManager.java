@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -25,6 +26,7 @@ import top.hcode.hoj.dao.judge.JudgeEntityService;
 import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.manager.admin.problem.RemoteProblemManager;
 import top.hcode.hoj.manager.group.GroupManager;
+import top.hcode.hoj.manager.msg.AdminNoticeManager;
 import top.hcode.hoj.pojo.dto.ContestProblemDTO;
 import top.hcode.hoj.pojo.dto.ProblemDTO;
 import top.hcode.hoj.pojo.dto.ProblemRes;
@@ -41,7 +43,9 @@ import top.hcode.hoj.utils.HtmlToPdfUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @Author: Himit_ZH
@@ -72,6 +76,9 @@ public class AdminContestProblemManager {
 
     @Autowired
     private HtmlToPdfUtils htmlToPdfUtils;
+
+    @Autowired
+    private AdminNoticeManager adminNoticeManager;
 
     public HashMap<String, Object> getProblemList(Integer limit, Integer currentPage, String keyword,
             Long cid, Integer problemType, String oj, Integer difficulty, Integer type, Long gid)
@@ -379,69 +386,174 @@ public class AdminContestProblemManager {
         }
     }
 
-    public void importContestRemoteOJProblem(String name, String problemId, Long cid, String displayId, Long gid)
-            throws StatusFailException {
-        QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
-
-        String upperName = name.toUpperCase();
-        queryWrapper.like("problem_id",
-                upperName.equals("VJ") ? problemId.toUpperCase() : upperName + "-" + problemId.toUpperCase());
-
-        if (gid == null) {
-            queryWrapper.isNull("gid");
-        } else {
-            queryWrapper.eq("gid", gid);
-        }
-        Problem problem = problemEntityService.getOne(queryWrapper, false);
-
-        // 如果该题目不存在，需要先导入
-        if (problem == null) {
-            AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
-            try {
-                ProblemStrategy.RemoteProblemInfo otherOJProblemInfo = remoteProblemManager
-                        .getOtherOJProblemInfo(name.toUpperCase(), problemId, userRolesVo.getUsername());
-                if (otherOJProblemInfo != null) {
-                    problem = remoteProblemManager.adminAddOtherOJProblem(otherOJProblemInfo, name, gid);
-                    if (problem == null) {
-                        throw new StatusFailException("导入新题目失败！请重新尝试！");
-                    }
-                } else {
-                    throw new StatusFailException("导入新题目失败！原因：可能是与该OJ链接超时或题号格式错误！");
-                }
-            } catch (Exception e) {
-                throw new StatusFailException(e.getMessage());
-            }
-        }
-
-        QueryWrapper<ContestProblem> contestProblemQueryWrapper = new QueryWrapper<>();
-        Problem finalProblem = problem;
-        contestProblemQueryWrapper.eq("cid", cid)
-                .and(wrapper -> wrapper.eq("pid", finalProblem.getId())
-                        .or()
-                        .eq("display_id", displayId));
-        ContestProblem contestProblem = contestProblemEntityService.getOne(contestProblemQueryWrapper, false);
-        if (contestProblem != null) {
-            throw new StatusFailException("添加失败，该题目已添加或者题目的比赛展示ID已存在！");
-        }
-
-        // 比赛中题目显示默认为原标题
-        String displayName = problemEntityService.getDefaultProblemTitle(finalProblem);
-
-        // 修改成比赛题目
-        boolean updateProblem = problemEntityService.saveOrUpdate(problem.setAuth(3));
-
-        boolean isOk = contestProblemEntityService.saveOrUpdate(new ContestProblem()
-                .setCid(cid).setPid(problem.getId()).setDisplayTitle(displayName).setDisplayId(displayId));
-
-        if (!isOk || !updateProblem) {
-            throw new StatusFailException("添加失败");
-        }
-
+    @Async
+    public void importContestRemoteOJProblem(String name, String problemIds, Long cid, String displayIds, Long gid)
+            throws StatusFailException, StatusForbiddenException {
         // 获取当前登录的用户
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
-        log.info("[{}],[{}],cid:[{}],pid:[{}],problemId:[{}],operatorUid:[{}],operatorUsername:[{}]",
-                "Admin_Contest", "Add_Remote_Problem", cid, problem.getId(), problem.getProblemId(),
-                userRolesVo.getUid(), userRolesVo.getUsername());
+
+        // 获取本场比赛的信息
+        Contest contest = contestEntityService.getById(cid);
+        if (contest == null) { // 查询不存在
+            throw new StatusFailException("查询失败：该比赛不存在,请检查参数cid是否准确！");
+        }
+
+        boolean isRoot = groupManager.getGroupAuthAdmin(gid);
+
+        // 只有超级管理员和题目管理和比赛拥有者才能操作
+        if (!isRoot && !userRolesVo.getUsername().equals(contest.getAuthor())) {
+            throw new StatusForbiddenException("对不起，你无权限操作！");
+        }
+
+        final Long finalGid = gid;
+        final String ojName = name.toUpperCase();
+        final String finalUsername = userRolesVo.getUsername();
+
+        // 记录导入结果
+        Set<String> failedProblemIds = new HashSet<>();
+        Set<String> existingProblemIds = new HashSet<>();
+        Set<String> successProblemIds = new HashSet<>();
+
+        List<String> problemIdList, displayIdList;
+
+        if (problemIds.contains("-")) {
+            String[] pr = problemIds.trim().split("-");
+            String[] dr = displayIds.trim().split("-");
+            if (pr.length != 2 || dr.length != 2)
+                throw new StatusFailException("范围格式错误！");
+
+            String psStr = pr[0].trim(), peStr = pr[1].trim();
+            String dsStr = dr[0].trim(), deStr = dr[1].trim();
+
+            if (!psStr.matches("\\d+") || !peStr.matches("\\d+"))
+                throw new StatusFailException("题目ID范围应为纯数字！");
+            if (!dsStr.matches("\\d+") || !deStr.matches("\\d+"))
+                throw new StatusFailException("展示ID范围应为纯数字！");
+
+            int ps = Integer.parseInt(psStr), pe = Integer.parseInt(peStr);
+            int ds = Integer.parseInt(dsStr), de = Integer.parseInt(deStr);
+
+            if (ps > pe)
+                throw new StatusFailException("题目ID范围错误！");
+            if (ds > de)
+                throw new StatusFailException("展示ID范围错误！");
+            if ((pe - ps) != (de - ds))
+                throw new StatusFailException("题目ID和展示ID数量不一致！");
+
+            problemIdList = IntStream.rangeClosed(ps, pe).mapToObj(String::valueOf).collect(Collectors.toList());
+            displayIdList = IntStream.rangeClosed(ds, de).mapToObj(String::valueOf).collect(Collectors.toList());
+        } else if (problemIds.contains(",")) {
+            String[] pr = problemIds.split(","), dr = displayIds.split(",");
+            if (pr.length != dr.length)
+                throw new StatusFailException("题目ID和展示ID数量不一致！");
+
+            problemIdList = Arrays.stream(pr).map(String::trim).collect(Collectors.toList());
+            displayIdList = Arrays.stream(dr).map(String::trim).collect(Collectors.toList());
+        } else {
+            problemIdList = Collections.singletonList(problemIds.trim());
+            displayIdList = Collections.singletonList(displayIds.trim());
+        }
+
+        if (problemIdList.size() != displayIdList.size()) {
+
+            String errMsg = String.format("题目ID和比赛展示ID数量不一致！题目IDs：%s，长度：%s；比赛展示IDs：%s，长度：%s", problemIdList,
+                    problemIdList.size(), displayIdList, displayIdList.size());
+
+            // 异步同步系统通知
+            adminNoticeManager.syncNoticeToNewRemoteProblemBatchUser(errMsg, userRolesVo.getUid());
+
+            throw new StatusFailException("题目ID和比赛展示ID数量不一致！");
+        }
+
+        // 分割并处理每个题目ID
+        IntStream.range(0, problemIdList.size()).parallel().forEach(i -> {
+            String problemId = problemIdList.get(i);
+            String displayId = displayIdList.get(i);
+            // 检查题目是否已存在
+            QueryWrapper<Problem> queryWrapper = new QueryWrapper<>();
+
+            queryWrapper.like("problem_id",
+                    ojName.equals("VJ") ? problemId.toUpperCase() : ojName + "-" + problemId.toUpperCase());
+
+            if (finalGid == null) {
+                queryWrapper.isNull("gid");
+            } else {
+                queryWrapper.eq("gid", finalGid);
+            }
+            Problem problem = problemEntityService.getOne(queryWrapper, false);
+
+            // 如果该题目不存在，需要先导入
+            if (problem == null) {
+                try {
+                    ProblemStrategy.RemoteProblemInfo otherOJProblemInfo = remoteProblemManager
+                            .getOtherOJProblemInfo(ojName, problemId, finalUsername);
+                    if (otherOJProblemInfo != null) {
+                        problem = remoteProblemManager.adminAddOtherOJProblem(otherOJProblemInfo, ojName, finalGid);
+                        if (problem == null) {
+                            throw new StatusFailException("导入新题目失败！请重新尝试！");
+                        }
+                    } else {
+                        throw new StatusFailException("导入新题目失败！原因：可能是与该OJ链接超时或题号格式错误！");
+                    }
+                } catch (Exception e) {
+                    log.error("导入题目 [" + ojName + "]" + " [" + problemId + "] 失败，原因: " + e.getMessage(), e);
+                    failedProblemIds.add(problemId);
+                    return;
+                }
+            }
+
+            QueryWrapper<ContestProblem> contestProblemQueryWrapper = new QueryWrapper<>();
+            Problem finalProblem = problem;
+            contestProblemQueryWrapper.eq("cid", cid)
+                    .and(wrapper -> wrapper.eq("pid", finalProblem.getId())
+                            .or()
+                            .eq("display_id", displayId));
+            ContestProblem contestProblem = contestProblemEntityService.getOne(contestProblemQueryWrapper, false);
+
+            if (contestProblem != null) {
+                existingProblemIds.add(problemId);
+                return;
+            }
+
+            // 比赛中题目显示默认为原标题
+            String displayName = problemEntityService.getDefaultProblemTitle(finalProblem);
+
+            // 修改成比赛题目
+            boolean updateProblem = problemEntityService.saveOrUpdate(problem.setAuth(3));
+
+            boolean isOk = contestProblemEntityService.saveOrUpdate(new ContestProblem()
+                    .setCid(cid).setPid(problem.getId()).setDisplayTitle(displayName).setDisplayId(displayId));
+
+            if (!isOk || !updateProblem) {
+                failedProblemIds.add(problemId);
+                return;
+            }
+
+            successProblemIds.add(problemId);
+        });
+
+        if (!failedProblemIds.isEmpty() || !existingProblemIds.isEmpty()) {
+            int failedCount = failedProblemIds.size();
+            int existCount = existingProblemIds.size();
+            int successCount = problemIdList.size() - failedCount - existCount;
+
+            String errMsg = String.format("[导入结果] 成功数：%d; 失败id：%s, 失败数：%d; 重复id：%s, 重复数：%d " +
+                    "可能是与该OJ链接超时或题号格式错误，或者该题目已添加或者题目的比赛展示ID已存在，或者其他报错！",
+                    successCount, failedProblemIds, failedCount, existingProblemIds, existCount);
+
+            // 异步同步系统通知
+            adminNoticeManager.syncNoticeToNewRemoteProblemBatchUser(errMsg, userRolesVo.getUid());
+
+            log.info("[{}],[{}],cid:[{}],errMsg:[{}],operatorUid:[{}],operatorUsername:[{}]",
+                    "Admin_Contest", "Add_Remote_Problem", cid, errMsg, userRolesVo.getUid(),
+                    userRolesVo.getUsername());
+
+            throw new StatusFailException(errMsg);
+        }
+
+        log.info("[{}],[{}],cid:[{}],problemIds:[{}],operatorUid:[{}],operatorUsername:[{}]",
+                "Admin_Contest", "Add_Remote_Problem", cid, successProblemIds, userRolesVo.getUid(),
+                userRolesVo.getUsername());
     }
 
     public String getContestPdf(Long cid, Boolean isCoverPage) throws StatusFailException, StatusForbiddenException {

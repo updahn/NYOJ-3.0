@@ -11,14 +11,24 @@
           ></el-option>
         </el-select>
       </el-form-item>
-      <p style="text-align: left; white-space: pre-wrap; color: #66b1ff; font-size: 18px;">
-        <!-- 使用 pre-wrap 保留换行符并且可复制 -->
-        {{ $t('m.Remote_Tips_' + otherOJName) }}
-        <br />
-        {{ $t('m.Remote_Tips') }}
+
+      <p style="text-align: left; white-space: pre-wrap; color: #66b1ff;">
+        <span style="font-size: 18px;">{{ $t('m.Remote_Tips_' + otherOJName) + ' '}}</span>
+        <el-popover placement="right" trigger="hover">
+          <p style="font-size: 14px;">{{ $t('m.Remote_Tips1') }}</p>
+          <p style="font-size: 14px;">{{ $t('m.Remote_Tips2') }}</p>
+          <p style="font-size: 14px;">{{ $t('m.Remote_Tips3') }}</p>
+          <i slot="reference" class="el-icon-question"></i>
+        </el-popover>
       </p>
       <el-form-item :label="$t('m.Problem_ID')" required>
         <el-input v-model="otherOJProblemId" size="small"></el-input>
+        <div class="userPreview">
+          <span
+            v-if="problemIdList.length"
+          >{{ $t('m.The_actual_problemId_will_be') }} {{ problemIdList.join(',') }}</span>
+          <span v-else>{{ errorMessage }}</span>
+        </div>
       </el-form-item>
 
       <el-form-item
@@ -61,6 +71,8 @@ export default {
       displayId: "",
       REMOTE_OJ: {},
       addRemoteOJproblemLoading: false,
+      problemIdList: [],
+      errorMessage: "",
     };
   },
   mounted() {
@@ -104,6 +116,50 @@ export default {
         }
       );
     },
+    updateProblemIdList() {
+      const inputValue = this.otherOJProblemId.trim();
+
+      // 检查是否是范围格式
+      if (inputValue.includes("-")) {
+        const [start, end] = inputValue.split("-").map((num) => num.trim());
+
+        if (!this.isValidNumber(start) || !this.isValidNumber(end)) {
+          this.errorMessage = this.$i18n.t("m.Range_ID_must_be_valid_number");
+          this.problemIdList = [];
+          return;
+        }
+
+        const startNum = parseInt(start);
+        const endNum = parseInt(end);
+
+        if (startNum > endNum) {
+          this.errorMessage = this.$i18n.t("m.Range_ID_error");
+          this.problemIdList = [];
+          return;
+        } else {
+          this.problemIdList = Array.from(
+            { length: endNum - startNum + 1 },
+            (_, i) => (startNum + i).toString()
+          );
+        }
+      } else if (inputValue.includes(",")) {
+        this.problemIdList = inputValue.split(",").map((num) => num.trim());
+      } else {
+        this.problemIdList = [inputValue];
+      }
+    },
+    isValidNumber(value) {
+      return /^\d+$/.test(value);
+    },
   },
 };
 </script>
+
+<style scoped>
+.userPreview {
+  padding-left: 10px;
+  padding-top: 5px;
+  color: red;
+  font-size: 16px;
+}
+</style>

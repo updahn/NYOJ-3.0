@@ -348,14 +348,23 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <p style="text-align: left; white-space: pre-wrap; color: #66b1ff; font-size: 18px;">
-          <!-- 使用 pre-wrap 保留换行符并且可复制 -->
-          {{ $t('m.Remote_Tips_' + otherOJName) }}
-          <br />
-          {{ $t('m.Remote_Tips') }}
-        </p>
+        <span style="text-align: left; white-space: pre-wrap; color: #66b1ff;">
+          <p style="font-size: 18px;">{{ $t('m.Remote_Tips_' + otherOJName) + ' '}}</p>
+          <p style="font-size: 14px;">{{ $t('m.Remote_Tips1') }}</p>
+        </span>
         <el-form-item :label="$t('m.Problem_ID')" required>
-          <el-input v-model="otherOJProblemId" size="small"></el-input>
+          <el-popover placement="right" trigger="hover">
+            <p style="font-size: 14px;">{{ $t('m.Remote_Tips2') }}</p>
+            <p style="font-size: 14px;">{{ $t('m.Remote_Tips3') }}</p>
+            <i slot="reference" class="el-icon-question"></i>
+          </el-popover>
+          <el-input v-model="otherOJProblemId" size="small" @blur="updateProblemIdList"></el-input>
+          <div class="userPreview">
+            <span
+              v-if="problemIdList.length"
+            >{{ $t('m.The_actual_problemId_will_be') }} {{ problemIdList.join(',') }}</span>
+            <span v-else>{{ errorMessage }}</span>
+          </div>
         </el-form-item>
 
         <el-form-item
@@ -363,7 +372,18 @@
           :label="$t('m.Enter_The_Problem_Display_ID_in_the_Contest')"
           required
         >
-          <el-input v-model="displayId" size="small"></el-input>
+          <el-popover placement="right" trigger="hover">
+            <p style="font-size: 14px;">{{ $t('m.Remote_Tips2') }}</p>
+            <p style="font-size: 14px;">{{ $t('m.Remote_Tips3') }}</p>
+            <i slot="reference" class="el-icon-question"></i>
+          </el-popover>
+          <el-input v-model="displayId" size="small" @blur="updateDisplayIdList"></el-input>
+          <div class="userPreview">
+            <span
+              v-if="displayIdList.length"
+            >{{ $t('m.The_actual_displayId_will_be') }} {{ displayIdList.join(',') }}</span>
+            <span v-else>{{ errorMessage2 }}</span>
+          </div>
         </el-form-item>
 
         <el-form-item style="text-align:center">
@@ -431,6 +451,10 @@ export default {
         "#1e90ff",
         "#c71585",
       ],
+      problemIdList: [],
+      displayIdList: [],
+      errorMessage: "",
+      errorMessage2: "",
     };
   },
   mounted() {
@@ -657,6 +681,16 @@ export default {
         }
       }
 
+      if (
+        this.problemIdList.length > 0 &&
+        this.displayIdList.length != this.problemIdList.length
+      ) {
+        myMessage.error(
+          this.$i18n.t("m.Problem_ID_and_Display_ID_length_not_match")
+        );
+        return;
+      }
+
       this.addRemoteOJproblemLoading = true;
       let funcName = "";
       if (this.query.contestId) {
@@ -721,6 +755,73 @@ export default {
         () => {}
       );
     },
+    updateProblemIdList() {
+      const inputValue = this.otherOJProblemId.trim();
+
+      // 检查是否是范围格式
+      if (inputValue.includes("-")) {
+        const [start, end] = inputValue.split("-").map((num) => num.trim());
+
+        if (!this.isValidNumber(start) || !this.isValidNumber(end)) {
+          this.errorMessage = this.$i18n.t("m.Range_ID_must_be_valid_number");
+          this.problemIdList = [];
+          return;
+        }
+
+        const startNum = parseInt(start);
+        const endNum = parseInt(end);
+
+        if (startNum > endNum) {
+          this.errorMessage = this.$i18n.t("m.Range_ID_error");
+          this.problemIdList = [];
+          return;
+        } else {
+          this.problemIdList = Array.from(
+            { length: endNum - startNum + 1 },
+            (_, i) => (startNum + i).toString()
+          );
+        }
+      } else if (inputValue.includes(",")) {
+        this.problemIdList = inputValue.split(",").map((num) => num.trim());
+      } else {
+        this.problemIdList = [inputValue];
+      }
+    },
+    updateDisplayIdList() {
+      const inputValue = this.displayId.trim();
+
+      // 检查是否是范围格式
+      if (inputValue.includes("-")) {
+        const [start, end] = inputValue.split("-").map((num) => num.trim());
+
+        if (!this.isValidNumber(start) || !this.isValidNumber(end)) {
+          this.errorMessage2 = this.$i18n.t("m.Range_ID_must_be_valid_number");
+          this.displayIdList = [];
+          return;
+        }
+
+        const startNum = parseInt(start);
+        const endNum = parseInt(end);
+
+        if (startNum > endNum) {
+          this.errorMessage2 = this.$i18n.t("m.Range_ID_error");
+          this.displayIdList = [];
+          return;
+        } else {
+          this.displayIdList = Array.from(
+            { length: endNum - startNum + 1 },
+            (_, i) => (startNum + i).toString()
+          );
+        }
+      } else if (inputValue.includes(",")) {
+        this.displayIdList = inputValue.split(",").map((num) => num.trim());
+      } else {
+        this.displayIdList = [inputValue];
+      }
+    },
+    isValidNumber(value) {
+      return /^\d+$/.test(value);
+    },
   },
   watch: {
     $route(newVal, oldVal) {
@@ -741,5 +842,11 @@ export default {
 .filter-row span {
   margin-right: 15px;
   margin-top: 10px;
+}
+.userPreview {
+  padding-left: 10px;
+  padding-top: 5px;
+  color: red;
+  font-size: 16px;
 }
 </style>

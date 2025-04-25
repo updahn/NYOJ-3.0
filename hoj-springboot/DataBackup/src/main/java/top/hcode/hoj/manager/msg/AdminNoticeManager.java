@@ -91,6 +91,24 @@ public class AdminNoticeManager {
         userSysNoticeEntityService.saveOrUpdateBatch(userSysNoticeList);
     }
 
+    @Async
+    public void syncNoticeToNewRemoteProblemBatchUser(String errMsg, String uid) {
+        AdminSysNotice adminSysNotice = new AdminSysNotice();
+        adminSysNotice.setAdminId(uid)
+                .setType("Single")
+                .setTitle("题目导入失败")
+                .setContent(errMsg)
+                .setState(true);
+        boolean isOk = adminSysNoticeEntityService.save(adminSysNotice);
+        if (isOk) {
+            UserSysNotice userSysNotice = new UserSysNotice();
+            userSysNotice.setType("Sys")
+                    .setSysNoticeId(adminSysNotice.getId())
+                    .setRecipientId(uid);
+            userSysNoticeEntityService.save(userSysNotice);
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Async
     public void addSingleNoticeToUser(String adminId, String recipientId, String title, String content, String type) {
