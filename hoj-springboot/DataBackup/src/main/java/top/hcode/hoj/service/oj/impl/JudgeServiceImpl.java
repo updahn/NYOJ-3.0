@@ -65,6 +65,8 @@ public class JudgeServiceImpl implements JudgeService {
             return CommonResult.successResponse(judgeManager.resubmit(submitId));
         } catch (StatusNotFoundException e) {
             return CommonResult.errorResponse(e.getMessage(), ResultStatus.NOT_FOUND);
+        } catch (StatusFailException e) {
+            return CommonResult.errorResponse(e.getMessage());
         }
     }
 

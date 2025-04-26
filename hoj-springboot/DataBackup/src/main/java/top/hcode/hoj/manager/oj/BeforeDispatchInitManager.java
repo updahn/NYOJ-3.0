@@ -252,4 +252,51 @@ public class BeforeDispatchInitManager {
         trainingRecordEntityService.save(trainingRecord);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public void checkProblemStatus(Long cid, Long tid, Long gid, String problemId, Long pid)
+            throws StatusFailException {
+        Problem problem = null;
+
+        if (pid != null) {
+            problem = problemEntityService.getById(pid);
+        } else if (cid != null && cid != 0) { // 比赛提交
+            Contest contest = contestEntityService.getById(cid);
+            if (contest == null) {
+                throw new StatusFailException("对不起，该比赛不存在！");
+            }
+            ContestProblem contestProblem = contestProblemEntityService.getOne(
+                    new QueryWrapper<ContestProblem>().eq("cid", cid).eq("display_id", problemId), false);
+            if (contestProblem == null) {
+                throw new StatusFailException("比赛中该题目不存在！");
+            }
+            problem = problemEntityService.getById(contestProblem.getPid());
+        } else if (tid != null && tid != 0) { // 训练提交
+            Training training = trainingEntityService.getById(tid);
+            if (training == null || !training.getStatus()) {
+                throw new StatusFailException("该训练不存在或不允许显示！");
+            }
+            TrainingProblem trainingProblem = trainingProblemEntityService.getOne(
+                    new QueryWrapper<TrainingProblem>().eq("tid", tid).eq("display_id", problemId));
+            if (trainingProblem == null) {
+                throw new StatusFailException("训练中该题目不存在！");
+            }
+            problem = problemEntityService.getById(trainingProblem.getPid());
+        } else { // 普通题目提交
+            QueryWrapper<Problem> problemQuery = new QueryWrapper<Problem>().eq("problem_id", problemId);
+            if (gid == null) {
+                problemQuery.isNull("gid");
+            } else {
+                problemQuery.eq("gid", gid);
+            }
+            problem = problemEntityService.getOne(problemQuery, false);
+        }
+
+        if (problem == null) {
+            throw new StatusFailException("当前题目不存在！");
+        }
+        if (problem.getStatus() == 1) {
+            throw new StatusFailException("当前题目不可用！");
+        }
+    }
+
 }

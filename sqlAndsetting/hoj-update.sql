@@ -2972,3 +2972,36 @@ CALL add_ContestPrint_Uid;
 
 DROP PROCEDURE add_ContestPrint_Uid;
 
+
+/*
+* problem 添加 status
+
+*/
+DROP PROCEDURE
+IF EXISTS add_Problem_Status;
+DELIMITER $$
+
+CREATE PROCEDURE add_Problem_Status ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'problem'
+	AND column_name = 'status'
+) THEN
+	ALTER TABLE problem ADD COLUMN `status` tinyint(1) DEFAULT '0' COMMENT '是否封禁';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_Problem_Status;
+
+DROP PROCEDURE add_Problem_Status;
+
+
+
+

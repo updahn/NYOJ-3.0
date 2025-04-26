@@ -120,6 +120,9 @@ public class Problem implements Serializable {
     @TableField(value = "io_write_file_name")
     private String ioWriteFileName;
 
+    @ApiModelProperty(value = "0可用，1不可用")
+    private Integer status;
+
     @TableField(fill = FieldFill.INSERT)
     private Date gmtCreate;
 

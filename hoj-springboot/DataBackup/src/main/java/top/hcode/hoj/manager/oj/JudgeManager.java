@@ -125,6 +125,10 @@ public class JudgeManager {
         // 需要获取一下该token对应用户的数据
         AccountProfile accountProfile = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
+        // 检查远程题目状态
+        beforeDispatchInitManager.checkProblemStatus(judgeDto.getCid(), judgeDto.getTid(), judgeDto.getGid(),
+                judgeDto.getProblemId(), null);
+
         boolean isContestSubmission = judgeDto.getCid() != null && judgeDto.getCid() != 0;
         boolean isTrainingSubmission = judgeDto.getTid() != null && judgeDto.getTid() != 0;
 
@@ -230,6 +234,9 @@ public class JudgeManager {
             }
         }
 
+        // 检查远程题目状态
+        beforeDispatchInitManager.checkProblemStatus(null, null, null, null, testJudgeDto.getPid());
+
         Problem problem = problemEntityService.getById(testJudgeDto.getPid());
         if (problem == null) {
             throw new StatusFailException("当前题目不存在！不支持在线调试！");
@@ -288,7 +295,7 @@ public class JudgeManager {
      * @Since 2021/2/12
      */
     @Transactional(rollbackFor = Exception.class)
-    public Judge resubmit(Long submitId) throws StatusNotFoundException {
+    public Judge resubmit(Long submitId) throws StatusNotFoundException, StatusFailException {
 
         Judge judge = judgeEntityService.getById(submitId);
         if (judge == null) {
@@ -299,6 +306,9 @@ public class JudgeManager {
         problemQueryWrapper.select("id", "is_remote", "problem_id")
                 .eq("id", judge.getPid());
         Problem problem = problemEntityService.getOne(problemQueryWrapper);
+
+        // 检查远程题目状态
+        beforeDispatchInitManager.checkProblemStatus(null, null, null, null, problem.getId());
 
         // 如果是非比赛题目
         if (judge.getCid() == 0) {

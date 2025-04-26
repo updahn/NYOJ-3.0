@@ -16,6 +16,7 @@ import top.hcode.hoj.dao.user.UserAcproblemEntityService;
 import top.hcode.hoj.judge.remote.RemoteJudgeDispatcher;
 import top.hcode.hoj.judge.self.JudgeDispatcher;
 import top.hcode.hoj.manager.group.GroupManager;
+import top.hcode.hoj.manager.oj.BeforeDispatchInitManager;
 import top.hcode.hoj.pojo.entity.contest.ContestRecord;
 import top.hcode.hoj.pojo.entity.judge.Judge;
 import top.hcode.hoj.pojo.entity.judge.JudgeCase;
@@ -57,6 +58,9 @@ public class RejudgeManager {
     private RemoteJudgeDispatcher remoteJudgeDispatcher;
 
     @Autowired
+    private BeforeDispatchInitManager beforeDispatchInitManager;
+
+    @Autowired
     private GroupManager groupManager;
 
     private static List<Integer> penaltyStatus = Arrays.asList(
@@ -66,16 +70,21 @@ public class RejudgeManager {
             Constants.Judge.STATUS_MEMORY_LIMIT_EXCEEDED.getStatus(),
             Constants.Judge.STATUS_RUNTIME_ERROR.getStatus());
 
-    public Judge rejudge(Long submitId) throws StatusFailException {
+    public Judge rejudge(Long submitId, Boolean isSchedule) throws StatusFailException {
         Judge judge = judgeEntityService.getById(submitId);
 
         boolean isContestSubmission = judge.getCid() != 0;
 
-        Boolean isGroupRoot = groupManager.getGroupAuthAdmin(judge.getGid());
+        if (!isSchedule) {
+            Boolean isGroupRoot = groupManager.getGroupAuthAdmin(judge.getGid());
 
-        if (!isGroupRoot) {
-            throw new StatusFailException("您不是团队管理员，不可重判！");
+            if (!isGroupRoot) {
+                throw new StatusFailException("您不是团队管理员，不可重判！");
+            }
         }
+
+        // 检查远程题目状态
+        beforeDispatchInitManager.checkProblemStatus(null, null, null, null, judge.getPid());
 
         boolean hasSubmitIdRemoteRejudge = checkAndUpdateJudge(isContestSubmission, judge, submitId);
         // 调用判题服务
@@ -109,12 +118,17 @@ public class RejudgeManager {
             throw new StatusFailException("当前该题目无提交，不可重判！");
         }
         HashMap<Long, Integer> idMapStatus = new HashMap<>();
-        // 全部设置默认值
-        checkAndUpdateJudgeBatch(rejudgeList, idMapStatus);
         QueryWrapper<Problem> problemQueryWrapper = new QueryWrapper<>();
         problemQueryWrapper.select("id", "is_remote", "problem_id", "gid")
                 .eq("id", pid);
         Problem problem = problemEntityService.getOne(problemQueryWrapper);
+
+        // 检查远程题目状态
+        beforeDispatchInitManager.checkProblemStatus(null, null, null, null, problem.getId());
+
+        // 全部设置默认值
+        checkAndUpdateJudgeBatch(rejudgeList, idMapStatus);
+
         // 调用重判服务
         if (problem.getIsRemote()) { // 如果是远程oj判题
             for (Judge judge : rejudgeList) {
@@ -386,7 +400,7 @@ public class RejudgeManager {
         // 遍历发送评测
         for (Long submitId : submitIds) {
             try {
-                Judge judge = rejudge(submitId);
+                Judge judge = rejudge(submitId, false);
                 res.add(judge);
             } catch (Exception e) {
                 res.add(null); // 如果评测失败，则添加null

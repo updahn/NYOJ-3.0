@@ -25,7 +25,7 @@ public class RejudgeServiceImpl implements RejudgeService {
     @Override
     public CommonResult<Judge> rejudge(Long submitId) {
         try {
-            Judge judge = rejudgeManager.rejudge(submitId);
+            Judge judge = rejudgeManager.rejudge(submitId, false);
             return CommonResult.successResponse(judge, "重判成功！该提交已进入判题队列！");
         } catch (StatusFailException e) {
             return CommonResult.errorResponse(e.getMessage());

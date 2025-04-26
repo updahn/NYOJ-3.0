@@ -5,6 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONArray;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -17,6 +18,8 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import top.hcode.hoj.crawler.problem.ProblemStrategy;
 import top.hcode.hoj.dao.common.FileEntityService;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
 import top.hcode.hoj.dao.msg.AdminSysNoticeEntityService;
@@ -28,6 +31,7 @@ import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.dao.user.UserRecordEntityService;
 import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.manager.admin.multiOj.MultiOjInfoManager;
+import top.hcode.hoj.manager.admin.problem.RemoteProblemManager;
 import top.hcode.hoj.manager.msg.AdminNoticeManager;
 import top.hcode.hoj.manager.oj.CookieManager;
 import top.hcode.hoj.pojo.dto.MultiOjDto;
@@ -133,6 +137,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private CookieManager cookieManager;
+
+    @Resource
+    private RemoteProblemManager remoteProblemManager;
 
     /**
      * @MethodName deleteAvatar
@@ -700,6 +707,46 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
             adminNoticeManager.addSingleNoticeToBatchUser(null, superAdminUidList, title, content, "Sys");
         }
+    }
+
+    /**
+     * @MethodName checkRemoteProblem
+     * @Params * @param null
+     * @Description 每天3点定时检查远程评测题目是否失效
+     * @Return
+     */
+    @Scheduled(cron = "0 0 3 * * *")
+    // @Scheduled(cron = "0 0/5 * * * ?")
+    public void checkRemoteProblem() {
+        List<Problem> remoteProblemList = problemEntityService.list(new QueryWrapper<Problem>().eq("is_remote", true));
+
+        remoteProblemList.parallelStream().forEach(problem -> {
+            String problemId = problem.getProblemId();
+
+            String ojName = problemId.startsWith("VJ") ? "VJ" : problemId.split("-")[0].toUpperCase();
+            String remoteProblemId = problemId.startsWith("VJ")
+                    ? ReUtil.get("\\(([^)]+)\\)", problemId, 1)
+                    : problemId.split("-", 2)[1].split("\\(")[0];
+
+            try {
+                ProblemStrategy.RemoteProblemInfo problemInfo = remoteProblemManager.getOtherOJProblemInfo(ojName,
+                remoteProblemId, null);
+
+                // 获取远程题目成功
+                problem.setStatus(0);
+
+                if (problemInfo == null) {
+                    // 题目已经废弃
+                    problem.setStatus(1);
+                }
+            } catch (Exception e) {
+                // 题目已经废弃
+                problem.setStatus(1);
+            }
+
+            // 更新题目状态为废弃
+            problemEntityService.updateById(problem);
+        });
     }
 
     private String getDissolutionGroupContent(int count) {

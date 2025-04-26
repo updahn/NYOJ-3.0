@@ -32,4 +32,6 @@ public interface ScheduleService {
     void check20MPendingSubmission();
 
     void checkUnHandleGroupProblemApplyProgress();
+
+    void checkRemoteProblem();
 }
