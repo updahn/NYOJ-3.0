@@ -4,11 +4,12 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
+    <script src="<%= BASE_URL %>check-cdn.js"></script>
 
     <!-- 使用CDN的CSS文件 -->
-    <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.css) { %>
+    <!-- <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.css) { %>
     <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="stylesheet" />
-    <% } %>
+    <% } %> -->
     <!-- 使用CDN的CSS文件 -->
 
     <title>NYOJ</title>
@@ -217,9 +218,9 @@
       </div>
     </div>
     <!-- 使用CDN的JS文件 -->
-    <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.js) { %>
+    <!-- <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.js) { %>
     <script src="<%= htmlWebpackPlugin.options.cdn.js[i] %>"></script>
-    <% } %>
+    <% } %> -->
     <!-- 使用CDN的JS文件 -->
   </body>
 </html>
