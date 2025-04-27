@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordUtils {
 
-    private static final String LOWERCASE_CHARACTERS = "abcdefghijklmnopqrstuvwxyz";
+    private static final String LOWERCASE_CHARACTERS = "abefghqrt";
 
-    private static final String UPPERCASE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String UPPERCASE_CHARACTERS = "ABEFGHQRT";
 
-    private static final String DIGITS = "0123456789";
+    private static final String DIGITS = "23456789";
 
     private static final String SPECIAL_CHARACTERS = "@#$%&";
 
