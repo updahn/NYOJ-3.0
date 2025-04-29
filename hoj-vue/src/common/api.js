@@ -25,7 +25,7 @@ axios.interceptors.request.use(
     // 如果存在，则统一在http请求的header都加上token，这样后台根据token判断你的登录情况
     // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断
     const token = localStorage.getItem('token');
-    if (config.url != '/api/login' && config.url != '/api/admin/login') {
+    if (config.url != '/api/login' && config.url != '/api/admin/login' && config.url != '/api/signup/login') {
       token && (config.headers.Authorization = token);
     }
     let type = config.url.split('/')[2];
@@ -130,6 +130,9 @@ axios.interceptors.response.use(
           }
           if (error.response.config.headers['Url-Type'] === 'admin') {
             router.push('/admin/login');
+          }
+          if (error.response.config.headers['Url-Type'] === 'signup') {
+            router.push('/signup/login');
           } else {
             store.commit('changeModalStatus', { mode: 'Login', visible: true });
           }
@@ -252,11 +255,12 @@ const ojApi = {
       data,
     });
   },
-  checkUsernameOrEmail(username, email) {
+  checkUsernameOrEmail(username, email, root) {
     return ajax('/api/check-username-or-email', 'post', {
       data: {
         username,
         email,
+        root,
       },
     });
   },
@@ -720,32 +724,6 @@ const ojApi = {
     });
   },
 
-  // 获取比赛报名列表
-  getContestSignList(params) {
-    return ajax('/api/get-contest-sign', 'get', {
-      params,
-    });
-  },
-
-  // 获取列表
-  getContestUserSign(params) {
-    return ajax('/api/get-contest-user-sign', 'get', {
-      params,
-    });
-  },
-
-  // 更新比赛报名的状态
-  updateContestSignStatus(data) {
-    return ajax('/api/check-contest-sign-status', 'post', {
-      data,
-    });
-  },
-
-  updateContestSign(data) {
-    return ajax('/api/contest-sign', 'post', {
-      data,
-    });
-  },
   // 提交比赛查重
   submitContestMoss(data) {
     return ajax('/api/submit-contest-moss', 'post', {
@@ -1011,48 +989,6 @@ const ojApi = {
     });
   },
 
-  // Invent
-  addInvent(data) {
-    return ajax('/api/invent', 'post', {
-      data,
-    });
-  },
-  handleInvent(data) {
-    return ajax('/api/handle-invent', 'post', {
-      data,
-    });
-  },
-  deleteInvent(cid, username, toUsername) {
-    return ajax('/api/invent', 'delete', {
-      params: {
-        cid,
-        username,
-        toUsername,
-      },
-    });
-  },
-  getInventStatus(cid, username, toUsername) {
-    return ajax('/api/invent', 'get', {
-      params: {
-        cid,
-        username,
-        toUsername,
-      },
-    });
-  },
-  addSign(data) {
-    return ajax('/api/sign', 'post', {
-      data,
-    });
-  },
-  getSign(cid, username) {
-    return ajax('/api/sign', 'get', {
-      params: {
-        cid,
-        username,
-      },
-    });
-  },
   // Group
   getGroupList(currentPage, limit, query) {
     let params = { currentPage, limit };
@@ -1584,13 +1520,8 @@ const ojApi = {
 // 处理admin后台管理的请求
 const adminApi = {
   // 登录
-  admin_login(username, password) {
-    return ajax('/api/admin/login', 'post', {
-      data: {
-        username,
-        password,
-      },
-    });
+  admin_login(data) {
+    return ajax('/api/admin/login', 'post', { data });
   },
   admin_logout() {
     return ajax('/api/admin/logout', 'get');
@@ -2367,8 +2298,99 @@ const adminApi = {
   },
 };
 
-// 集中导出oj前台的api和admin管理端的api
-let api = Object.assign(ojApi, adminApi);
+const signupApi = {
+  // Signup
+  signup_login(data) {
+    return ajax('/api/signup/login', 'post', { data });
+  },
+  signup_logout() {
+    return ajax('/api/signup/logout', 'get');
+  },
+
+  // UserSign
+  getUserSignList(currentPage, limit, startYear, keyword, school) {
+    let params = { currentPage, limit };
+    if (startYear) {
+      params.startYear = startYear;
+    }
+    if (keyword) {
+      params.keyword = keyword;
+    }
+    if (school) {
+      params.school = school;
+    }
+
+    return ajax('/api/user/list', 'get', { params });
+  },
+  getUserSign(username) {
+    return ajax('/api/user', 'get', { params: { username } });
+  },
+  addUserSign(data) {
+    return ajax('/api/user', 'post', { data });
+  },
+  updateUserSign(data) {
+    return ajax('/api/user', 'put', { data });
+  },
+  removeUserSign(username, id) {
+    return ajax('/api/user', 'delete', { params: { username, id } });
+  },
+  addUserSignBatch(data) {
+    return ajax('/api/user/batch', 'post', { data });
+  },
+
+  // TeamSign
+  getTeamSignList(params) {
+    return ajax('/api/team/list', 'get', { params });
+  },
+  signup_getContestList(currentPage, limit, status, keyword) {
+    let params = { currentPage, limit };
+    if (status != 'All') {
+      params.status = status;
+    }
+    if (keyword) {
+      params.keyword = keyword;
+    }
+    return ajax('/api/team/contest-list', 'get', {
+      params,
+    });
+  },
+  getTeamSign(id) {
+    return ajax('/api/team', 'get', { params: { id } });
+  },
+  addTeamSign(data) {
+    return ajax('/api/team', 'post', { data });
+  },
+  updateTeamSign(data) {
+    return ajax('/api/team', 'put', { data });
+  },
+  removeTeamSign(id) {
+    return ajax('/api/team', 'delete', { params: { id } });
+  },
+  updateTeamSignStatus(ids, cid, status, msg) {
+    let params = { cid, status, msg };
+    return ajax('/api/team/status', 'post', { data: { ids }, params: params });
+  },
+  addTeamSignBatch(ids, cid, type) {
+    let params = { cid, type };
+    return ajax('/api/team/batch', 'post', { data: { ids }, params: params });
+  },
+
+  // Invent
+  addInvent(data) {
+    return ajax('/api/invent', 'post', { data });
+  },
+  removeInvent(username, toUsername) {
+    return ajax('/api/invent', 'delete', {
+      params: { username, toUsername },
+    });
+  },
+  handleInvent(data) {
+    return ajax('/api/invent/handle', 'post', { data });
+  },
+};
+
+// 集中导出oj前台的api，admin管理端，报名的api
+let api = Object.assign(ojApi, adminApi, signupApi);
 export default api;
 /**
  * @param url

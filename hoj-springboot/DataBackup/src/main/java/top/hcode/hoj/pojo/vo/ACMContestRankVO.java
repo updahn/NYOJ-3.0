@@ -46,6 +46,27 @@ public class ACMContestRankVO {
     @ApiModelProperty(value = "昵称")
     private String nickname;
 
+    @ApiModelProperty(value = "队伍中文名称")
+    private String cname;
+
+    @ApiModelProperty(value = "队伍英文名称")
+    private String ename;
+
+    @ApiModelProperty(value = "队长用户名")
+    private String username1;
+
+    @ApiModelProperty(value = "队员1用户名")
+    private String username2;
+
+    @ApiModelProperty(value = "队员2用户名")
+    private String username3;
+
+    @ApiModelProperty(value = "报名类型（0为正式名额，1为女队名额，2为打星名额，3为外卡名额）")
+    private Integer type;
+
+    @ApiModelProperty(value = "教练")
+    private String instructor;
+
     @ApiModelProperty(value = "学校")
     private String school;
 

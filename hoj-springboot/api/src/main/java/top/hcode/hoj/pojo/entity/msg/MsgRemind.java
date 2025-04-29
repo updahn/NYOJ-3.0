@@ -32,7 +32,7 @@ public class MsgRemind {
     @ApiModelProperty(value = "动作类型，如点赞讨论帖Like_Post、点赞评论Like_Discuss、评论Discuss、回复Reply、邀请Invent等")
     private String action;
 
-    @ApiModelProperty(value = "消息来源id，讨论id或比赛id")
+    @ApiModelProperty(value = "消息来源id，讨论id")
     private Integer sourceId;
 
     @ApiModelProperty(value = "事件源类型：'Discussion'、'Contest'、'Invent'等")

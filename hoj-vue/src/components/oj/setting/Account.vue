@@ -109,7 +109,6 @@
           <el-button
             type="primary"
             slot="reference"
-            :loading="loading.btnEmailLoading"
             :disabled="disabled.btnEmail"
             @click="verify.emailSuccess = false"
           >{{ $t('m.Update_Email') }}</el-button>

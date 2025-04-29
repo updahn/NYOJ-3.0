@@ -220,6 +220,17 @@
                           ></el-button>
                         </el-tooltip>
                       </li>
+                      <li v-if="contest.auth == CONTEST_TYPE.OFFICIAL">
+                        <el-tooltip :content="$t('m.Go_Signup_List')" placement="top" effect="dark">
+                          <el-button
+                            circle
+                            size="small"
+                            type="primary"
+                            icon="el-icon-s-check"
+                            @click="toSignupList(contest.title)"
+                          ></el-button>
+                        </el-tooltip>
+                      </li>
                     </ul>
                   </el-col>
                   <el-col :xs="4" :sm="4" :md="2" :lg="2" style="text-align: center">
@@ -300,6 +311,7 @@ export default {
   mounted() {
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.CONTEST_STATUS = Object.assign({}, CONTEST_STATUS);
     this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.init();
@@ -395,6 +407,12 @@ export default {
         "border-left: 4px solid " +
         CONTEST_STATUS_REVERSE[contest.status]["color"]
       );
+    },
+    toSignupList(title) {
+      this.$router.push({
+        name: "signup-contest-list",
+        query: { keyword: title },
+      });
     },
   },
   computed: {

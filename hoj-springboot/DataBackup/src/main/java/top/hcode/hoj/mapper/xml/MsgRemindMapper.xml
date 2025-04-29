@@ -80,11 +80,9 @@
         LEFT JOIN comment c ON c.id = m.quote_id
         LEFT JOIN reply r ON r.from_uid = m.recipient_id AND r.comment_id = m.quote_id
         <where>
-        m.action = 'Invent'
-        AND c.cid = m.source_id
-        AND m.recipient_id = #{toUid}
-        AND m.source_id = #{cid}
-            <if test="uid!=null">
+            m.action = 'Invent'
+            AND m.recipient_id = #{toUid}
+            <if test="uid != null">
                 AND m.sender_id = #{uid}
             </if>
         </where>
@@ -104,9 +102,8 @@
         LEFT JOIN user_info u_r ON m.recipient_id = u_r.uuid
         LEFT JOIN reply r ON r.from_uid = m.recipient_id AND r.to_uid = c.from_uid AND r.comment_id = c.id
         <where>
-        AND c.from_uid = #{uid}
-        AND c.cid = #{cid}
-            <if test="toUid!=null">
+            c.from_uid = #{uid}
+            <if test="toUid != null">
                 AND m.recipient_id = #{toUid}
             </if>
         </where>

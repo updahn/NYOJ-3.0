@@ -9,6 +9,7 @@ export const m = {
   Please_enter_password: 'Please enter password',
   Admin_Login_Success: 'Dear administrator, welcome back~',
   Please_check_your_username_or_password: 'Please check your username or password',
+  Please_check_your_info: 'Please check your username, password, email, code or school',
 
   // /views/admin/Home.vue
   Dashboard: 'Dashboard',
@@ -121,14 +122,14 @@ export const m = {
   The_number_of_users_selected_cannot_be_empty: 'The number of users selected cannot be empty',
   Error_Please_check_your_choice: 'Wrong, please check your choice.',
   Generate_User_Success: 'All users in the specified format have been created successfully, and the user table has been downloaded to your computer successfully!',
-  Reset_Users_Password_Success: 'All users\' password has been reset successfully, and the user table and password bar have been downloaded to your computer successfully!',
+  Reset_Users_Password_Success: "All users' password has been reset successfully, and the user table and password bar have been downloaded to your computer successfully!",
   Generate_Skipped_Reason: 'rows user data are filtered because it may be an empty row or a column(username or password) value is empty.',
   Generate_Skipped_Reason2: 'rows user data are filtered because it may be an empty row or a column(realname or student number) value is empty.',
   Generate_Skipped_Reason3: 'rows user data are filtered because it may be an empty row or a column(username or email or password) value is empty.',
   Generate_Skipped_Reason4: 'rows user data are filtered because it may be an empty row or a column(username) value is empty.',
   Upload_Users_Successfully: 'Upload Users Successfully',
-  Apply_Users_Account_Successfully: 'Apply User\'s Account Successfully',
-  Reset_Users_Password_Successfully: 'Reset Users\' Password Successfully',
+  Apply_Users_Account_Successfully: "Apply User's Account Successfully",
+  Reset_Users_Password_Successfully: "Reset Users' Password Successfully",
 
   // /views/admin/general/Auth.vue
   General_Auth: 'Auth',
@@ -470,6 +471,8 @@ export const m = {
   SplitType_Problem: 'Split folders by problem id',
   Delete_Contest_Tips: 'This operation will delete the contest and its submission, discussion, announcement, record and other data. Do you want to continue?',
   Create_Contest_PDF: 'Create Contest PDF',
+  Go_Signup_List: 'Go to Signup List',
+  Signup_List: 'Signup List',
 
   // /views/admin/contest/Contest.vue
   Contest_Title: 'Contest Title',
@@ -542,6 +545,7 @@ export const m = {
   Range_ID_must_be_valid_number: 'Range ID must be valid number',
   Range_ID_error: 'Range ID error',
   Problem_ID_and_Display_ID_length_not_match: 'Problem ID and Display ID length not match',
+  Modify_endTime: 'Modify End Time',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: 'Discussion ID',

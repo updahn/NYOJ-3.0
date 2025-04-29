@@ -96,6 +96,9 @@ public class ContestVO implements Serializable {
     @ApiModelProperty(value = "报名时长（s）")
     private Long signDuration;
 
+    @ApiModelProperty(value = "信息修改结束时间")
+    private Date modifyEndTime;
+
     @ApiModelProperty(value = "队员上限(最大为3)")
     private Integer maxParticipants;
 

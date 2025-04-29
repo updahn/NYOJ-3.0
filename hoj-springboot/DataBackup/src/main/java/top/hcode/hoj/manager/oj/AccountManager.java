@@ -115,9 +115,13 @@ public class AccountManager {
 
         String username = checkUsernameOrEmailDto.getUsername();
 
+        Boolean root = checkUsernameOrEmailDto.getRoot();
+
         boolean rightEmail = false;
 
         boolean rightUsername = false;
+
+        boolean rightRoot = false;
 
         if (!StringUtils.isEmpty(email)) {
             email = email.trim();
@@ -146,9 +150,19 @@ public class AccountManager {
             }
         }
 
+        if (root != null && !StringUtils.isEmpty(username)) {
+            username = username.trim();
+            UserRolesVO userRolesVo = userRoleEntityService.getUserRoles(null, username);
+            List<String> roles = userRolesVo.getRoles().stream().map(Role::getRole).collect(Collectors.toList());
+            if (roles.contains("root") || roles.contains("admin") || roles.contains("coach_admin")) {
+                rightRoot = true;
+            }
+        }
+
         CheckUsernameOrEmailVO checkUsernameOrEmailVo = new CheckUsernameOrEmailVO();
         checkUsernameOrEmailVo.setEmail(rightEmail);
         checkUsernameOrEmailVo.setUsername(rightUsername);
+        checkUsernameOrEmailVo.setRoot(rightRoot);
         return checkUsernameOrEmailVo;
     }
 
@@ -303,7 +317,6 @@ public class AccountManager {
         // 获取已经结束, 不包含赛后提交，可见的ACM比赛的状态, 比赛结束后开榜的比赛
         QueryWrapper<Contest> contestQueryWrapper = new QueryWrapper<>();
         contestQueryWrapper
-                .select("id")
                 .eq("status", 1) // 获取已经结束
                 .eq("visible", 1) // 可见
                 .eq("auto_real_rank", 1) // 比赛结束后开榜的比赛

@@ -28,6 +28,10 @@ public class UserSign implements Serializable {
     private String realname;
 
     @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @ApiModelProperty(value = "英文姓名")
+    private String englishname;
+
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "学校")
     private String school;
 
@@ -50,6 +54,14 @@ public class UserSign implements Serializable {
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     @ApiModelProperty(value = "联系方式")
     private String phoneNumber;
+
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @ApiModelProperty(value = "入学年份")
+    private Date stSchool;
+
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
+    @ApiModelProperty(value = "毕业年份")
+    private Date edSchool;
 
     @ApiModelProperty(value = "创建时间")
     @TableField(fill = FieldFill.INSERT)

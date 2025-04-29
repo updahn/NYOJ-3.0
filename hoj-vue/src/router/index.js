@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import { sync } from 'vuex-router-sync';
 import adminRoutes from '@/router/adminRoutes';
+import signupRoutes from '@/router/signupRoutes';
 import ojRoutes from '@/router/ojRoutes';
 import mMessage from '@/common/message';
 import store from '@/store';
@@ -30,7 +31,7 @@ VueRouter.prototype.push = function push(location, onComplete, onAbort) {
   }
 };
 
-let routes = new Set([...ojRoutes, ...adminRoutes]);
+let routes = new Set([...ojRoutes, ...adminRoutes, ...signupRoutes]);
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
@@ -70,6 +71,11 @@ router.beforeEach((to, from, next) => {
               path: '/admin/login',
             });
             mMessage.error(i18n.t('m.Please_login_first_by_admin_account'));
+          } else if (to.path.split('/')[1] === 'signup') {
+            next({
+              path: '/signup/login',
+            });
+            mMessage.error(i18n.t('m.Please_login_first'));
           } else {
             // oj端
             next({
@@ -92,6 +98,11 @@ router.beforeEach((to, from, next) => {
               path: '/admin/login',
             });
             mMessage.error(i18n.t('m.Please_login_first_by_admin_account'));
+          } else if (to.path.split('/')[1] === 'signup') {
+            next({
+              path: '/signup/login',
+            });
+            mMessage.error(i18n.t('m.Please_login_first'));
           } else {
             next({
               path: '/',
@@ -113,6 +124,11 @@ router.beforeEach((to, from, next) => {
               path: '/admin/login',
             });
             mMessage.error(i18n.t('m.Please_login_first_by_admin_account'));
+          } else if (to.path.split('/')[1] === 'signup') {
+            next({
+              path: '/signup/login',
+            });
+            mMessage.error(i18n.t('m.Please_login_first'));
           } else {
             next({
               path: '/',
@@ -131,6 +147,10 @@ router.beforeEach((to, from, next) => {
       if (to.path.split('/')[1] === 'admin') {
         next({
           path: '/admin/login', // 管理端无token认证返回登录页
+        });
+      } else if (to.path.split('/')[1] === 'signup') {
+        next({
+          path: '/signup/login',
         });
       } else {
         store.commit('changeModalStatus', { mode: 'Login', visible: true });

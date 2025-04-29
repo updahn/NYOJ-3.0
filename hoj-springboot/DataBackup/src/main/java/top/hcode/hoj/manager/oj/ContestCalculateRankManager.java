@@ -2,28 +2,30 @@ package top.hcode.hoj.manager.oj;
 
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
-import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import top.hcode.hoj.dao.contest.ContestRecordEntityService;
+import top.hcode.hoj.dao.contest.TeamSignEntityService;
 import top.hcode.hoj.dao.group.GroupMemberEntityService;
+import top.hcode.hoj.dao.school.SchoolEntityService;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
+import top.hcode.hoj.dao.user.UserRoleEntityService;
 import top.hcode.hoj.pojo.bo.Pair_;
 import top.hcode.hoj.pojo.entity.contest.Contest;
+import top.hcode.hoj.pojo.entity.contest.TeamSign;
 import top.hcode.hoj.pojo.entity.group.GroupMember;
+import top.hcode.hoj.pojo.entity.school.School;
 import top.hcode.hoj.pojo.vo.ACMContestRankVO;
 import top.hcode.hoj.pojo.vo.ContestAwardConfigVO;
 import top.hcode.hoj.pojo.vo.ContestRecordVO;
 import top.hcode.hoj.pojo.vo.StatisticVO;
 import top.hcode.hoj.pojo.vo.OIContestRankVO;
-import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.RedisUtils;
 
@@ -33,6 +35,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author: Himit_ZH
@@ -59,6 +62,15 @@ public class ContestCalculateRankManager {
 
     @Autowired
     private GroupMemberEntityService groupMemberEntityService;
+
+    @Autowired
+    private SchoolEntityService schoolEntityService;
+
+    @Autowired
+    private TeamSignEntityService teamSignEntityService;
+
+    @Autowired
+    private UserRoleEntityService userRoleEntityService;
 
     public List<ACMContestRankVO> calcACMRank(boolean isOpenSealRank,
             boolean removeStar,
@@ -622,7 +634,36 @@ public class ContestCalculateRankManager {
 
         HashMap<String, Long> firstACMap = new HashMap<>();
 
+        HashMap<String, TeamSign> teamMapIndex = new HashMap<>();
+
+        Boolean isOfficial = contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode();
+
+        if (isOfficial) {
+            // 查询该比赛对应的队伍信息
+            List<TeamSign> teamSignList = teamSignEntityService
+                    .list(new QueryWrapper<TeamSign>().eq("cid", contest.getId()).eq("visible", true));
+
+            teamSignList.forEach(ts -> {
+                // 将 username1, username2, username3 组成 Stream，过滤掉 null，然后放入 Map
+                Stream.of(ts.getUsername1(), ts.getUsername2(), ts.getUsername3())
+                        .filter(Objects::nonNull)
+                        .forEach(u -> teamMapIndex.put(u, ts));
+            });
+        }
+
         for (ContestRecordVO contestRecord : contestRecordList) {
+
+            TeamSign teamSign = new TeamSign();
+
+            if (isOfficial && teamMapIndex.containsKey(contestRecord.getUsername())) {
+
+                teamSign = teamMapIndex.get(contestRecord.getUsername());
+
+                // 如果这几个人是一个队伍，将队员的提交替换为队长提交
+                if (teamSign != null) {
+                    contestRecord.setUid(userRoleEntityService.getUidByUsername(teamSign.getUsername1()));
+                }
+            }
 
             if (selectedTime != null) {
                 Date thisTime = addSeconds(contest.getStartTime(), selectedTime);
@@ -667,6 +708,26 @@ public class ContestCalculateRankManager {
                         .setAc(0.0)
                         .setTotalTime(0.0)
                         .setTotal(0);
+
+                // 如果为正式赛，将头像替换为学校校徽
+                if (isOfficial) {
+                    School school = schoolEntityService
+                            .getOne(new QueryWrapper<School>().eq("name", contestRecord.getSchool()));
+
+                    ACMContestRankVo.setAvatar(Constants.File.IMG_API.getPath() + school.getFileName());
+
+                    // 在 ACMContestRankVo 中添加对应队员的信息
+                    if (teamSign != null) {
+                        ACMContestRankVo
+                                .setCname(teamSign.getCname())
+                                .setEname(teamSign.getEname())
+                                .setUsername1(teamSign.getUsername1())
+                                .setUsername2(teamSign.getUsername2())
+                                .setUsername3(teamSign.getUsername3())
+                                .setType(teamSign.getType())
+                                .setInstructor(teamSign.getInstructor());
+                    }
+                }
 
                 HashMap<String, HashMap<String, Object>> submissionInfo = new HashMap<>();
                 ACMContestRankVo.setSubmissionInfo(submissionInfo);

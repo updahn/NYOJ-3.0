@@ -229,6 +229,7 @@ public class AdminContestManager {
             contest.setSignEndTime(adminContestVo.getSignEndTime());
             contest.setSignDuration(adminContestVo.getSignDuration());
             contest.setMaxParticipants(adminContestVo.getMaxParticipants());
+            contest.setModifyEndTime(adminContestVo.getModifyEndTime());
         }
 
         boolean isOk = contestEntityService.save(contest);
@@ -303,6 +304,7 @@ public class AdminContestManager {
             contest.setSignEndTime(adminContestVo.getSignEndTime());
             contest.setSignDuration(adminContestVo.getSignDuration());
             contest.setMaxParticipants(adminContestVo.getMaxParticipants());
+            contest.setModifyEndTime(adminContestVo.getModifyEndTime());
         }
 
         Contest oldContest = contestEntityService.getById(contest.getId());

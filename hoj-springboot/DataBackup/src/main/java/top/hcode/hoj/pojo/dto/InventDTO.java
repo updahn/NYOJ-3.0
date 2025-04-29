@@ -13,14 +13,12 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class InventDTO {
 
-    @NotBlank(message = "比赛id不能为空")
-    private Long cid;
-
+    @NotBlank(message = "邀请人不能为空")
     private String username;
 
     @NotBlank(message = "被邀请人不能为空")
     private String toUsername;
-    
+
     private String content;
 
 }

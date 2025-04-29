@@ -62,6 +62,14 @@ const getters = {
       return false;
     }
   },
+  // 教练管理权限
+  isCoachAdmin: (state, getters) => {
+    if (getters.userInfo.roleList) {
+      return getters.userInfo.roleList.indexOf(USER_TYPE.COACH_ADMIN) != -1 || getters.userInfo.roleList.indexOf(USER_TYPE.ADMIN) != -1 || getters.userInfo.roleList.indexOf(USER_TYPE.SUPER_ADMIN) != -1;
+    } else {
+      return false;
+    }
+  },
 };
 
 const mutations = {

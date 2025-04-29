@@ -338,6 +338,15 @@
                 <el-input v-model="signdurationText" disabled></el-input>
               </el-form-item>
             </el-col>
+            <el-col :md="8" :xs="24">
+              <el-form-item :label="$t('m.Modify_endTime')" required>
+                <el-date-picker
+                  v-model="contest.modifyEndTime"
+                  type="datetime"
+                  :placeholder="$t('m.Modify_endTime')"
+                ></el-date-picker>
+              </el-form-item>
+            </el-col>
           </template>
 
           <!-- 同步赛配置 -->
@@ -776,6 +785,14 @@ export default {
         }
         if (this.contest.signEndTime > this.contest.endTime) {
           myMessage.error(this.$i18n.t("m.Sign_EndTime_Check"));
+          return;
+        }
+        if (!this.contest.modifyEndTime) {
+          myMessage.error(
+            this.$i18n.t("m.Modify_endTime") +
+              " " +
+              this.$i18n.t("m.is_required")
+          );
           return;
         }
       }

@@ -143,19 +143,17 @@ public class CommentEntityServiceImpl extends ServiceImpl<CommentMapper, Comment
 
     @Async
     @Override
-    public void updateInventMsg(String recipientId, String senderId, Integer sourceId, String content,
-            Integer quoteId) {
+    public void updateInventMsg(String recipientId, String senderId, String content, Integer quoteId) {
 
         MsgRemind msgRemind = new MsgRemind();
         msgRemind.setAction("Invent")
-                .setRecipientId(recipientId)
-                .setSenderId(senderId)
-                .setSourceId(sourceId)
+                .setSourceType("Invent")
                 .setSourceContent(content)
                 .setQuoteId(quoteId)
-                .setUrl("/contest/" + Integer.toString(sourceId))
                 .setQuoteType("Invent")
-                .setSourceType("Invent");
+                .setUrl("/signup/pool/user")
+                .setRecipientId(recipientId)
+                .setSenderId(senderId);
 
         msgRemindEntityService.saveOrUpdate(msgRemind);
     }

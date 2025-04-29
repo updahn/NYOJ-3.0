@@ -6,9 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.pojo.dto.CheckACDTO;
 import top.hcode.hoj.pojo.entity.contest.ContestRecord;
-import top.hcode.hoj.pojo.entity.contest.ContestSign;
 import top.hcode.hoj.pojo.vo.ContestPrintVO;
-import top.hcode.hoj.pojo.vo.ContestSignVO;
 import top.hcode.hoj.pojo.vo.SessionVO;
 
 public interface ContestAdminService {
@@ -20,15 +18,6 @@ public interface ContestAdminService {
 	public CommonResult<IPage<ContestPrintVO>> getContestPrint(Long cid, Integer currentPage, Integer limit);
 
 	public CommonResult<Void> checkContestPrintStatus(Long id, Long cid);
-
-	public CommonResult<IPage<ContestSign>> getContestSign(Long cid, Integer currentPage, Integer limit,
-			Boolean type, Boolean gender, Integer status, String keyword);
-
-	public CommonResult<ContestSignVO> getContestSignInfo(Long cid, Long id);
-
-	public CommonResult<Void> checkContestSignStatus(Map<String, Object> params);
-
-	public CommonResult<Void> updateContestSign(ContestSignVO contestSignVo);
 
 	public CommonResult<IPage<SessionVO>> getContestSession(Long cid, Integer currentPage, Integer limit,
 			String keyword, String unkeyword);

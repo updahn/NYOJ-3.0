@@ -9,6 +9,7 @@ export const m = {
   Please_enter_password: '密码',
   Admin_Login_Success: '尊敬的管理员，欢迎回来~',
   Please_check_your_username_or_password: '请检查你的用户名或密码',
+  Please_check_your_info: '请检查你的用户名，密码，邮箱，验证码或者学校',
 
   // /views/admin/Home.vue
   Dashboard: '仪表盘',
@@ -469,6 +470,8 @@ export const m = {
   SplitType_Problem: '以题目ID分割文件夹',
   Delete_Contest_Tips: '此操作将删除该比赛以及比赛的提交、讨论、公告、记录等数据, 是否继续?',
   Create_Contest_PDF: '生成比赛PDF',
+  Go_Signup_List: '前往报名列表',
+  Signup_List: '报名列表',
 
   // /views/admin/contest/Contest.vue
   Contest_Title: '比赛标题',
@@ -541,6 +544,7 @@ export const m = {
   Range_ID_must_be_valid_number: '范围中的ID必须是有效数字',
   Range_ID_error: '题目ID范围错误',
   Problem_ID_and_Display_ID_length_not_match: '题目ID和比赛展示ID数量不一致',
+  Modify_endTime: '信息修改结束时间',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: '讨论ID',

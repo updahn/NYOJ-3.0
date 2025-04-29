@@ -13,4 +13,8 @@ public class CheckUsernameOrEmailDTO {
     private String email;
 
     private String username;
+
+    /** 是否检查管理员 **/
+    private Boolean root;
+
 }

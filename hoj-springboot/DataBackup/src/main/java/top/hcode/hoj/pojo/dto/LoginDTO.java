@@ -3,6 +3,7 @@ package top.hcode.hoj.pojo.dto;
 import lombok.Data;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
@@ -21,4 +22,18 @@ public class LoginDTO implements Serializable {
 
     @ApiModelProperty(value = "新密码")
     private String newPassword;
+
+    @ApiModelProperty(value = "真实姓名")
+    private String realname;
+
+    @ApiModelProperty(value = "邮箱")
+    @Email(message = "邮箱格式错误")
+    private String email;
+
+    @ApiModelProperty(value = "验证码")
+    private String code;
+
+    @ApiModelProperty(value = "学校")
+    private String school;
+
 }

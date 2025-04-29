@@ -175,6 +175,20 @@
                     type="warning"
                   ></el-button>
                 </el-tooltip>
+
+                <el-tooltip
+                  v-if="row.auth == CONTEST_TYPE.OFFICIAL"
+                  effect="dark"
+                  :content="$t('m.Go_Signup_List')"
+                  placement="top"
+                >
+                  <el-button
+                    icon="el-icon-s-check"
+                    size="mini"
+                    @click.native="toSignupList(row.id)"
+                    type="primary"
+                  ></el-button>
+                </el-tooltip>
               </div>
             </template>
             <el-tooltip
@@ -231,6 +245,7 @@ import utils from "@/common/utils";
 import {
   CONTEST_STATUS_REVERSE,
   CONTEST_TYPE_REVERSE,
+  CONTEST_TYPE,
 } from "@/common/constants";
 import { mapGetters } from "vuex";
 import myMessage from "@/common/message";
@@ -252,6 +267,7 @@ export default {
       currentId: 1,
       downloadDialogVisible: false,
       CONTEST_TYPE_REVERSE: {},
+      CONTEST_TYPE: {},
       query: {
         keyword: "",
         auth: "All",
@@ -262,6 +278,7 @@ export default {
   },
   mounted() {
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
 
     let route = this.$route.query;
@@ -393,6 +410,12 @@ export default {
     getContestPdf(contestId) {
       api.admin_getContestPdf(contestId).then((res) => {
         myMessage.success(this.$i18n.t("m.Update_Successfully"));
+      });
+    },
+    toSignupList(cid) {
+      this.$router.push({
+        name: "signup-contest-sign-list",
+        params: { contestID: cid },
       });
     },
   },

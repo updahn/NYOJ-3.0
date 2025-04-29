@@ -21,7 +21,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/admin/dashboard")
-@RequiresRoles(value = { "root", "problem_admin", "admin" }, logical = Logical.OR)
 public class DashboardController {
 
     @Autowired
@@ -36,6 +35,7 @@ public class DashboardController {
     }
 
     @GetMapping("/get-dashboard-info")
+    @RequiresRoles(value = { "root", "problem_admin", "admin" }, logical = Logical.OR)
     @RequiresAuthentication
     public CommonResult<Map<Object, Object>> getDashboardInfo() {
 

@@ -38,12 +38,12 @@ public class MsgRemindEntityServiceImpl extends ServiceImpl<MsgRemindMapper, Msg
     }
 
     @Override
-    public List<UserInventStatusVO> getUserInventedStatus(Long cid, String uid, String toUid) {
-        return msgRemindMapper.getUserInventedStatus(cid, uid, toUid);
+    public List<UserInventStatusVO> getUserInventedStatus(String uid, String toUid) {
+        return msgRemindMapper.getUserInventedStatus(uid, toUid);
     }
 
     @Override
-    public List<UserInventStatusVO> getUserInventStatus(Long cid, String uid, String toUid) {
-        return msgRemindMapper.getUserInventStatus(cid, uid, toUid);
+    public List<UserInventStatusVO> getUserInventStatus(String uid, String toUid) {
+        return msgRemindMapper.getUserInventStatus(uid, toUid);
     }
 }

@@ -18,6 +18,7 @@ for (let lang of languages) {
   let locale = lang.value;
   let m = require(`./oj/${locale}`).m;
   Object.assign(m, require(`./admin/${locale}`).m);
+  Object.assign(m, require(`./signup/${locale}`).m);
   let ui = Object.assign(lang.vxe, lang.el);
   messages[locale] = Object.assign({ m: m }, ui);
 }

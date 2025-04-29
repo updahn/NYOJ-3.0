@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import top.hcode.hoj.common.result.CommonResult;
 import top.hcode.hoj.pojo.dto.CheckACDTO;
 import top.hcode.hoj.pojo.entity.contest.ContestRecord;
-import top.hcode.hoj.pojo.entity.contest.ContestSign;
 import top.hcode.hoj.pojo.vo.ContestPrintVO;
-import top.hcode.hoj.pojo.vo.ContestSignVO;
 import top.hcode.hoj.pojo.vo.SessionVO;
 import top.hcode.hoj.service.oj.ContestAdminService;
 
@@ -81,50 +79,6 @@ public class ContestAdminController {
             @RequestParam("cid") Long cid) {
 
         return contestAdminService.checkContestPrintStatus(id, cid);
-    }
-
-    @GetMapping("/get-contest-sign")
-    @RequiresAuthentication
-    public CommonResult<IPage<ContestSign>> getContestSign(@RequestParam("cid") Long cid,
-            @RequestParam(value = "currentPage", required = false) Integer currentPage,
-            @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "type", required = false) Boolean type,
-            @RequestParam(value = "gender", required = false) Boolean gender,
-            @RequestParam(value = "status", required = false) Integer status,
-            @RequestParam(value = "keyword", required = false) String keyword) {
-
-        return contestAdminService.getContestSign(cid, currentPage, limit, type, gender, status, keyword);
-    }
-
-    @GetMapping("/get-contest-user-sign")
-    @RequiresAuthentication
-    public CommonResult<ContestSignVO> getContestSignInfo(
-            @RequestParam("cid") Long cid,
-            @RequestParam("id") Long id) {
-
-        return contestAdminService.getContestSignInfo(cid, id);
-    }
-
-    /**
-     * @param id
-     * @param cid
-     * @param status
-     * @MethodName checkContestSignStatus
-     * @Description 更新比赛报名的审核状态
-     * @Return
-     */
-    @PostMapping("/check-contest-sign-status")
-    @RequiresAuthentication
-    public CommonResult<Void> checkContestSignStatus(@RequestBody Map<String, Object> params) {
-
-        return contestAdminService.checkContestSignStatus(params);
-    }
-
-    @PostMapping("/contest-sign")
-    @RequiresAuthentication
-    public CommonResult<Void> updateContestSign(@RequestBody ContestSignVO contestSignVo) {
-
-        return contestAdminService.updateContestSign(contestSignVo);
     }
 
     @GetMapping("/get-contest-session")

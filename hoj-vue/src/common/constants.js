@@ -333,7 +333,7 @@ export const GROUP_TYPE_REVERSE = {
     color: 'danger',
     tips: 'Group_Private_Tips',
   },
-  4: {
+  '4': {
     name: 'Proposition',
     color: 'info',
     tips: 'Group_Proposition_Tips',
@@ -365,6 +365,13 @@ export const SIGN_TYPE_REVERSE = {
     action: 'Edit_Sign',
     color: 'danger',
   },
+};
+
+export const QUOTA_TYPE_REVERSE = {
+  '0': { name: 'Normal_Quota', color: 'success' },
+  '1': { name: 'Female_Quota', color: '#FF99CB' },
+  '2': { name: 'Star_Quota', color: 'warning' },
+  '3': { name: 'Wildcard_Quota', color: 'danger' },
 };
 
 export const RULE_TYPE = {
@@ -428,6 +435,7 @@ export const USER_TYPE = {
   ADMIN: 'admin',
   PROBLEM_ADMIN: 'problem_admin',
   SUPER_ADMIN: 'root',
+  COACH_ADMIN: 'coah_admin',
 };
 
 export const JUDGE_CASE_MODE = {

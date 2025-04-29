@@ -3035,3 +3035,180 @@ CALL add_remoteJudge ;
 
 DROP PROCEDURE add_remoteJudge;
 
+
+/*
+* user_sign 添加 englishname, st_school, ed_school
+*/
+DROP PROCEDURE
+IF EXISTS add_UserSign;
+DELIMITER $$
+
+CREATE PROCEDURE add_UserSign ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'user_sign'
+	AND column_name = 'englishname'
+) THEN
+	ALTER TABLE user_sign ADD COLUMN `englishname` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '英文姓名';
+	ALTER TABLE user_sign ADD COLUMN `st_school` datetime DEFAULT NULL COMMENT '入学年份';
+	ALTER TABLE user_sign ADD COLUMN `ed_school` datetime DEFAULT NULL COMMENT '毕业年份';
+	ALTER TABLE user_sign MODIFY COLUMN username varchar(100) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户名';
+    ALTER TABLE user_sign MODIFY COLUMN realname varchar(100) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '真实姓名';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_UserSign;
+
+DROP PROCEDURE add_UserSign;
+
+
+/*
+* contest 添加 modify_end_time
+*/
+DROP PROCEDURE
+IF EXISTS add_Contest_modifyEndTime;
+DELIMITER $$
+
+CREATE PROCEDURE add_Contest_modifyEndTime ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'contest'
+	AND column_name = 'modify_end_time'
+) THEN
+	ALTER TABLE contest ADD COLUMN `modify_end_time` datetime DEFAULT NULL COMMENT '信息修改结束时间';
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_Contest_modifyEndTime;
+
+DROP PROCEDURE add_Contest_modifyEndTime;
+
+
+/*
+* contest_sign 添加 username1, username2, username3 等
+*/
+DROP PROCEDURE
+IF EXISTS add_TeamSign_teamNumber;
+DELIMITER $$
+
+CREATE PROCEDURE add_TeamSign_teamNumber ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'contest_sign'
+	AND column_name = 'username1'
+) THEN
+	ALTER TABLE contest_sign MODIFY COLUMN `type` int(11) DEFAULT '0' COMMENT '报名类型（0为正式名额，1为女队名额，2为打星名额，3为外卡名额）';
+	ALTER TABLE contest_sign DROP COLUMN gender, DROP COLUMN team_names;
+	ALTER TABLE contest_sign ADD COLUMN `instructor` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '指导老师';
+	ALTER TABLE contest_sign ADD COLUMN `username1` varchar(100) DEFAULT NULL COMMENT '队长';
+	ALTER TABLE contest_sign ADD COLUMN `username2` varchar(100) DEFAULT NULL COMMENT '队员1';
+	ALTER TABLE contest_sign ADD COLUMN `username3` varchar(100) DEFAULT NULL COMMENT '队员2';
+	ALTER TABLE contest_sign ADD COLUMN `visible` tinyint(1) DEFAULT '1' COMMENT '是否为队伍池中的，0为队伍池中的';
+    ALTER TABLE contest_sign ADD KEY `username1` (`username1`);
+    ALTER TABLE contest_sign ADD KEY `username2` (`username2`);
+    ALTER TABLE contest_sign ADD KEY `username3` (`username3`);
+	ALTER TABLE contest_sign ADD CONSTRAINT `contest_sign_ibfk_3` FOREIGN KEY (`username1`) REFERENCES `user_info` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
+	ALTER TABLE contest_sign ADD CONSTRAINT `contest_sign_ibfk_4` FOREIGN KEY (`username2`) REFERENCES `user_info` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
+	ALTER TABLE contest_sign ADD CONSTRAINT `contest_sign_ibfk_5` FOREIGN KEY (`username3`) REFERENCES `user_info` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_TeamSign_teamNumber;
+
+DROP PROCEDURE add_TeamSign_teamNumber;
+
+
+/*
+* role 添加 coach_admin
+*/
+DROP PROCEDURE
+IF EXISTS add_Role_CoachAdmin;
+DELIMITER $$
+
+CREATE PROCEDURE add_Role_CoachAdmin ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT 1 FROM role WHERE role = "coach_admin"
+) THEN
+	INSERT INTO role (id, role, description, status) VALUES (1011, 'coach_admin', '教练', 0);
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_Role_CoachAdmin;
+
+DROP PROCEDURE add_Role_CoachAdmin;
+
+
+/*
+* 添加 school_user
+*/
+DROP PROCEDURE
+IF EXISTS add_schoolUser;
+DELIMITER $$
+
+CREATE PROCEDURE add_schoolUser ()
+BEGIN
+
+IF NOT EXISTS (
+	SELECT
+		1
+	FROM
+		information_schema.`COLUMNS`
+	WHERE
+		table_name = 'school_user'
+) THEN
+    CREATE TABLE `school_user` (
+    `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+    `sid` bigint(20) unsigned NOT NULL COMMENT '学校id',
+    `uid` varchar(32) COLLATE utf8_general_ci DEFAULT NULL COMMENT '用户编号',
+    `coach_uid` varchar(32) COLLATE utf8_general_ci DEFAULT NULL COMMENT '教练用户编号',
+	`status` int(11) DEFAULT '0',
+    `gmt_create` datetime DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` datetime DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `sid` (`sid`),
+    KEY `uid` (`uid`),
+    KEY `coach_uid` (`coach_uid`),
+    CONSTRAINT `school_user_ibfk_1` FOREIGN KEY (`sid`) REFERENCES `school` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `school_user_ibfk_2` FOREIGN KEY (`uid`) REFERENCES `user_info` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `school_user_ibfk_3` FOREIGN KEY (`coach_uid`) REFERENCES `user_info` (`uuid`) ON DELETE CASCADE ON UPDATE CASCADE
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+END
+IF ; END$$
+
+DELIMITER ;
+CALL add_schoolUser ;
+
+DROP PROCEDURE add_schoolUser;
+
+
+/*
+* 修改 contest_sign 名为 team_sign
+*/
+rename table contest_sign to team_sign;
+
+

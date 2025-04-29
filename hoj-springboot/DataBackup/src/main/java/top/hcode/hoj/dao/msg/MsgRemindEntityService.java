@@ -21,7 +21,7 @@ public interface MsgRemindEntityService extends IService<MsgRemind> {
 
     IPage<UserMsgVO> getUserMsg(Page<UserMsgVO> page, String uid, String action);
 
-    List<UserInventStatusVO> getUserInventedStatus(Long cid, String uid, String toUid);
+    List<UserInventStatusVO> getUserInventedStatus(String uid, String toUid);
 
-    List<UserInventStatusVO> getUserInventStatus(Long cid, String uid, String toUid);
+    List<UserInventStatusVO> getUserInventStatus(String uid, String toUid);
 }

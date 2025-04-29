@@ -21,6 +21,6 @@ public interface CommentEntityService extends IService<Comment> {
 
     void updateCommentLikeMsg(String recipientId, String senderId, Integer sourceId, String sourceType);
 
-    void updateInventMsg(String recipientId, String senderId, Integer sourceId, String content, Integer quoteId);
+    void updateInventMsg(String recipientId, String senderId, String content, Integer quoteId);
 
 }

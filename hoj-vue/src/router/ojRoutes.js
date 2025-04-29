@@ -25,7 +25,6 @@ import Announcements from '@/components/oj/common/Announcements.vue';
 import ContestComment from '@/views/oj/contest/children/ContestComment.vue';
 import ContestPrint from '@/views/oj/contest/children/ContestPrint.vue';
 import ContestAdminPrint from '@/views/oj/contest/children/ContestAdminPrint.vue';
-import ContestAdminSign from '@/views/oj/contest/children/ContestAdminSign.vue';
 import ContestAdminMoss from '@/views/oj/contest/moss/ContestAdminMoss.vue';
 import ContestAdminMossDetails from '@/views/oj/contest/moss/ContestAdminMossDetails.vue';
 import ScrollBoard from '@/views/oj/contest/children/ScrollBoard.vue';
@@ -299,15 +298,6 @@ const ojRoutes = [
         path: 'admin-print',
         component: ContestAdminPrint,
         meta: { title: 'Contest Admin Print', requireAuth: true },
-      },
-      {
-        name: 'ContestAdminSign',
-        path: 'admin-sign',
-        component: ContestAdminSign,
-        meta: {
-          title: 'Contest Admin Sign',
-          requireAuth: true,
-        },
       },
       {
         name: 'ContestAdminMoss',
@@ -719,12 +709,6 @@ const ojRoutes = [
             path: 'admin-print',
             component: ContestAdminPrint,
             meta: { title: 'Group Contest Admin Print', requireAuth: true, fullScreenSource: 'group' },
-          },
-          {
-            name: 'GroupContestAdminSign',
-            path: 'admin-sign',
-            component: ContestAdminSign,
-            meta: { title: 'Group Contest Admin Sign', requireAuth: true, fullScreenSource: 'group' },
           },
           {
             name: 'GroupContestAdminMoss',

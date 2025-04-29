@@ -91,17 +91,7 @@
           </div>
         </div>
         <div class="link-discussion">
-          <span>
-            {{
-            item.sourceType == 'Discussion'
-            ? $t('m.From_Discussion_Post')
-            : $t('m.From_the_Contest')
-            }}
-            <span
-              class="title"
-              @click="goMsgSourceUrl(item.url)"
-            >“{{ item.sourceTitle }}”</span>
-          </span>
+          <span class="title" @click="goMsgSourceUrl(item.url)">{{ $t('m.From_the_Signup') }}</span>
         </div>
       </el-card>
     </template>
@@ -187,9 +177,8 @@ export default {
       let data = {
         username: username,
         isAccept: isAccept,
-        userMsg: item,
+        userMsgVo: item,
       };
-      // console.log(data);
       api.handleInvent(data).then((res) => {
         myMessage.success(this.$i18n.t("m.Success"));
         this.getMsgList();

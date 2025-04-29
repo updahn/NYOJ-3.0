@@ -13,4 +13,7 @@ public class CheckUsernameOrEmailVO {
     private Boolean email;
 
     private Boolean username;
+
+    private Boolean root;
+
 }

@@ -149,7 +149,7 @@ public class ContestValidator {
                     throw new StatusForbiddenException(
                             contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode()
                                     || contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()
-                                            ? "对不起，请先到比赛首页报名进行注册！"
+                                            ? "对不起，请先到比赛报名页进行注册！"
                                             : "对不起，请先到比赛首页输入比赛密码进行注册！");
                 }
 
@@ -172,7 +172,10 @@ public class ContestValidator {
             ContestRegister register = contestRegisterEntityService.getOne(queryWrapper, false);
             // 如果还没注册
             if (register == null) {
-                throw new StatusForbiddenException("对不起，请你先注册该比赛，提交代码失败！");
+                throw new StatusForbiddenException(
+                        contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode()
+                                ? "对不起，请你先报名该比赛，提交代码失败！"
+                                : "对不起，请你先注册该比赛，提交代码失败！");
             }
         }
     }

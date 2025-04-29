@@ -103,6 +103,17 @@
             </el-col>
           </el-row>
           <div class="contest-config" style="display: flex;">
+            <div
+              v-if="contest.auth == CONTEST_TYPE.OFFICIAL"
+              class="config"
+            >
+              <el-button
+                round
+                size="small"
+                slot="reference"
+                @click="toSignupList(contest.title)"
+              >{{$t('m.Signup_List')}}</el-button>
+            </div>
             <div v-if="isShowContestSetting" class="config" style="margin-right: 10px;">
               <el-popover trigger="hover" placement="left-start">
                 <el-button round size="small" slot="reference">{{$t('m.Contest_Setting')}}</el-button>
@@ -175,296 +186,6 @@
               >{{ $t('m.Enter') }}</el-button>
             </el-form>
           </el-card>
-
-          <!-- 正式赛报名窗口 -->
-          <el-card
-            v-if="signFormVisible"
-            class="box-card"
-            style="text-align: center; margin-bottom: 15px"
-          >
-            <div slot="header">
-              <span :class="getPanelClass()" :style="getPanelStyle()">
-                <i :class="getIconClass()">{{ $t('m.' + SIGN_TYPE_REVERSE[signStatus].name) }}</i>
-              </span>
-              <div class="filter-row">
-                <span>
-                  <el-button
-                    type="primary"
-                    @click="checkSign()"
-                    size="small"
-                    icon="el-icon-refresh"
-                    :loading="getBtnLoading"
-                  >{{ $t('m.Refresh') }}</el-button>
-                </span>
-              </div>
-            </div>
-            <el-col :span="24">
-              <el-row :gutter="20">
-                <el-col
-                  :xxl="4"
-                  :xl="6"
-                  :lg="8"
-                  :md="8"
-                  :sm="12"
-                  :xs="24"
-                  v-if="!signList.length"
-                  style="margin-top: 10px; margin-bottom: 10px;"
-                >
-                  <el-card :body-style="{ padding: '0px' }" style="border-radius: 10px;">
-                    <el-empty :description="$t('m.No_Sign_Time')"></el-empty>
-                  </el-card>
-                </el-col>
-                <el-col
-                  :xxl="4"
-                  :xl="6"
-                  :lg="8"
-                  :md="8"
-                  :sm="12"
-                  :xs="24"
-                  v-for="(sign, index) in signList"
-                  :key="index"
-                  style="margin-top: 10px; margin-bottom: 10px"
-                >
-                  <el-row :gutter="1">
-                    <el-col :span="7" style="text-align: center;">
-                      <el-card
-                        :body-style="{ padding: '0px' }"
-                        style="border-radius: 10px; height: 170px"
-                      >
-                        <template v-if="sign.avatar">
-                          <el-image
-                            :src="sign.avatar"
-                            fit="cover"
-                            style="height: 135px; width: 100%"
-                          ></el-image>
-                        </template>
-                        <template v-else>
-                          <el-image
-                            :src="defaultAvatar"
-                            fit="cover"
-                            style="height: 135px; width: 100%"
-                          ></el-image>
-                        </template>
-                        <el-link
-                          style="font-size: 16px"
-                          type="primary"
-                          :underline="false"
-                          @click="toUserHome(sign.username)"
-                        >
-                          <i class="el-icon-user-solid"></i>
-                          {{ sign.username }}
-                        </el-link>
-
-                        <!-- 编辑组队状态 -->
-                        <template v-if="index > 0 && editRule">
-                          <el-tooltip
-                            effect="dark"
-                            :content="$t('m.Send_Invent_Again')"
-                            placement="top"
-                            style="margin-left: 5px;"
-                          >
-                            <span
-                              class="reply-opt reply-text"
-                              @click="openInventDialog('radd', sign.username)"
-                            >
-                              <i class="iconfont el-icon-s-promotion"></i>
-                              <!-- <span>{{ $t('m.Invent') }}</span> -->
-                            </span>
-                          </el-tooltip>
-                          <el-tooltip
-                            effect="dark"
-                            :content="$t('m.Delete_Invent')"
-                            placement="top"
-                            style="margin-left: 5px;"
-                          >
-                            <span
-                              class="reply-opt reply-delete"
-                              @click="deleteInvent(sign.username)"
-                            >
-                              <i class="iconfont el-icon-delete"></i>
-                              <!-- <span>{{ $t('m.Delete') }}</span> -->
-                            </span>
-                          </el-tooltip>
-                        </template>
-                      </el-card>
-                    </el-col>
-                    <el-col :span="17" :class="SIGN_TYPE_REVERSE[sign.status].name">
-                      <el-card
-                        :body-style="{ padding: '0px' }"
-                        style="border-radius: 10px; height: 170px; text-align: left;"
-                      >
-                        <div slot="header" style="height: 24px">
-                          <el-col :span="8">
-                            <a class="sign-name">
-                              <span>{{ $t('m.Participant_Realname') + " : " }}</span>
-                              <br />
-                              <span>{{ $t('m.Participant_School') + " : " }}</span>
-                              <br />
-                              <span>{{ $t('m.Participant_Course') + ": " }}</span>
-                              <br />
-                              <span>{{ $t('m.Participant_Number') + " : " }}</span>
-                              <br />
-                              <span>{{ $t('m.Participant_PhoneNumber') + " : " }}</span>
-                            </a>
-                          </el-col>
-                          <el-col :span="1">
-                            <p></p>
-                          </el-col>
-                          <el-col :span="8">
-                            <a class="sign-name">
-                              <span>{{ sign.realname }}</span>
-                              <br />
-                              <span>{{ sign.school }}</span>
-                              <br />
-                              <span>{{ sign.course }}</span>
-                              <br />
-                              <span>{{ sign.number }}</span>
-                              <br />
-                              <span>{{ sign.phoneNumber }}</span>
-                            </a>
-                          </el-col>
-                        </div>
-                      </el-card>
-                    </el-col>
-                  </el-row>
-                </el-col>
-                <el-col
-                  :xxl="4"
-                  :xl="6"
-                  :lg="8"
-                  :md="8"
-                  :sm="12"
-                  :xs="24"
-                  style="margin-top: 10px; margin-bottom: 10px"
-                >
-                  <el-row :gutter="1">
-                    <el-col
-                      :span="24"
-                      v-if="signList.length && signList.length < contest.maxParticipants && editRule"
-                    >
-                      <el-row :gutter="20">
-                        <el-col :span="7" style="text-align: center;">
-                          <el-card
-                            :body-style="{ padding: '0px' }"
-                            style="border-radius: 10px; height: 170px; display: flex; justify-content: center; align-items: center;"
-                          >
-                            <template>
-                              <el-image
-                                :src="defaultAvatar"
-                                fit="cover"
-                                style="height: 135px; width: 100%"
-                              ></el-image>
-                            </template>
-                            <el-button
-                              icon="el-icon-plus"
-                              type="primary"
-                              style="width: 100%; height: 100%;"
-                              @click="openInventDialog('add', null)"
-                            ></el-button>
-                          </el-card>
-                        </el-col>
-                        <el-col :span="17" :class="SIGN_TYPE_REVERSE[signStatus].name">
-                          <el-card
-                            :body-style="{ padding: '0px' }"
-                            style="border-radius: 10px; height: 170px"
-                          ></el-card>
-                        </el-col>
-                      </el-row>
-                    </el-col>
-                  </el-row>
-                </el-col>
-              </el-row>
-            </el-col>
-            <p></p>
-            <el-button
-              v-if="signList.length && editRule"
-              type="primary"
-              @click="openSignDialog"
-            >{{ $t('m.' + SIGN_TYPE_REVERSE[signStatus].action) }}</el-button>
-          </el-card>
-          <el-dialog
-            :title="$t('m.Add_Participant')"
-            width="400px"
-            :visible.sync="addInventDialogVisible"
-            :close-on-click-modal="false"
-          >
-            <el-form>
-              <el-form-item :label="$t('m.Participant_Username')" required>
-                <el-input v-model="userSign.toUsername" size="small"></el-input>
-              </el-form-item>
-              <el-form-item :label="$t('m.Invent_msg')">
-                <el-input v-model="userSign.content" size="small"></el-input>
-              </el-form-item>
-              <el-form-item style="text-align:center">
-                <el-button
-                  type="primary"
-                  @click="sendInvent"
-                  :loading="addInventLoading"
-                >{{ $t('m.Send_Invent') }}</el-button>
-              </el-form-item>
-            </el-form>
-          </el-dialog>
-          <el-dialog
-            :title="$t('m.' + signTitle)"
-            width="500px"
-            :visible.sync="addSignDialogVisible"
-            :close-on-click-modal="false"
-          >
-            <el-form :model="contestSign" ref="contestSign" :rules="contestSignRules">
-              <el-form-item prop="cname" :label="$t('m.Cname')" required>
-                <el-input v-model="contestSign.cname" size="small" :maxlength="20"></el-input>
-              </el-form-item>
-              <el-form-item prop="ename" :label="$t('m.Ename')" required>
-                <el-input v-model="contestSign.ename" size="small" :maxlength="20"></el-input>
-              </el-form-item>
-              <el-form-item prop="school" :label="$t('m.Team_School')">
-                <el-select
-                  v-model="contestSign.school"
-                  filterable
-                  remote
-                  reserve-keyword
-                  :placeholder="$t('m.Enter_Your_School')"
-                  :remote-method="fetchStates"
-                  :loading="loading"
-                  style="width: 100%;"
-                >
-                  <el-option
-                    v-for="state in filteredStates"
-                    :key="state.value"
-                    :label="state.label"
-                    :value="state.value"
-                  ></el-option>
-                </el-select>
-              </el-form-item>
-              <el-form-item>
-                <el-col :span="24" style="margin-top: 10px; margin-bottom: 10px">
-                  <el-col :span="12">
-                    <el-switch
-                      v-model="contestSign.type"
-                      :active-text="$t('m.Star')"
-                      :inactive-text="$t('m.Formal')"
-                    ></el-switch>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-switch
-                      v-model="contestSign.gender"
-                      :active-text="$t('m.Girls')"
-                      :inactive-text="$t('m.Formal')"
-                    ></el-switch>
-                  </el-col>
-                </el-col>
-              </el-form-item>
-              <p></p>
-              <p></p>
-              <el-form-item style="text-align:center">
-                <el-button
-                  type="primary"
-                  @click="sendSign"
-                  :loading="addSignLoading"
-                >{{ $t('m.' + signBtn) }}</el-button>
-              </el-form-item>
-            </el-form>
-          </el-dialog>
 
           <el-card class="box-card">
             <Markdown :isAvoidXss="contest.gid != null" :content="contest.description"></Markdown>
@@ -603,23 +324,6 @@
         </el-tab-pane>
 
         <el-tab-pane
-          name="ContestAdminSign"
-          lazy
-          :disabled="contestMenuDisabled"
-          v-if="isContestAdmin && contest.auth === CONTEST_TYPE.OFFICIAL"
-        >
-          <span slot="label">
-            <i class="el-icon-edit-outline"></i>
-            &nbsp;{{
-            $t("m.Admin_Sign")
-            }}
-          </span>
-          <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestAdminSign'"></router-view>
-          </transition>
-        </el-tab-pane>
-
-        <el-tab-pane
           name="ContestAdminMoss"
           lazy
           :disabled="contestMenuDisabled"
@@ -733,103 +437,9 @@ export default {
       CONTEST_TYPE: {},
       RULE_TYPE: {},
       btnLoading: false,
-      getBtnLoading: false,
       contestPassword: "",
       defaultAvatar: require("@/assets/default.jpg"),
-
-      addInventDialogVisible: false,
-      addInventLoading: false,
-
-      addSignDialogVisible: false,
-      addSignLoading: false,
-      signTitle: "Send_Sign",
-      signBtn: "Send",
-
-      editRule: false,
-      usernames: "",
-      signList: [],
-      signStatus: -1,
-      userSign: {
-        cid: this.$route.params.contestID,
-        username: this.$store.getters.userInfo.username,
-        toUsername: "",
-        content: "听说你很强，但是我比你更强。所以一块上大分！",
-      },
-      contestSign: {
-        cid: this.$route.params.contestID,
-        cname: "",
-        ename: "",
-        school: "南阳理工学院",
-        teamNames: "",
-        type: 0,
-        gender: 0,
-      },
-      contestSignRules: {
-        cname: [
-          {
-            required: true,
-            message: this.$i18n.t("m.Cname_Check_Required"),
-            trigger: "blur",
-          },
-          {
-            min: 1,
-            max: 20,
-            message: this.$i18n.t("m.TeamName_Check_Length"),
-            trigger: "blur",
-          },
-          {
-            pattern: /^[\u4e00-\u9fa5]+$/,
-            message: this.$i18n.t("m.Check_Chinese"),
-            trigger: "blur",
-          },
-        ],
-        ename: [
-          {
-            required: true,
-            message: this.$i18n.t("m.Ename_Check_Required"),
-            trigger: "blur",
-          },
-          {
-            min: 1,
-            max: 20,
-            message: this.$i18n.t("m.TeamName_Check_Length"),
-            trigger: "blur",
-          },
-          {
-            pattern: /[a-zA-z]$/,
-            message: this.$i18n.t("m.Check_English"),
-            trigger: "blur",
-          },
-        ],
-        school: [
-          {
-            pattern: /^[\u4e00-\u9fa5\d]*[\u4e00-\u9fa5]+[\u4e00-\u9fa5\d]*$/,
-            min: 2,
-            max: 15,
-            message: this.$i18n.t("m.School_Check_length"),
-            trigger: "blur",
-          },
-          {
-            validator: (rule, value, callback) => {
-              if (value === null || value === "") {
-                callback();
-              } else if (!this.states.find((item) => item.name === value)) {
-                callback(new Error(this.$i18n.t("m.Not_Find_School")));
-              } else {
-                callback();
-              }
-            },
-            trigger: "blur",
-          },
-        ],
-      },
-      filteredStates: [],
-      loading: false,
-      states: [],
     };
-  },
-  mounted() {
-    this.getSchoolList();
   },
   created() {
     this.contestID = this.$route.params.contestID;
@@ -894,7 +504,6 @@ export default {
           });
         }, 60 * 1000);
       }
-      this.getSign();
       this.$nextTick((_) => {
         addCodeBtn();
       });
@@ -975,185 +584,6 @@ export default {
         });
       }
     },
-    getSign() {
-      if (this.contest.auth === this.CONTEST_TYPE.OFFICIAL) {
-        // 如果是同步赛
-        let cid = this.$route.params.contestID;
-        let username = this.$store.getters.userInfo.username;
-        api.getSign(cid, username).then(
-          (res) => {
-            let data = res.data.data;
-            this.signList = data.teamConfig;
-            this.usernames = data.teamNames;
-            this.signStatus = data.status;
-            if (data.cname) {
-              // 将报名信息补全
-              this.contestSign = Object.assign({}, data);
-            }
-
-            // 队长是否等于当前用户
-            if (username == this.signList[0].username) {
-              this.editRule = true;
-            }
-            if (this.sendSign === 0) {
-              this.signTitle = "Edit_Sign";
-              this.signBtn = "Edit";
-            }
-
-            // 更新进入比赛的权限
-            this.$store.commit("contestIntoAccess", {
-              intoAccess: this.signStatus === 1,
-            });
-
-            if (this.signStatus === 2) {
-              myMessage.warning(data.msg);
-            }
-          },
-          (_) => {
-            this.signList = [];
-            this.usernames = "";
-            this.signStatus = -1;
-            this.editRule = false;
-            this.signTitle = "Send_Sign";
-            this.signBtn = "Send";
-          }
-        );
-      }
-    },
-    checkSign() {
-      this.getBtnLoading = true;
-      this.getSign();
-      this.getBtnLoading = false;
-    },
-    toUserHome(username) {
-      const routeName = this.$route.params.groupID
-        ? "GroupUserHome"
-        : "UserHome";
-      this.$router.push({
-        name: routeName,
-        query: { username: username },
-      });
-    },
-    openInventDialog(action, toUsername) {
-      if (action == "add") {
-        this.userSign = {
-          cid: this.$route.params.contestID,
-          username: this.$store.getters.userInfo.username,
-          toUsername: null,
-          content: "听说你很强，但是我比你更强。所以一块上大分！",
-        };
-      } else {
-        this.userSign = {
-          cid: this.$route.params.contestID,
-          username: this.$store.getters.userInfo.username,
-          toUsername: toUsername,
-          content: "所以爱会消失嘛？燕子，回来把！",
-        };
-      }
-      this.addInventDialogVisible = true;
-    },
-    openSignDialog() {
-      this.addSignDialogVisible = true;
-    },
-    sendInvent() {
-      api.addInvent(this.userSign).then(
-        (res) => {
-          this.addInventLoading = false;
-          myMessage.success(this.$i18n.t("m.Invent_Successfully"));
-          this.getSign();
-          this.addInventDialogVisible = false;
-        },
-        (_) => {
-          this.addInventLoading = false;
-        }
-      );
-    },
-    sendSign() {
-      this.$refs.contestSign.validate((valid) => {
-        if (valid) {
-          this.contestSign.teamNames = this.usernames;
-          api.addSign(this.contestSign).then(
-            (res) => {
-              this.addSignLoading = false;
-              myMessage.success(this.$i18n.t("m.Sign_Successfully"));
-              this.getSign();
-              this.addSignDialogVisible = false;
-            },
-            (_) => {
-              this.addSignLoading = false;
-            }
-          );
-        } else {
-          myMessage.error(this.$i18n.t("m.Please_check_your_Cname_or_Ename"));
-        }
-      });
-    },
-    deleteInvent(toUsername) {
-      let username = this.$store.getters.userInfo.username;
-      let cid = this.$route.params.contestID;
-      api
-        .deleteInvent(cid, username, toUsername)
-        .then((res) => {
-          myMessage.success(this.$i18n.t("m.Delete_successfully"));
-          this.getSign();
-        })
-        .catch(() => {});
-    },
-    getPanelClass() {
-      let status = this.signStatus;
-      return {
-        "panel-title": true,
-        "color-warning": status === -1 || status === 0,
-        "color-success": status === 1,
-        "color-error": status === 2,
-      };
-    },
-    getPanelStyle() {
-      let status = this.signStatus;
-      return {
-        color:
-          status === -1 || status === 0
-            ? "#e6a23c"
-            : status === 1
-            ? "#67c23a"
-            : "#ed3f14",
-      };
-    },
-    getIconClass() {
-      let status = this.signStatus;
-      return {
-        "el-icon-warning": status === -1 || status === 0,
-        "el-icon-success": status === 1,
-        "el-icon-error": status === 2,
-      };
-    },
-    getSchoolList() {
-      api.getSchoolList().then(
-        (res) => {
-          this.states = res.data.data;
-          this.filteredStates = this.states.map((state) => ({
-            label: state.name,
-            value: state.name,
-          }));
-        },
-        (_) => {
-          this.states = [];
-          this.filteredStates = [];
-        }
-      );
-    },
-    fetchStates(query) {
-      this.loading = true;
-      setTimeout(() => {
-        const filterQuery = query.trim().toLowerCase();
-        this.filteredStates = this.states
-          .filter((state) =>
-            filterQuery ? state.name.toLowerCase().includes(filterQuery) : true
-          )
-          .map((state) => ({ label: state.name, value: state.name }));
-        this.loading = false;
-      }, 200);
-    },
     openPdf(pdfDescription) {
       window.open(pdfDescription, "_blank");
     },
@@ -1174,6 +604,12 @@ export default {
         params: { contestID: this.contestID },
       });
     },
+    toSignupList(title) {
+      this.$router.push({
+        name: "signup-contest-list",
+        query: { keyword: title },
+      });
+    },
   },
   computed: {
     ...mapState({
@@ -1190,7 +626,6 @@ export default {
       "isContestAdmin",
       "ContestRealTimePermission",
       "passwordFormVisible",
-      "signFormVisible",
       "userInfo",
       "websiteConfig",
     ]),
@@ -1355,8 +790,5 @@ export default {
 }
 .reply-delete:hover {
   color: #ff503f;
-}
-.filter-row {
-  float: right;
 }
 </style>

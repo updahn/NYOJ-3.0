@@ -3,6 +3,7 @@ package top.hcode.hoj.pojo.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,6 +55,15 @@ public class UserInfoVO {
 
     @ApiModelProperty(value = "真实姓名")
     private String realname;
+
+    @ApiModelProperty(value = "英文姓名")
+    private String englishname;
+
+    @ApiModelProperty(value = "入学年份")
+    private Date stSchool;
+
+    @ApiModelProperty(value = "毕业年份")
+    private Date edSchool;
 
     @ApiModelProperty(value = "github地址")
     private String github;

@@ -18,16 +18,9 @@ import java.util.List;
 public interface MsgRemindMapper extends BaseMapper<MsgRemind> {
     UserUnreadMsgCountVO getUserUnreadMsgCount(@Param("uid") String uid);
 
-    IPage<UserMsgVO> getUserMsg(Page<UserMsgVO> page, @Param("uid") String uid,
-            @Param("action") String action);
+    IPage<UserMsgVO> getUserMsg(Page<UserMsgVO> page, @Param("uid") String uid, @Param("action") String action);
 
-    List<UserInventStatusVO> getUserInventedStatus(
-            @Param("cid") Long cid,
-            @Param("uid") String uid,
-            @Param("toUid") String toUid);
+    List<UserInventStatusVO> getUserInventedStatus(@Param("uid") String uid, @Param("toUid") String toUid);
 
-    List<UserInventStatusVO> getUserInventStatus(
-            @Param("cid") Long cid,
-            @Param("uid") String uid,
-            @Param("toUid") String toUid);
+    List<UserInventStatusVO> getUserInventStatus(@Param("uid") String uid, @Param("toUid") String toUid);
 }

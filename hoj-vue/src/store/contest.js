@@ -61,7 +61,7 @@ const getters = {
 
     if (
       state.contest.auth === CONTEST_TYPE.PRIVATE ||
-      state.contest.auth === CONTEST_TYPE.OFFICIAL ||
+      state.contest.auth === CONTEST_TYPE.OFFICIAL || // 正式赛
       (state.contest.auth === CONTEST_TYPE.SYNCHRONOUS && state.contest.hasPassword) // 同步赛配置有比赛密码的
     ) {
       // 公开赛需要报名，私有赛需要通过验证密码方可查看比赛
@@ -109,11 +109,6 @@ const getters = {
       !state.intoAccess &&
       !getters.isContestAdmin
     );
-  },
-  // 是否需要显示报名框
-  signFormVisible: (state, getters) => {
-    // 如果是比赛已经结束，不是正式赛，管理员都不用再显示
-    return state.contest.auth === CONTEST_TYPE.OFFICIAL && !getters.isContestAdmin && state.contest.status !== CONTEST_STATUS.ENDED;
   },
   contestStartTime: (state) => {
     return moment(state.contest.startTime);

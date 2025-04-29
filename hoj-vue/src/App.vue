@@ -224,6 +224,12 @@ export default {
                   path: "/admin/login",
                 });
               }
+            } else if (path.startsWith("/signup")) {
+              if (path != "/signup/login") {
+                this.$router.replace({
+                  path: "/signup/login",
+                });
+              }
             } else {
               if (path != "/") {
                 this.$router.replace({
@@ -252,7 +258,11 @@ export default {
   watch: {
     $route(newVal, oldVal) {
       this.changeDomTitle();
-      if (newVal !== oldVal && newVal.path.split("/")[1] == "admin") {
+      if (
+        newVal !== oldVal &&
+        (newVal.path.split("/")[1] == "admin" ||
+          newVal.path.split("/")[1] == "signup")
+      ) {
         this.isAdminView = true;
       } else {
         this.isAdminView = false;
@@ -281,7 +291,10 @@ export default {
       } catch (e) {}
     });
 
-    if (this.$route.path.split("/")[1] != "admin") {
+    if (
+      this.$route.path.split("/")[1] != "admin" ||
+      this.$route.path.split("/")[1] != "signup"
+    ) {
       this.isAdminView = false;
     } else {
       this.isAdminView = true;
