@@ -123,10 +123,10 @@
                   <el-col :xs="10" :sm="16" :md="19" :lg="20" class="contest-main">
                     <p class="title">
                       <a class="entry" @click.stop="toContest(contest)">{{ contest.title }}</a>
-                      <template v-if="contest.auth == 1">
+                      <template v-if="contest.auth == CONTEST_TYPE.PRIVATE">
                         <i class="el-icon-lock" size="20" style="color:#d9534f"></i>
                       </template>
-                      <template v-if="contest.auth == 2">
+                      <template v-if="contest.auth == CONTEST_TYPE.PROTECTED">
                         <i class="el-icon-lock" size="20" style="color:#f0ad4e"></i>
                       </template>
                     </p>
@@ -258,6 +258,7 @@ import time from "@/common/time";
 import {
   CONTEST_STATUS_REVERSE,
   CONTEST_TYPE_REVERSE,
+  CONTEST_TYPE,
   CONTEST_STATUS,
 } from "@/common/constants";
 import myMessage from "@/common/message";
@@ -286,6 +287,7 @@ export default {
       CONTEST_STATUS_REVERSE: {},
       CONTEST_STATUS: {},
       CONTEST_TYPE_REVERSE: {},
+      CONTEST_TYPE: {},
       acmSrc: require("@/assets/acm.jpg"),
       oiSrc: require("@/assets/oi.jpg"),
       loading: true,
@@ -299,6 +301,7 @@ export default {
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
     this.CONTEST_STATUS = Object.assign({}, CONTEST_STATUS);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.init();
   },
   methods: {

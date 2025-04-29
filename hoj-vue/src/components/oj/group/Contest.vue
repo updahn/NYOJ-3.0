@@ -233,8 +233,8 @@
             <el-col :md="8" :xs="24">
               <el-form-item
                 :label="$t('m.Contest_Password')"
-                v-show="contest.auth != 0"
-                :required="contest.auth != 0"
+                v-show="contest.auth != CONTEST_TYPE.PUBLIC"
+                :required="contest.auth != CONTEST_TYPE.PUBLIC"
               >
                 <el-input v-model="contest.pwd" :placeholder="$t('m.Contest_Password')"></el-input>
               </el-form-item>
@@ -242,8 +242,8 @@
             <el-col :md="8" :xs="24">
               <el-form-item
                 :label="$t('m.Account_Limit')"
-                v-show="contest.auth != 0"
-                :required="contest.auth != 0"
+                v-show="contest.auth != CONTEST_TYPE.PUBLIC"
+                :required="contest.auth != CONTEST_TYPE.PUBLIC"
               >
                 <el-switch v-model="contest.openAccountLimit"></el-switch>
               </el-form-item>
@@ -427,6 +427,8 @@ import moment from "moment";
 import { mapGetters } from "vuex";
 import Editor from "@/components/admin/Editor.vue";
 const RankBox = () => import("@/components/oj/common/RankBox");
+import { CONTEST_TYPE } from "@/common/constants";
+
 export default {
   name: "GroupContest",
   components: {
@@ -510,9 +512,11 @@ export default {
       },
       starUserInput: "",
       inputVisible: false,
+      CONTEST_TYPE: {},
     };
   },
   mounted() {
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.init();
   },
   watch: {
@@ -615,7 +619,7 @@ export default {
         mMessage.error(this.$i18n.t("m.Contest_Duration_Check"));
         return;
       }
-      if (this.contest.auth != 0 && !this.contest.pwd) {
+      if (this.contest.auth != this.CONTEST_TYPE.PUBLIC && !this.contest.pwd) {
         mMessage.error(
           this.$i18n.t("m.Contest_Password") +
             " " +

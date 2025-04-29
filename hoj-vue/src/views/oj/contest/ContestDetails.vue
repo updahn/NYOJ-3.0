@@ -606,7 +606,7 @@
           name="ContestAdminSign"
           lazy
           :disabled="contestMenuDisabled"
-          v-if="isContestAdmin && contest.auth === 3"
+          v-if="isContestAdmin && contest.auth === CONTEST_TYPE.OFFICIAL"
         >
           <span slot="label">
             <i class="el-icon-edit-outline"></i>
@@ -700,6 +700,7 @@ import {
   CONTEST_STATUS_REVERSE,
   CONTEST_STATUS,
   CONTEST_TYPE_REVERSE,
+  CONTEST_TYPE,
   RULE_TYPE,
   buildContestAnnounceKey,
   SIGN_TYPE_REVERSE,
@@ -729,6 +730,7 @@ export default {
       CONTEST_STATUS: {},
       CONTEST_STATUS_REVERSE: {},
       CONTEST_TYPE_REVERSE: {},
+      CONTEST_TYPE: {},
       RULE_TYPE: {},
       btnLoading: false,
       getBtnLoading: false,
@@ -842,6 +844,7 @@ export default {
       this.route_name = "ContestAdminMoss";
     }
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.CONTEST_STATUS = Object.assign({}, CONTEST_STATUS);
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
     this.RULE_TYPE = Object.assign({}, RULE_TYPE);
@@ -973,7 +976,7 @@ export default {
       }
     },
     getSign() {
-      if (this.contest.auth === 3) {
+      if (this.contest.auth === this.CONTEST_TYPE.OFFICIAL) {
         // 如果是同步赛
         let cid = this.$route.params.contestID;
         let username = this.$store.getters.userInfo.username;

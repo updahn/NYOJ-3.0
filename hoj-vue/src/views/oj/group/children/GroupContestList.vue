@@ -146,10 +146,10 @@
             <el-col :xs="10" :sm="16" :md="19" :lg="20" class="contest-main">
               <p class="contest-title">
                 <a class="entry" @click.stop="goGroupContest(contest.id)">{{ contest.title }}</a>
-                <template v-if="contest.auth == 1">
+                <template v-if="contest.auth == CONTEST_TYPE.PRIVATE">
                   <i class="el-icon-lock" size="20" style="color:#d9534f"></i>
                 </template>
-                <template v-if="contest.auth == 2">
+                <template v-if="contest.auth == CONTEST_TYPE.PROTECTED">
                   <i class="el-icon-lock" size="20" style="color:#f0ad4e"></i>
                 </template>
               </p>

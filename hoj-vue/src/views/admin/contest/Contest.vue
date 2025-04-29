@@ -277,28 +277,32 @@
           <el-col
             :md="8"
             :xs="24"
-            v-if="contest.auth != 0 && contest.auth != 3 && contest.auth != 4"
+            v-if="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
           >
             <el-form-item
               :label="$t('m.Contest_Password')"
-              v-show="contest.auth != 0 && contest.auth != 3 && contest.auth != 4"
-              :required="contest.auth != 0 && contest.auth != 3 && contest.auth != 4"
+              v-show="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
+              :required="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
             >
               <el-input v-model="contest.pwd" :placeholder="$t('m.Contest_Password')"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :md="8" :xs="24" v-if="contest.auth != 0 && contest.auth != 4">
+          <el-col
+            :md="8"
+            :xs="24"
+            v-if="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
+          >
             <el-form-item
               :label="$t('m.Account_Limit')"
-              v-show="contest.auth != 0 && contest.auth != 4"
-              :required="contest.auth != 0 && contest.auth != 4"
+              v-show="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
+              :required="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
             >
               <el-switch v-model="contest.openAccountLimit"></el-switch>
             </el-form-item>
           </el-col>
 
           <!-- 正式赛配置 -->
-          <template v-if="contest.auth == 3">
+          <template v-if="contest.auth == CONTEST_TYPE.OFFICIAL">
             <el-col :md="8" :xs="24">
               <el-form-item :label="$t('m.Max_Participants')" required>
                 <el-input-number
@@ -338,7 +342,10 @@
           </template>
 
           <!-- 同步赛配置 -->
-          <el-col :span="24" v-if="contest.auth == 4 || contest.auth == 5">
+          <el-col
+            :span="24"
+            v-if="contest.auth == CONTEST_TYPE.PUBLIC_SYNCHRONOUS || contest.auth == CONTEST_TYPE.PRIVATE_SYNCHRONOUS"
+          >
             <div style="margin-bottom: 10px">
               <el-button
                 type="primary"
@@ -566,6 +573,8 @@ import { mapGetters } from "vuex";
 import myMessage from "@/common/message";
 const Editor = () => import("@/components/admin/Editor.vue");
 const RankBox = () => import("@/components/oj/common/RankBox");
+import { CONTEST_TYPE } from "@/common/constants";
+
 export default {
   name: "CreateContest",
   components: {
@@ -647,9 +656,11 @@ export default {
       },
       starUserInput: "",
       inputVisible: false,
+      CONTEST_TYPE: {},
     };
   },
   mounted() {
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.getBoxFileList();
     if (this.$route.name === "admin-edit-contest") {
       this.title = this.$i18n.t("m.Edit_Contest");
@@ -758,7 +769,7 @@ export default {
         return;
       }
 
-      if (this.contest.auth == 3) {
+      if (this.contest.auth == this.CONTEST_TYPE.OFFICIAL) {
         if (!this.contest.signDuration || this.contest.signDuration <= 0) {
           myMessage.error(this.$i18n.t("m.Sign_Duration_Check"));
           return;
@@ -774,9 +785,9 @@ export default {
       }
 
       if (
-        this.contest.auth != 0 &&
-        this.contest.auth != 3 &&
-        this.contest.auth != 4 &&
+        this.contest.auth != this.CONTEST_TYPE.PUBLIC &&
+        this.contest.auth != this.CONTEST_TYPE.OFFICIAL &&
+        this.contest.auth != this.CONTEST_TYPE.PUBLIC_SYNCHRONOUS &&
         !this.contest.pwd
       ) {
         myMessage.error(
