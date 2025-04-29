@@ -27,7 +27,7 @@ export default {
           time: this.selectedTime,
         };
 
-        let func = this.contestAuth ? 'getSynchronousRank' : 'getContestRank';
+        let func = this.contest.auth === CONTEST_TYPE.SYNCHRONOUS ? 'getSynchronousRank' : 'getContestRank';
         this.loadingTable = true;
 
         api[func](data).then((res) => {
@@ -129,9 +129,6 @@ export default {
       } else {
         return true;
       }
-    },
-    contestAuth() {
-      return this.contest.auth === CONTEST_TYPE.PUBLIC_SYNCHRONOUS || this.contest.auth === CONTEST_TYPE.PRIVATE_SYNCHRONOUS;
     },
   },
   beforeDestroy() {

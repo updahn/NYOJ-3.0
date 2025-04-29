@@ -269,20 +269,19 @@
                 <el-option :label="$t('m.Private')" :value="1"></el-option>
                 <el-option :label="$t('m.Protected')" :value="2"></el-option>
                 <el-option :label="$t('m.Official')" :value="3"></el-option>
-                <el-option :label="$t('m.Public_Synchronous')" :value="4"></el-option>
-                <el-option :label="$t('m.Private_Synchronous')" :value="5"></el-option>
+                <el-option :label="$t('m.Synchronous')" :value="4"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col
             :md="8"
             :xs="24"
-            v-if="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
+            v-if="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL"
           >
             <el-form-item
               :label="$t('m.Contest_Password')"
-              v-show="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
-              :required="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
+              v-show="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL"
+              :required="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL"
             >
               <el-input v-model="contest.pwd" :placeholder="$t('m.Contest_Password')"></el-input>
             </el-form-item>
@@ -290,12 +289,12 @@
           <el-col
             :md="8"
             :xs="24"
-            v-if="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
+            v-if="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.SYNCHRONOUS"
           >
             <el-form-item
               :label="$t('m.Account_Limit')"
-              v-show="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
-              :required="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.PUBLIC_SYNCHRONOUS"
+              v-show="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.SYNCHRONOUS"
+              :required="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.SYNCHRONOUS"
             >
               <el-switch v-model="contest.openAccountLimit"></el-switch>
             </el-form-item>
@@ -342,10 +341,7 @@
           </template>
 
           <!-- 同步赛配置 -->
-          <el-col
-            :span="24"
-            v-if="contest.auth == CONTEST_TYPE.PUBLIC_SYNCHRONOUS || contest.auth == CONTEST_TYPE.PRIVATE_SYNCHRONOUS"
-          >
+          <el-col :span="24" v-if="contest.auth == CONTEST_TYPE.SYNCHRONOUS">
             <div style="margin-bottom: 10px">
               <el-button
                 type="primary"
@@ -787,7 +783,7 @@ export default {
       if (
         this.contest.auth != this.CONTEST_TYPE.PUBLIC &&
         this.contest.auth != this.CONTEST_TYPE.OFFICIAL &&
-        this.contest.auth != this.CONTEST_TYPE.PUBLIC_SYNCHRONOUS &&
+        this.contest.auth != this.CONTEST_TYPE.SYNCHRONOUS &&
         !this.contest.pwd
       ) {
         myMessage.error(

@@ -465,14 +465,12 @@ export const m = {
   Private: '私有赛',
   Protected: '保护赛',
   Official: '正式赛',
-  Public_Synchronous: '同步公开赛',
-  Private_Synchronous: '同步私有赛',
+  Synchronous: '同步赛',
   Public_Tips: '公开赛 - 每个用户都可查看与提交',
   Protected_Tips: '保护赛 - 每个用户都可查看，但是提交需要密码',
   Private_Tips: '私有赛 - 用户需要密码才可查看与提交',
   Official_Tips: '正式赛 - 用户报名审核后才可查看与提交',
-  Public_Synchronous_Tips: '同步公开赛 - 每个用户都可查看与提交',
-  Private_Synchronous_Tips: '同步私有赛 - 用户需要密码才可查看与提交',
+  Synchronous_Tips: '同步赛 - 根据比赛要求可能需要密码才能查看和提交',
   Contest_Outside_ScoreBoard: '赛外榜单',
 
   // /views/oj/contest/ContestDetail.vue

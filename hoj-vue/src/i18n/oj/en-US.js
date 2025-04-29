@@ -465,14 +465,12 @@ export const m = {
   Private: 'Private',
   Protected: 'Protected',
   Official: 'Official',
-  Public_Synchronous: 'Public Synchronous',
-  Private_Synchronous: 'Private Synchronous',
+  Synchronous: 'Synchronous',
   Public_Tips: 'Public - Any one can see and submit.',
   Protected_Tips: 'Protected - Any one can see, but only users knowing contest password can submit.',
   Private_Tips: 'Private - Only users knowing contest password can see and submit.',
   Official_Tips: 'Official - Only Registration Users can see and submit.',
-  Public_Synchronous_Tips: 'Public Synchronous - Any one can see and submit.',
-  Private_Synchronous_Tips: 'Private Synchronous - Only users knowing contest password can see and submit.',
+  Synchronous_Tips: 'Synchronous - Depending on the contest requirements, it may require a password to see and submit.',
   Contest_Outside_ScoreBoard: 'OutSide Contest ScoreBoard',
 
   // /views/oj/contest/ContestDetail.vue

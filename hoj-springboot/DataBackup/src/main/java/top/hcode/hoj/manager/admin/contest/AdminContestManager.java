@@ -143,8 +143,7 @@ public class AdminContestManager {
         }
 
         // 同步赛
-        if (contest.getAuth().intValue() == Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode()
-                || contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()) {
+        if (contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()) {
             try {
                 JSONObject jsonObject = JSONUtil.parseObj(contest.getSynchronousConfig());
                 List<ContestSynchronousConfigVO> synchronousConfigList = jsonObject.get("config", List.class);
@@ -217,8 +216,7 @@ public class AdminContestManager {
         }
 
         // 同步赛
-        if (adminContestVo.getAuth().intValue() == Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode()
-                || adminContestVo.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()) {
+        if (adminContestVo.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()) {
             List<ContestSynchronousConfigVO> synchronousConfigList = adminContestVo.getSynchronousConfigList();
             JSONObject awardConfigJson = new JSONObject();
             awardConfigJson.set("config", synchronousConfigList);
@@ -292,8 +290,7 @@ public class AdminContestManager {
         }
 
         // 同步赛
-        if (adminContestVo.getAuth().intValue() == Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode()
-                || adminContestVo.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()) {
+        if (adminContestVo.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()) {
             List<ContestSynchronousConfigVO> synchronousConfigList = adminContestVo.getSynchronousConfigList();
             JSONObject awardConfigJson = new JSONObject();
             awardConfigJson.set("config", synchronousConfigList);

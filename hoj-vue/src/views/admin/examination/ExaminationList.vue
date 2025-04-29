@@ -38,8 +38,7 @@
               <el-option :label="$t('m.Private')" :value="1"></el-option>
               <el-option :label="$t('m.Protected')" :value="2"></el-option>
               <el-option :label="$t('m.Official')" :value="3"></el-option>
-              <el-option :label="$t('m.Public_Synchronous')" :value="4"></el-option>
-              <el-option :label="$t('m.Private_Synchronous')" :value="5"></el-option>
+              <el-option :label="$t('m.Synchronous')" :value="4"></el-option>
             </el-select>
           </span>
           <span>

@@ -17,6 +17,7 @@ const state = {
     rankShowName: 'username',
     allowEndSubmit: false,
     maxParticipants: 0,
+    hasPassword: false,
   },
   contestProblems: [],
   itemVisible: {
@@ -58,7 +59,11 @@ const getters = {
     // 未开始不可查看
     if (getters.contestStatus === CONTEST_STATUS.SCHEDULED) return true;
 
-    if (state.contest.auth === CONTEST_TYPE.PRIVATE || state.contest.auth === CONTEST_TYPE.OFFICIAL || state.contest.auth === CONTEST_TYPE.PRIVATE_SYNCHRONOUS) {
+    if (
+      state.contest.auth === CONTEST_TYPE.PRIVATE ||
+      state.contest.auth === CONTEST_TYPE.OFFICIAL ||
+      (state.contest.auth === CONTEST_TYPE.SYNCHRONOUS && state.contest.hasPassword) // 同步赛配置有比赛密码的
+    ) {
       // 公开赛需要报名，私有赛需要通过验证密码方可查看比赛
       return !state.intoAccess;
     }
@@ -96,7 +101,14 @@ const getters = {
   // 是否需要显示密码验证框
   passwordFormVisible: (state, getters) => {
     // 如果是公开赛，保护赛，同步公开赛，正式赛，或已注册过，管理员都不用再显示
-    return state.contest.auth !== CONTEST_TYPE.PUBLIC && state.contest.auth !== CONTEST_TYPE.PROTECTED && state.contest.auth !== CONTEST_TYPE.PUBLIC_SYNCHRONOUS && state.contest.auth !== CONTEST_TYPE.OFFICIAL && !state.intoAccess && !getters.isContestAdmin;
+    return (
+      state.contest.auth !== CONTEST_TYPE.PUBLIC &&
+      state.contest.auth !== CONTEST_TYPE.PROTECTED &&
+      !(state.contest.auth === CONTEST_TYPE.SYNCHRONOUS && !state.contest.hasPassword) && // 不是公开同步赛
+      state.contest.auth !== CONTEST_TYPE.OFFICIAL &&
+      !state.intoAccess &&
+      !getters.isContestAdmin
+    );
   },
   // 是否需要显示报名框
   signFormVisible: (state, getters) => {
@@ -251,8 +263,8 @@ const actions = {
             dispatch('getContestAccess', { auth: CONTEST_TYPE.PROTECTED });
           } else if (contest.auth == CONTEST_TYPE.OFFICIAL) {
             dispatch('getContestAccess', { auth: CONTEST_TYPE.OFFICIAL });
-          } else if (contest.auth == CONTEST_TYPE.PRIVATE_SYNCHRONOUS) {
-            dispatch('getContestAccess', { auth: CONTEST_TYPE.PRIVATE_SYNCHRONOUS });
+          } else if (contest.auth == CONTEST_TYPE.SYNCHRONOUS && contest.hasPassword) {
+            dispatch('getContestAccess', { auth: CONTEST_TYPE.SYNCHRONOUS });
           }
         },
         (err) => {
@@ -284,7 +296,7 @@ const actions = {
           let contest = res.data.data;
           commit('changeContest', { contest: contest });
 
-          let func = contest.auth === CONTEST_TYPE.PUBLIC_SYNCHRONOUS || contest.auth === CONTEST_TYPE.PRIVATE_SYNCHRONOUS ? 'getSynchronousProblemList' : 'getContestProblemList';
+          let func = contest.auth === CONTEST_TYPE.SYNCHRONOUS ? 'getSynchronousProblemList' : 'getContestProblemList';
           api[func](rootState.route.params.contestID, rootState.contest.isContainsAfterContestJudge, rootState.contest.selectedTime).then(
             (res) => {
               resolve(res);
@@ -307,7 +319,7 @@ const actions = {
       api
         .getContestAccess(rootState.route.params.contestID)
         .then((res) => {
-          if (contestType.auth == CONTEST_TYPE.PRIVATE || contestType.auth == CONTEST_TYPE.OFFICIAL || contestType.auth == CONTEST_TYPE.PRIVATE_SYNCHRONOUS) {
+          if (contestType.auth == CONTEST_TYPE.PRIVATE || contestType.auth == CONTEST_TYPE.OFFICIAL || contestType.auth == CONTEST_TYPE.SYNCHRONOUS) {
             commit('contestIntoAccess', { intoAccess: res.data.data.access });
           } else {
             commit('contestSubmitAccess', { submitAccess: res.data.data.access });

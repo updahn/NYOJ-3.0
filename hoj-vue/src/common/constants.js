@@ -407,17 +407,10 @@ export const CONTEST_TYPE_REVERSE = {
     look: false,
   },
   4: {
-    name: 'Public_Synchronous',
+    name: 'Synchronous',
     color: 'warning',
-    tips: 'Public_Synchronous_Tips',
-    submit: true, // 同步公开赛 可看可提交
-    look: true,
-  },
-  5: {
-    name: 'Private_Synchronous',
-    color: 'warning',
-    tips: 'Private_Synchronous_Tips',
-    submit: false, // 同步私有赛 必须要密码才能看和提交
+    tips: 'Synchronous_Tips',
+    submit: false, // 同步赛 根据比赛要求可能需要密码才能看和提交
     look: false,
   },
 };
@@ -427,8 +420,7 @@ export const CONTEST_TYPE = {
   PRIVATE: 1,
   PROTECTED: 2,
   OFFICIAL: 3,
-  PUBLIC_SYNCHRONOUS: 4,
-  PRIVATE_SYNCHRONOUS: 5,
+  SYNCHRONOUS: 4,
 };
 
 export const USER_TYPE = {

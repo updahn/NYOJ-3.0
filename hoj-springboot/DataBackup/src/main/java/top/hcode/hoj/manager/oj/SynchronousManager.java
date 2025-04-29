@@ -347,8 +347,7 @@ public class SynchronousManager {
         // 获取本场比赛的状态
         Contest contest = contestEntityService.getById(cid);
 
-        if (contest.getAuth().intValue() == Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode()
-                || contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()) {
+        if (contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()) {
             // 获取比赛对应的同步赛信息
             List<JSONObject> synchronousConfigList = getSynchronousConfigList(contest);
             if (CollectionUtils.isEmpty(synchronousConfigList)) {
@@ -392,8 +391,7 @@ public class SynchronousManager {
         // 获取本场比赛的状态
         Contest contest = contestEntityService.getById(cid);
 
-        if (contest.getAuth().intValue() == Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode()
-                || contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()) {
+        if (contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()) {
             // 获取比赛对应的同步赛信息
             List<JSONObject> synchronousConfigList = getSynchronousConfigList(contest);
             if (CollectionUtils.isEmpty(synchronousConfigList)) {
@@ -442,8 +440,7 @@ public class SynchronousManager {
         // 获取本场比赛的状态
         Contest contest = contestEntityService.getById(cid);
 
-        if (contest.getAuth().intValue() == Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode()
-                || contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()) {
+        if (contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()) {
             // 获取比赛对应的同步赛信息
             List<JSONObject> synchronousConfigList = getSynchronousConfigList(contest);
             if (CollectionUtils.isEmpty(synchronousConfigList)) {

@@ -316,8 +316,7 @@ public class ContestCalculateRankManager {
         orderResultList.forEach(ACMContestRankvo -> ACMContestRankvo.setSynchronous(false));
 
         // 是否开启同步赛
-        if (contest.getAuth().intValue() == Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode()
-                || contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()) {
+        if (contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()) {
             List<ACMContestRankVO> synchronousResultList = synchronousManager.getSynchronousRankList(contest,
                     isContainsAfterContestJudge, removeStar, selectedTime);
             if (!CollectionUtils.isEmpty(synchronousResultList)) {

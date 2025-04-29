@@ -79,9 +79,8 @@ public class ContestValidator {
                 && !Objects.equals(Constants.Contest.AUTH_PRIVATE.getCode(), adminContestVO.getAuth())
                 && !Objects.equals(Constants.Contest.AUTH_PROTECT.getCode(), adminContestVO.getAuth())
                 && !Objects.equals(Constants.Contest.AUTH_OFFICIAL.getCode(), adminContestVO.getAuth())
-                && !Objects.equals(Constants.Contest.AUTH_PUBLIC_SYNCHRONOUS.getCode(), adminContestVO.getAuth())
-                && !Objects.equals(Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode(), adminContestVO.getAuth())) {
-            throw new StatusFailException("比赛的权限必须为公开赛(0)、私有赛(1)、保护赛(2)、正式赛(3)、同步公开赛(4)、同步私有赛(5)！");
+                && !Objects.equals(Constants.Contest.AUTH_SYNCHRONOUS.getCode(), adminContestVO.getAuth())) {
+            throw new StatusFailException("比赛的权限必须为公开赛(0)、私有赛(1)、保护赛(2)、正式赛(3)、同步赛(4)！");
         }
     }
 
@@ -140,7 +139,8 @@ public class ContestValidator {
 
             // 如果是处于比赛正在进行阶段，需要判断该场比赛是否为私有赛或者正式赛，需要判断该用户是否已注册
             if (contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE.getCode()
-                    || contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS.getCode()
+                    || (contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()
+                            && !StringUtils.isEmpty(contest.getPwd()))
                     || contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode()) {
                 QueryWrapper<ContestRegister> registerQueryWrapper = new QueryWrapper<>();
                 registerQueryWrapper.eq("cid", contest.getId()).eq("uid", userRolesVo.getUid());
@@ -148,10 +148,9 @@ public class ContestValidator {
                 if (register == null) { // 如果数据为空，表示未注册私有赛，不可访问
                     throw new StatusForbiddenException(
                             contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode()
-                                    || contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE_SYNCHRONOUS
-                                            .getCode()
-                                                    ? "对不起，请先到比赛首页报名进行注册！"
-                                                    : "对不起，请先到比赛首页输入比赛密码进行注册！");
+                                    || contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()
+                                            ? "对不起，请先到比赛首页报名进行注册！"
+                                            : "对不起，请先到比赛首页输入比赛密码进行注册！");
                 }
 
                 if (contest.getOpenAccountLimit()

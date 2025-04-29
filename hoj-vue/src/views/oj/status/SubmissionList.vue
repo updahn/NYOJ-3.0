@@ -454,6 +454,7 @@ export default {
         score: null,
       },
       rejudgeAllPageStatus: false,
+      CONTEST_TYPE: {},
     };
   },
   created() {
@@ -465,6 +466,7 @@ export default {
     this.JUDGE_STATUS_RESERVE = Object.assign({}, JUDGE_STATUS_RESERVE);
     this.CONTEST_STATUS = Object.assign({}, CONTEST_STATUS);
     this.RULE_TYPE = Object.assign({}, RULE_TYPE);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     // 去除下拉框选择中的Not Submitted,Submitted Unknown Result 三种状态
     delete this.JUDGE_STATUS_LIST["9"];
     delete this.JUDGE_STATUS_LIST["-5"];
@@ -615,8 +617,7 @@ export default {
       };
 
       let func =
-        this.contestAuth === CONTEST_TYPE.PUBLIC_SYNCHRONOUS ||
-        this.contestAuth === CONTEST_TYPE.PRIVATE_SYNCHRONOUS
+        this.contestAuth === this.CONTEST_TYPE.SYNCHRONOUS
           ? "getSynchronousSubmissionList"
           : this.contestID
           ? "getContestSubmissionList"

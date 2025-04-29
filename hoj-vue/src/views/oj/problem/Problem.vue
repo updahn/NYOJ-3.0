@@ -964,6 +964,7 @@ export default {
       selectedList: [],
       orderList: [{ output: "YES" }, { output: "NO" }],
       peid: null,
+      CONTEST_TYPE: {},
     };
   },
   created() {
@@ -972,6 +973,7 @@ export default {
     this.JUDGE_STATUS = Object.assign({}, JUDGE_STATUS);
     this.PROBLEM_LEVEL = Object.assign({}, PROBLEM_LEVEL);
     this.RULE_TYPE = Object.assign({}, RULE_TYPE);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     let isFocusModePage = utils.isFocusModePage(this.$route.name);
     if (isFocusModePage) {
       this.bodyClass = "problem-body";
@@ -1069,8 +1071,7 @@ export default {
       };
 
       const func = this.contestID
-        ? this.contestAuth === CONTEST_TYPE.PUBLIC_SYNCHRONOUS ||
-          this.contestAuth === CONTEST_TYPE.PRIVATE_SYNCHRONOUS
+        ? this.contestAuth === this.CONTEST_TYPE.SYNCHRONOUS
           ? "getSynchronousSubmissionList"
           : "getContestSubmissionList"
         : "getSubmissionList";
