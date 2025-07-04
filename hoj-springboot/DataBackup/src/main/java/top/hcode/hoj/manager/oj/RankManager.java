@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.util.CollectionUtils;
+import org.apache.shiro.SecurityUtils;
 import top.hcode.hoj.common.exception.StatusFailException;
 import top.hcode.hoj.common.exception.StatusNotFoundException;
 import top.hcode.hoj.pojo.dto.ClocResultJsonDTO;
@@ -21,6 +22,7 @@ import top.hcode.hoj.pojo.vo.CODERankVO;
 import top.hcode.hoj.pojo.vo.OIRankVO;
 import top.hcode.hoj.pojo.vo.OJRankVO;
 import top.hcode.hoj.pojo.vo.UserClocVO;
+import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.dao.user.UserRecordEntityService;
 import top.hcode.hoj.dao.user.UserSignEntityService;
@@ -76,6 +78,8 @@ public class RankManager {
     public IPage getRankList(Integer limit, Integer currentPage, String searchUser, Integer type)
             throws StatusFailException {
 
+        boolean isRoot = SecurityUtils.getSubject().hasRole("root") || SecurityUtils.getSubject().hasRole("admin");
+
         // 页数，每页题数若为空，设置默认值
         if (currentPage == null || currentPage < 1)
             currentPage = 1;
@@ -116,8 +120,8 @@ public class RankManager {
             }
         }
 
-        // 限制大小
-        if (currentPage * limit > MAX_RECORDS) {
+        // 如果不是管理员，限制大小
+        if (!isRoot && currentPage * limit > MAX_RECORDS) {
             currentPage = (int) Math.floor(MAX_RECORDS / limit);
         }
 

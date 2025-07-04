@@ -177,11 +177,14 @@ export default {
     getRankData(page) {
       this.loadingTable = true;
 
-      // 计算最大页数以确保 limit * page 不超过 1000
-      const maxPage = Math.floor(this.maxRecords / this.limit);
-      if (this.page > maxPage) {
-        this.page = Math.max(1, maxPage - 1); // 确保 page 不小于 1，并转换为整数
-        page = this.page;
+      // 如果不是管理员，限制最大页数
+      if (!this.isMainAdminRole) {
+        // 计算最大页数以确保 limit * page 不超过 1000
+        const maxPage = Math.floor(this.maxRecords / this.limit);
+        if (this.page > maxPage) {
+          this.page = Math.max(1, maxPage - 1); // 确保 page 不小于 1，并转换为整数
+          page = this.page;
+        }
       }
 
       api.getUserRank(page, this.limit, RULE_TYPE.Code, this.searchUser).then(
