@@ -31,6 +31,13 @@ public class Paginate<T> {
 
         int startIndex = Math.max(0, (currentPage - 1) * pageSize);
         int endIndex = Math.min(startIndex + pageSize, total);
+
+        if (startIndex >= total) {
+            Page<T> page = new Page<>(currentPage, pageSize, total);
+            page.setRecords(list);
+            return page;
+        }
+
         List<T> paginatedList = new ArrayList<>(list.subList(startIndex, endIndex));
 
         Page<T> page = new Page<>(currentPage, pageSize, total);
@@ -51,6 +58,13 @@ public class Paginate<T> {
         int total = list.size();
         int startIndex = Math.max(0, (currentPage - 1) * pageSize);
         int endIndex = Math.min(startIndex + pageSize, total);
+
+        if (startIndex >= total) {
+            Page<T> page = new Page<>(currentPage, pageSize, total);
+            page.setRecords(list);
+            return page;
+        }
+
         List<T> paginatedList = new ArrayList<>(list.subList(startIndex, endIndex));
 
         Page<T> page = new Page<>(currentPage, pageSize, total);
@@ -73,6 +87,13 @@ public class Paginate<T> {
 
         int startIndex = Math.max(0, (currentPage - 1) * pageSize);
         int endIndex = Math.min(startIndex + pageSize, total);
+
+        if (startIndex >= total) {
+            page.setRecords(list);
+            page.setTotal(total);
+            return page;
+        }
+
         List<T> paginatedList = new ArrayList<>(list.subList(startIndex, endIndex));
 
         page.setRecords(paginatedList);
