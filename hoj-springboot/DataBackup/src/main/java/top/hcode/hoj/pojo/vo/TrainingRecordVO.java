@@ -51,7 +51,7 @@ public class TrainingRecordVO {
     @ApiModelProperty(value = "提交结果状态码")
     private Integer status;
 
-    @ApiModelProperty(value = "OI得分")
+    @ApiModelProperty(value = "得分")
     private Integer score;
 
     @ApiModelProperty(value = "提交耗时")

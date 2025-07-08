@@ -288,7 +288,7 @@ public class ImportQDUOJProblemManager {
             }
         }
         problem.setIsRemote(false);
-        problem.setIoScore(sumScore);
+        problem.setScore(sumScore);
         qdojProblemDto.setSamples(problemSamples);
         qdojProblemDto.setProblem(problem);
         qdojProblemDto.setProblemDescription(problemDescription);

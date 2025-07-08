@@ -281,10 +281,23 @@ public class AdminTrainingProblemManager {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void changeProblemDescription(TrainingProblemDTO trainingProblemDTO) throws StatusFailException {
+    public void changeProblemDescription(TrainingProblemDTO trainingProblemDTO)
+            throws StatusFailException, StatusForbiddenException {
         Long pid = trainingProblemDTO.getPid();
         Long peid = trainingProblemDTO.getPeid();
         Long tid = trainingProblemDTO.getTid();
+
+        ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, peid, null, null);
+
+        // 获取当前登录的用户
+        AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
+
+        boolean isRoot = SecurityUtils.getSubject().hasRole("root")
+                || SecurityUtils.getSubject().hasRole("admin");
+        // 只有超级管理员和题目管理员、题目创建者才能操作
+        if (!isRoot && !userRolesVo.getUsername().equals(problem.getAuthor())) {
+            throw new StatusForbiddenException("对不起，你无权限修改题目！");
+        }
 
         List<ProblemDescription> problemDescriptionList = problemEntityService.getProblemDescriptionList(pid, peid,
                 null, null);

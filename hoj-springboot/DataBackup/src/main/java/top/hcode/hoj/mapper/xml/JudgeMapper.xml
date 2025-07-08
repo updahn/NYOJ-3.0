@@ -3,8 +3,9 @@
 <mapper namespace="top.hcode.hoj.mapper.JudgeMapper">
     <select id="getCommonJudgeList" resultType="top.hcode.hoj.pojo.vo.JudgeVO" useCache="true">
         select j.submit_id,j.submit_time,j.display_pid,j.username,j.uid,j.pid,j.status,j.share,
-            j.time,j.memory,j.score,j.oi_rank_score,j.length,j.language,j.cid,j.cpid,j.judger,j.is_manual
+            j.time,j.memory,j.score,j.oi_rank_score,j.length,j.language,j.cid,j.cpid,j.judger,j.is_manual, p.type
             from judge j
+            left join problem p on p.id = j.pid
             <where>
                 j.cid = 0 AND j.cpid = 0
                 <if test="username!='' and username!=null">
@@ -37,8 +38,10 @@
 
     <select id="getContestJudgeList" resultType="top.hcode.hoj.pojo.vo.JudgeVO" useCache="true">
         select j.submit_id,j.submit_time,j.uid,j.username,cp.display_id,cp.display_title as title,
-        j.status,j.share,j.time,j.memory,j.score,j.length,j.language,j.cid,j.cpid,j.judger,j.is_manual
-        from judge j right join
+        j.status,j.share,j.time,j.memory,j.score,j.length,j.language,j.cid,j.cpid,j.judger,j.is_manual, p.type
+        from judge j
+        left join problem p on p.id = j.pid
+        right join
         (
             select display_title,display_id,cid,pid from contest_problem
             <where>
@@ -74,7 +77,7 @@
                 AND j.submit_time >= #{startTime}
             </if>
             <choose>
-                <when test="sealRankTime!=null and rule=='ACM'">
+                <when test="sealRankTime!=null and (rule=='ACM' or rule=='EXAM')">
                     AND (#{sealRankTime} > j.submit_time OR j.uid=#{sealTimeUid})
                 </when>
                 <when test="sealRankTime!=null and rule=='OI'">

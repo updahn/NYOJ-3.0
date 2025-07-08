@@ -1,7 +1,7 @@
 <template>
   <el-card shadow="always">
     <div slot="header">
-      <span class="panel-title">{{ $t('m.Contest_Rejudge') }}</span>
+      <span class="panel-title">{{ isExam ? $t('m.Exam_Rejudge') : $t('m.Contest_Rejudge') }}</span>
     </div>
     <vxe-table border="inner" stripe auto-resize align="center" :data="contestProblems">
       <vxe-table-column field="pid" width="60" :title="$t('m.ID')"></vxe-table-column>
@@ -75,6 +75,9 @@ export default {
       contest: (state) => state.contest.contest,
       contestProblems: (state) => state.contest.contestProblems,
     }),
+    isExam() {
+      return this.$route.name.toLowerCase().includes("exam");
+    },
   },
 };
 </script>

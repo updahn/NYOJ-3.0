@@ -331,7 +331,8 @@ public class TrainingManager {
                         .setUsername(trainingRecordVo.getUsername())
                         .setNickname(trainingRecordVo.getNickname())
                         .setAc(0)
-                        .setTotalRunTime(0);
+                        .setTotalRunTime(0)
+                        .setTotalScore(0);
                 HashMap<String, HashMap<String, Object>> submissionInfo = new HashMap<>();
                 trainingRankVo.setSubmissionInfo(submissionInfo);
 
@@ -362,6 +363,10 @@ public class TrainingManager {
             problemSubmissionInfo.put("status", trainingRecordVo.getStatus());
             problemSubmissionInfo.put("score", trainingRecordVo.getScore());
 
+            if (trainingRecordVo.getScore() != null) {
+                trainingRankVo.setTotalScore(trainingRankVo.getTotalScore() + trainingRecordVo.getScore());
+            }
+
             // 通过的话
             if (trainingRecordVo.getStatus().intValue() == Constants.Judge.STATUS_ACCEPTED.getStatus()) {
                 // 总解决题目次数ac+1
@@ -377,6 +382,7 @@ public class TrainingManager {
         List<TrainingRankVO> orderResultList = result.stream()
                 .sorted(Comparator.comparing(TrainingRankVO::getAc, Comparator.reverseOrder()) // 先以总ac数降序
                         .thenComparing(TrainingRankVO::getTotalRunTime) // 再以总耗时升序
+                        .thenComparing(TrainingRankVO::getTotalScore, Comparator.reverseOrder()) // 再以总得分降序
                 ).collect(Collectors.toList());
 
         return Paginate.paginateListToIPage(orderResultList, currentPage, limit);

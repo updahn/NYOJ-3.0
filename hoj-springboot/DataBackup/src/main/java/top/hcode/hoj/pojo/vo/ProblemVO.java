@@ -70,7 +70,7 @@ public class ProblemVO implements Serializable {
     @ApiModelProperty(value = "该IO题目分数总和")
     private Integer pa = 0;
 
-    @ApiModelProperty(value = "IO题目总分数")
+    @ApiModelProperty(value = "题目总分数")
     private Integer score;
 
     public void setProblemCountVo(ProblemCountVO problemCountVo) {

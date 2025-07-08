@@ -9,6 +9,8 @@ import { mapGetters } from "vuex";
 import { RULE_TYPE } from "@/common/constants";
 const ACMContestRank = () => import("./ACMContestRank.vue");
 const OIContestRank = () => import("./OIContestRank.vue");
+const ExamContestRank = () => import("./ExamContestRank.vue");
+
 const NullComponent = {
   name: "null-component",
   template: "<div></div>",
@@ -19,7 +21,7 @@ export default {
   components: {
     ACMContestRank,
     OIContestRank,
-    NullComponent,
+    ExamContestRank,
   },
   beforeCreate() {
     if (this.$store.state.contest.contestProblems.length === 0) {
@@ -34,7 +36,9 @@ export default {
       }
       return this.contestRuleType === RULE_TYPE.ACM
         ? "ACMContestRank"
-        : "OIContestRank";
+        : this.contestRuleType === RULE_TYPE.OI
+        ? "OIContestRank"
+        : "ExamContestRank";
     },
   },
   beforeRouteLeave(to, from, next) {

@@ -157,7 +157,7 @@
                     {{ contest.type | parseContestType }}
                   </el-button>
                 </template>
-                <template v-else>
+                <template v-else-if="contest.type == 1">
                   <el-tooltip
                     :content="
                       $t('m.Contest_Rank') +
@@ -184,7 +184,22 @@
                     </el-button>
                   </el-tooltip>
                 </template>
+                <template v-else>
+                  <el-tooltip :content="$t('m.Examination_Tips')" placement="top" effect="light">
+                    <el-button
+                      :type="'danger'"
+                      round
+                      @click="goContestList(contest.type)"
+                      size="mini"
+                      style="margin-right: 10px;"
+                    >
+                      <i class="fa fa-trophy"></i>
+                      {{ contest.type | parseContestType }}
+                    </el-button>
+                  </el-tooltip>
+                </template>
                 <el-tooltip
+                  v-if="contest.auth != CONTEST_TYPE.EXAMINATION"
                   :content="$t('m.' + CONTEST_TYPE_REVERSE[contest.auth].tips)"
                   placement="top"
                   effect="light"
@@ -317,6 +332,7 @@ import api from "@/common/api";
 import {
   CONTEST_STATUS_REVERSE,
   CONTEST_TYPE_REVERSE,
+  CONTEST_TYPE,
 } from "@/common/constants";
 import { mapState, mapGetters } from "vuex";
 import Avatar from "vue-avatar";
@@ -339,6 +355,7 @@ export default {
       recentUserACRecord: [],
       CONTEST_STATUS_REVERSE: {},
       CONTEST_TYPE_REVERSE: {},
+      CONTEST_TYPE: {},
       contests: [],
       loading: {
         recent7ACRankLoading: false,
@@ -434,6 +451,7 @@ export default {
     }
     this.CONTEST_STATUS_REVERSE = Object.assign({}, CONTEST_STATUS_REVERSE);
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.getHomeCarousel();
     this.getRecentContests();
     this.getRecent7ACRank();

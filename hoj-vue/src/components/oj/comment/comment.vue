@@ -12,14 +12,14 @@
         <template slot="title">
           <span class="title">
             {{
-            $i18n.t('m.Announcement_of_contest_Q_and_A_area')
+            isExam ? $i18n.t('m.Announcement_of_exam_Q_and_A_area') : $i18n.t('m.Announcement_of_contest_Q_and_A_area')
             }}
           </span>
         </template>
         <template slot>
-          <p>1. {{ $i18n.t('m.Announcement_of_contest_Q_and_A_area_tips1') }}</p>
-          <p>2. {{ $i18n.t('m.Announcement_of_contest_Q_and_A_area_tips2') }}</p>
-          <p>3. {{ $i18n.t('m.Announcement_of_contest_Q_and_A_area_tips3') }}</p>
+          <p>1. {{ isExam ? $i18n.t('m.Announcement_of_exam_Q_and_A_area_tips1') : $i18n.t('m.Announcement_of_contest_Q_and_A_area_tips1') }}</p>
+          <p>2. {{ isExam ? $i18n.t('m.Announcement_of_exam_Q_and_A_area_tips2') : $i18n.t('m.Announcement_of_contest_Q_and_A_area_tips2') }}</p>
+          <p>3. {{ isExam ? $i18n.t('m.Announcement_of_exam_Q_and_A_area_tips3') : $i18n.t('m.Announcement_of_contest_Q_and_A_area_tips3') }}</p>
         </template>
       </el-alert>
     </div>
@@ -940,6 +940,9 @@ export default {
       } else {
         return true;
       }
+    },
+    isExam() {
+      return this.$route.name.toLowerCase().includes("exam");
     },
   },
   watch: {

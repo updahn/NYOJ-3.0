@@ -13,6 +13,24 @@
       >
         <el-row :gutter="20">
           <el-col :span="24">
+            <el-form-item :label="$t('m.Type')" required>
+              <el-radio-group
+                v-model="problem.type"
+                :disabled="disableRuleType || problem.isRemote"
+                @change="problemTypeChange"
+              >
+                <el-radio :label="0">ACM</el-radio>
+                <el-radio :label="1">OI</el-radio>
+                <el-radio :label="2">{{$t('m.Selection')}}</el-radio>
+                <el-radio :label="3">{{$t('m.Filling')}}</el-radio>
+                <el-radio :label="4">{{$t('m.Decide')}}</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
+          <el-col :span="24">
             <el-form-item
               v-if="problem.problemId"
               prop="problemId"
@@ -85,12 +103,12 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item prop="input" :label="$t('m.Input')" required>
+                <el-form-item v-if="isAcmOi" prop="input" :label="$t('m.Input')" required>
                   <Editor :value.sync="description.input"></Editor>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item prop="output" :label="$t('m.Output')" required>
+                <el-form-item v-if="isAcmOi" prop="output" :label="$t('m.Output')" required>
                   <Editor :value.sync="description.output"></Editor>
                 </el-form-item>
               </el-col>
@@ -206,7 +224,7 @@
         </el-tabs>
 
         <el-row :gutter="20">
-          <el-col :md="6" :xs="24">
+          <el-col :md="6" :xs="24" v-if="isAcmOi">
             <el-form-item :label="$t('m.Time_Limit') + '(ms)'" required>
               <el-input
                 type="Number"
@@ -216,7 +234,7 @@
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col :md="6" :xs="24">
+          <el-col :md="6" :xs="24" v-if="isAcmOi">
             <el-form-item :label="$t('m.Memory_Limit') + '(mb)'" required>
               <el-input
                 type="Number"
@@ -226,7 +244,7 @@
               ></el-input>
             </el-form-item>
           </el-col>
-          <el-col :md="6" :xs="24">
+          <el-col :md="6" :xs="24" v-if="isAcmOi">
             <el-form-item :label="$t('m.Stack_Limit') + '(mb)'" required>
               <el-input
                 type="Number"
@@ -263,22 +281,6 @@
                 <el-option :label="$t('m.Private_Problem')" :value="2"></el-option>
                 <el-option :label="$t('m.Contest_Problem')" :value="3"></el-option>
               </el-select>
-            </el-form-item>
-          </el-col>
-
-          <el-col :md="12" :xs="24">
-            <el-form-item :label="$t('m.Type')">
-              <el-radio-group
-                v-model="problem.type"
-                :disabled="disableRuleType || problem.isRemote"
-                @change="problemTypeChange"
-              >
-                <el-radio :label="0">ACM</el-radio>
-                <el-radio :label="1">OI</el-radio>
-                <el-radio :label="2">{{$t('m.Selection')}}</el-radio>
-                <el-radio :label="3">{{$t('m.Filling')}}</el-radio>
-                <el-radio :label="4">{{$t('m.Decide')}}</el-radio>
-              </el-radio-group>
             </el-form-item>
           </el-col>
 
@@ -379,7 +381,6 @@
                 :title="(String.fromCharCode(65 + index))"
                 :isOpen="example.isOpen ? true : false"
                 :index="index"
-                @changeVisible="changeExampleVisible(problemDescriptionList[0].examples, index, $event)"
               >
                 <el-button
                   type="danger"
@@ -404,18 +405,24 @@
               </Accordion>
             </el-form-item>
           </div>
-        </div>
+          <div v-else>
+            <el-input-number
+              style="width: 100%"
+              :placeholder="$t('m.Filling_Count')"
+              :min="0"
+              :value="problemDescriptionList[0].examples.length"
+              @change="handleExampleCountChange"
+            ></el-input-number>
+          </div>
 
-        <div class="add-example-btn" v-if="isSelection">
-          <el-button
-            class="add-examples"
-            @click="addExample(problemDescriptionList[0].examples)"
-            icon="el-icon-plus"
-            type="small"
-          >{{ $t('m.Add_Selection') }}</el-button>
-        </div>
-        <div v-else-if="isFilling">
-          <el-input type="Number" :placeholder="$t('m.Filling_Count')" v-model="fillingCount"></el-input>
+          <div class="add-example-btn" v-if="isSelection">
+            <el-button
+              class="add-examples"
+              @click="addExample(problemDescriptionList[0].examples)"
+              icon="el-icon-plus"
+              type="small"
+            >{{ $t('m.Add_Selection') }}</el-button>
+          </div>
         </div>
 
         <template v-if="isAcmOi && !problem.isRemote">
@@ -593,26 +600,30 @@
           </el-form-item>
         </template>
 
-        <div :gutter="20" v-if="!problem.isRemote">
-          <div class="panel-title home-title" style="margin-top: 10px;">
-            {{ isAcmOi ? $t('m.Problem_Sample'): $t('m.Problem_Answer') }}
-            <el-popover placement="right" trigger="hover">
-              <template v-if="isSelection">
-                <p>{{ $t('m.Answer_Examples_Desc1') }}</p>
-              </template>
-              <template v-else-if="isFilling">
-                <p>{{ $t('m.Answer_Examples_Desc2') }}</p>
-              </template>
-              <template v-else-if="isDecide">
-                <p>{{ $t('m.Answer_Examples_Desc3') }}</p>
-              </template>
-              <template v-else>
-                <p>{{ $t('m.Examples_Desc') }}</p>
-              </template>
-              <i slot="reference" class="el-icon-question"></i>
-            </el-popover>
-          </div>
+        <el-row v-if="!problem.isRemote" :gutter="20">
+          <el-col :span="24">
+            <div class="panel-title home-title" style="margin-top: 10px;">
+              {{ isAcmOi ? $t('m.Problem_Sample'): $t('m.Problem_Answer') }}
+              <el-popover placement="right" trigger="hover">
+                <template v-if="isSelection">
+                  <div v-html="$t('m.Answer_Examples_Desc1')"></div>
+                </template>
+                <template v-else-if="isFilling">
+                  <div v-html="$t('m.Answer_Examples_Desc2')"></div>
+                </template>
+                <template v-else-if="isDecide">
+                  <p>{{ $t('m.Answer_Examples_Desc3') }}</p>
+                </template>
+                <template v-else>
+                  <p>{{ $t('m.Examples_Desc') }}</p>
+                </template>
+                <i slot="reference" class="el-icon-question"></i>
+              </el-popover>
+            </div>
+          </el-col>
+        </el-row>
 
+        <el-row :gutter="20" v-if="!problem.isRemote">
           <div v-show="problem.isUploadCase">
             <el-col :span="24">
               <el-form-item :error="error.testcase">
@@ -748,18 +759,12 @@
                     ></el-input>
                   </template>
                 </vxe-table-column>
-                <vxe-table-column
-                  field="score"
-                  :title="$t('m.Score')"
-                  v-if="problem.type == 1"
-                  min-width="100"
-                >
+                <vxe-table-column field="score" :title="$t('m.Score')" min-width="100">
                   <template v-slot="{ row }">
                     <el-input
                       size="small"
                       :placeholder="$t('m.Score')"
                       v-model="row.score"
-                      :disabled="problem.type != 1"
                       type="number"
                     ></el-input>
                   </template>
@@ -769,43 +774,77 @@
           </div>
 
           <div v-show="!problem.isUploadCase">
-            <el-form-item v-for="(sample, index) in problemSamples" :key="'sample' + index">
-              <Accordion
-                :title="(isAcmOi ? $t('m.Problem_Sample') : $t('m.Problem_Sample2'))+ (index + 1)"
-                :isOpen="sample.isOpen ? true : false"
-                :index="index"
-                @changeVisible="changeSampleVisible"
-              >
-                <el-button
-                  v-if="isAcmOi"
-                  type="danger"
-                  size="small"
-                  icon="el-icon-delete"
-                  slot="header"
-                  @click="deleteSample(index)"
-                >{{ $t('m.Delete') }}</el-button>
-                <el-row :gutter="20" v-if="isAcmOi">
-                  <el-col :xs="24" :md="12">
-                    <el-form-item :label="$t('m.Sample_Input')" required>
-                      <el-input
-                        :rows="5"
-                        type="textarea"
-                        :placeholder="$t('m.Sample_Input')"
-                        v-model="sample.input"
-                      ></el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :xs="24" :md="12">
-                    <el-form-item :label="$t('m.Sample_Output')" required>
-                      <el-input
-                        :rows="5"
-                        type="textarea"
-                        :placeholder="$t('m.Sample_Output')"
-                        v-model="sample.output"
-                      ></el-input>
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="24" v-if="problem.type == 1">
+            <el-col :span="24">
+              <el-form-item v-for="(sample, index) in problemSamples" :key="'sample' + index">
+                <Accordion
+                  :title="isAcmOi ? ($t('m.Problem_Sample') + (index + 1)): ''"
+                  :isOpen="sample.isOpen ? true : false"
+                  :index="index"
+                  @changeVisible="changeSampleVisible"
+                >
+                  <el-button
+                    v-if="isAcmOi"
+                    type="danger"
+                    size="small"
+                    icon="el-icon-delete"
+                    slot="header"
+                    @click="deleteSample(index)"
+                  >{{ $t('m.Delete') }}</el-button>
+                  <el-row :gutter="20" v-if="isAcmOi">
+                    <el-col :xs="24" :md="12">
+                      <el-form-item :label="$t('m.Sample_Input')" required>
+                        <el-input
+                          :rows="5"
+                          type="textarea"
+                          :placeholder="$t('m.Sample_Input')"
+                          v-model="sample.input"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :md="12">
+                      <el-form-item :label="$t('m.Sample_Output')" required>
+                        <el-input
+                          :rows="5"
+                          type="textarea"
+                          :placeholder="$t('m.Sample_Output')"
+                          v-model="sample.output"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
+                    <el-col
+                      :span="24"
+                      v-show="problem.judgeCaseMode == JUDGE_CASE_MODE.SUBTASK_LOWEST
+                    || problem.judgeCaseMode == JUDGE_CASE_MODE.SUBTASK_AVERAGE"
+                    >
+                      <el-form-item :label="$t('m.Sample_Group_Num')">
+                        <el-input
+                          type="number"
+                          size="small"
+                          :placeholder="$t('m.Sample_Group_Num')"
+                          v-model="sample.groupNum"
+                          @change="sortManualProblemSampleList"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-row v-else>
+                    <el-col :xs="24" :md="24">
+                      <el-form-item>
+                        <el-radio-group v-model="sample.output" v-if="isDecide">
+                          <el-radio :label="'YES'">YES</el-radio>
+                          <el-radio :label="'NO'">NO</el-radio>
+                        </el-radio-group>
+                        <el-input
+                          v-else
+                          :rows="5"
+                          type="textarea"
+                          :placeholder="$t('m.Problem_Answer_Output')"
+                          v-model="sample.output"
+                        ></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <el-col :span="24">
                     <el-form-item :label="$t('m.Score')">
                       <el-input
                         type="number"
@@ -815,55 +854,30 @@
                       ></el-input>
                     </el-form-item>
                   </el-col>
-                  <el-col
-                    :span="24"
-                    v-show="problem.judgeCaseMode == JUDGE_CASE_MODE.SUBTASK_LOWEST
-                    || problem.judgeCaseMode == JUDGE_CASE_MODE.SUBTASK_AVERAGE"
-                  >
-                    <el-form-item :label="$t('m.Sample_Group_Num')">
-                      <el-input
-                        type="number"
-                        size="small"
-                        :placeholder="$t('m.Sample_Group_Num')"
-                        v-model="sample.groupNum"
-                        @change="sortManualProblemSampleList"
-                      ></el-input>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row v-else>
-                  <el-col :xs="24" :md="24">
-                    <el-form-item :label="$t('m.Problem_Answer_Output')" required>
-                      <el-input
-                        :rows="5"
-                        type="textarea"
-                        :placeholder="$t('m.Problem_Answer_Output')"
-                        v-model="sample.output"
-                      ></el-input>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </Accordion>
-            </el-form-item>
-            <div v-if="isAcmOi" class="add-sample-btn">
-              <el-button
-                class="add-samples"
-                @click="addSample()"
-                icon="el-icon-plus"
-                type="small"
-              >{{ $t('m.Add_Sample') }}</el-button>
-            </div>
+                </Accordion>
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <div v-if="isAcmOi" class="add-sample-btn">
+                <el-button
+                  class="add-samples"
+                  @click="addSample()"
+                  icon="el-icon-plus"
+                  type="small"
+                >{{ $t('m.Add_Sample') }}</el-button>
+              </div>
+            </el-col>
           </div>
-        </div>
+        </el-row>
 
         <el-form-item
           :label="$t('m.Auto_Remove_the_Blank_at_the_End_of_Code')"
-          v-if="!problem.isRemote"
+          v-if="isAcmOi && !problem.isRemote"
         >
           <el-switch v-model="problem.isRemoveEndBlank" active-text inactive-text></el-switch>
         </el-form-item>
 
-        <el-form-item :label="$t('m.Publish_the_Judging_Result_of_Test_Data')">
+        <el-form-item :label="$t('m.Publish_the_Judging_Result_of_Test_Data')" v-if="isAcmOi">
           <el-switch v-model="problem.openCaseResult" active-text inactive-text></el-switch>
         </el-form-item>
 
@@ -1019,7 +1033,7 @@ export default {
     this.PROBLEM_LEVEL = Object.assign({}, PROBLEM_LEVEL);
     this.JUDGE_CASE_MODE = Object.assign({}, JUDGE_CASE_MODE);
     this.routeName = this.$route.name;
-    let contestID = this.$route.params.contestId;
+    let contestID = this.$route.params.contestID;
     this.uploadFileUrl = "/api/file/upload-testcase-zip";
     if (
       this.routeName === "admin-edit-problem" ||
@@ -1081,11 +1095,15 @@ export default {
       if (contestID) {
         this.problem.cid = this.reProblem.cid = contestID;
         this.problem.auth = this.reProblem.auth = 3;
-        this.disableRuleType = true;
-        api.admin_getContest(contestID).then((res) => {
-          this.problem.type = this.reProblem.type = res.data.data.type;
-          this.contest = res.data.data;
-        });
+        // 如果当前不为创建题目模式，才可以修改题目类型
+        if (this.mode !== "add") {
+          this.disableRuleType = true;
+
+          api.admin_getContest(contestID).then((res) => {
+            this.problem.type = this.reProblem.type = res.data.data.type;
+            this.contest = res.data.data;
+          });
+        }
       }
       this.problem.spjLanguage = "C";
       this.init();
@@ -1177,9 +1195,6 @@ export default {
         })["contentType"];
       }
     },
-    "problem.type"(newVal) {
-      this.changeType(newVal);
-    },
   },
   methods: {
     init() {
@@ -1205,6 +1220,7 @@ export default {
           this.spjRecord.spjCode = data.spjCode;
           this.judgeCaseModeRecord = data.judgeCaseModeRecord;
           this.problem = data;
+          this.changeType(this.problem.type);
           this.problemDescriptionList = data["problemDescriptionList"];
           this.problemDescriptionList.forEach((description) => {
             description.examples = utils.stringToExamples(description.examples);
@@ -1219,15 +1235,20 @@ export default {
             this.addJudgeExtraFile = true;
             this.judgeExtraFile = JSON.parse(this.problem.judgeExtraFile);
           }
-          this.changeType();
-          utils.readTestCase(this.pid).then((result) => {
-            this.caseContentDir = result;
-            this.getProblemCases();
-          });
+
+          if (this.problem.isUploadCase) {
+            utils.readTestCase(this.pid).then((result) => {
+              this.caseContentDir = result;
+            });
+          }
+          this.getProblemCases();
         });
         if (funcName === "admin_getContestProblem") {
           api
-            .admin_getContestProblemInfo(this.pid, this.contestID)
+            .admin_getContestProblemInfo(
+              this.pid,
+              parseInt(this.$route.params.contestID)
+            )
             .then((res) => {
               this.contestProblem = res.data.data;
             });
@@ -1376,7 +1397,7 @@ export default {
     },
 
     problemTypeChange(type) {
-      if (type == 1) {
+      if (type !== 0) {
         let length = this.problemSamples.length;
         let aver = parseInt(100 / length);
         let add_1_num = 100 - aver * length;
@@ -1388,6 +1409,7 @@ export default {
           }
         }
       }
+      this.changeType(type);
     },
 
     // 添加题目样例
@@ -1580,25 +1602,6 @@ export default {
         }
       }
 
-      if (this.contestID) {
-        if (!this.contestProblem.displayId) {
-          myMessage.error(
-            this.$i18n.t("m.Contest_Display_ID") +
-              " " +
-              this.$i18n.t("m.is_required")
-          );
-          return;
-        }
-        if (!this.contestProblem.displayTitle) {
-          myMessage.error(
-            this.$i18n.t("m.Contest_Display_Title") +
-              " " +
-              this.$i18n.t("m.is_required")
-          );
-          return;
-        }
-      }
-
       if (
         this.problem.isFileIO &&
         (!this.problem.ioReadFileName || !this.problem.ioWriteFileName)
@@ -1646,8 +1649,8 @@ export default {
             }
           }
 
-          // 同时是oi题目，则对应的每个测试样例的io得分不能为空或小于0
-          if (this.problem.type == 1) {
+          // 如果不是ACM题目，则对应的每个测试样例的io得分不能为空或小于0
+          if (this.problem.type !== 0) {
             for (let i = 0; i < this.problemSamples.length; i++) {
               if (this.problemSamples[i].score == "") {
                 myMessage.error(
@@ -1703,8 +1706,8 @@ export default {
             return;
           }
 
-          // 如果是oi题目，需要检查上传的数据的得分
-          if (this.problem.type == 1) {
+          // 如果不是ACM题目，需要检查上传的数据的得分
+          if (this.problem.type !== 0) {
             let problemSamples = this.problem.testCaseScore;
             for (let i = 0; i < problemSamples.length; i++) {
               if (problemSamples[i].score == "") {
@@ -1825,6 +1828,17 @@ export default {
       }
       this.problemCodeTemplate = [];
       let problemLanguageList = Object.assign([], this.problemLanguages); // 深克隆 防止影响
+
+      // 如果isAcmOi为false，只保留PHP语言
+      if (!this.isAcmOi) {
+        problemLanguageList = problemLanguageList.filter(
+          (lang) => lang === "PHP"
+        );
+        if (problemLanguageList.length === 0) {
+          problemLanguageList = ["PHP"]; // 如果没有PHP，则添加PHP
+        }
+      }
+
       for (let i = 0; i < problemLanguageList.length; i++) {
         problemLanguageList[i] = { name: problemLanguageList[i] };
         for (let lang of this.allLanguage) {
@@ -1928,13 +1942,13 @@ export default {
             if (res.data.data) {
               // 新增题目操作 需要使用返回来的pid
               this.contestProblem["pid"] = res.data.data.pid;
-              this.contestProblem["cid"] = this.$route.params.contestId;
+              this.contestProblem["cid"] = this.$route.params.contestID;
             }
             api.admin_setContestProblemInfo(this.contestProblem).then((res) => {
               myMessage.success("success");
               this.$router.push({
                 name: "admin-contest-problem-list",
-                params: { contestId: this.$route.params.contestId },
+                params: { contestID: this.$route.params.contestID },
               });
             });
           } else {
@@ -2037,13 +2051,30 @@ export default {
       }
       this.type = type;
 
-      this.problem.judgeCaseMode =
-        type === 0 ? "ergodic_without_error" : "default";
-
       this.isAcmOi = type === 0 || type === 1;
       this.isSelection = type === 2;
       this.isFilling = type === 3;
       this.isDecide = type > 3;
+
+      if (this.mode == "add") {
+        this.problem.judgeCaseMode =
+          type === 0 ? "ergodic_without_error" : "default";
+
+        this.problem.isUploadCase = this.isAcmOi;
+
+        let len = this.sampleIndex;
+        if (!this.isAcmOi && this.problemSamples.length == 0) {
+          this.problemSamples.push({
+            input: "",
+            output: "",
+            score: 0,
+            groupNum: len,
+            pid: this.pid,
+            isOpen: true,
+            index: len,
+          });
+        }
+      }
     },
     handleTabClick(tab) {
       if (tab.name === "addTab") {
@@ -2083,25 +2114,23 @@ export default {
     refreshDescription(description) {
       description.html = null;
     },
+    handleExampleCountChange(newCount) {
+      const examples = this.problemDescriptionList[0].examples;
+      const currentCount = examples.length;
+
+      if (newCount > currentCount) {
+        for (let i = 0; i < newCount - currentCount; i++) {
+          this.addExample(examples);
+        }
+      } else if (newCount < currentCount) {
+        for (let i = 0; i < currentCount - newCount; i++) {
+          this.deleteExample(examples, examples.length - 1); // 删除末尾
+        }
+      }
+    },
   },
   computed: {
     ...mapGetters(["userInfo"]),
-    fillingCount: {
-      get() {
-        if (this.isFilling) {
-          return this.problemDescriptionList[0].examples.length;
-        }
-        return 0;
-      },
-      set(newCount) {
-        if (this.isFilling) {
-          this.problemDescriptionList[0].examples = Array.from(
-            { length: newCount },
-            () => ""
-          );
-        }
-      },
-    },
   },
 };
 </script>

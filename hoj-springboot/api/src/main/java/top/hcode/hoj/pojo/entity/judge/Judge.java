@@ -63,7 +63,7 @@ public class Judge implements Serializable {
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer memory;
 
-    @ApiModelProperty(value = "IO判题不为空")
+    @ApiModelProperty(value = "判题得分不为空")
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Integer score;
 

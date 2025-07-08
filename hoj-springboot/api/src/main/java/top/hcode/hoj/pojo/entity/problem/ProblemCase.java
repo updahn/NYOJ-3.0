@@ -36,7 +36,7 @@ public class ProblemCase {
     @ApiModelProperty(value = "测试样例的输出")
     private String output;
 
-    @ApiModelProperty(value = "该测试样例的IO得分")
+    @ApiModelProperty(value = "该测试样例的得分")
     private Integer score;
 
     @ApiModelProperty(value = "subtask分组的编号")

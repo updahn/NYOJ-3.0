@@ -1,36 +1,58 @@
 import Vue from 'vue';
 import storage from '@/common/storage';
-import { STORAGE_KEY, PROBLEM_LEVEL, FOCUS_MODE_ROUTE_NAME, PROBLEM_TYPE } from '@/common/constants';
+import { STORAGE_KEY, PROBLEM_LEVEL, FOCUS_MODE_ROUTE_NAME, PROBLEM_TYPE_LEVEL, PROBLEM_TYPE } from '@/common/constants';
 import myMessage from '@/common/message';
 import api from '@/common/api';
 import store from '@/store';
 import i18n from '@/i18n';
 import JSZip from 'jszip';
 
-// function submissionMemoryFormat (memory) {
-//   if (memory === undefined || memory ===null || memory === '') return '--'
-//   // 1048576 = 1024 * 1024
-//   let t = parseInt(memory)
-//   return String(t.toFixed(0)) + 'KB'
-// }
-function submissionMemoryFormat(a, b) {
+function submissionMemoryFormat(a, b, type) {
   if (a === null || a === '' || a === undefined) return '--';
   if (a === 0) return '0 KB';
   var c = 1024,
     d = b || 1,
     e = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
     f = Math.floor(Math.log(a) / Math.log(c));
-  return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
+  if (submissionIsAcmOrOi(type)) {
+    return parseFloat((a / Math.pow(c, f)).toFixed(d)) + ' ' + e[f];
+  } else {
+    return '--';
+  }
 }
 
-function submissionTimeFormat(time) {
+function submissionTimeFormat(time, type) {
   if (time === undefined || time === null || time === '') return '--';
-  return time + 'ms';
+  if (submissionIsAcmOrOi(type)) {
+    return time + 'ms';
+  } else {
+    return '--';
+  }
 }
 
-function submissionLengthFormat(length) {
+function submissionLengthFormat(length, type) {
   if (length === undefined || length === null || length === '') return '--';
-  return length + 'B';
+  if (submissionIsAcmOrOi(type)) {
+    return length + 'B';
+  } else {
+    return '--';
+  }
+}
+
+function submissionLanguageFormat(language, type) {
+  if (submissionIsAcmOrOi(type)) {
+    return language;
+  } else if (type === PROBLEM_TYPE.SELECT) {
+    return i18n.t(`m.Selection`);
+  } else if (type === PROBLEM_TYPE.FILL) {
+    return i18n.t(`m.Filling`);
+  } else if (type === PROBLEM_TYPE.DECIDED) {
+    return i18n.t(`m.Decide`);
+  }
+}
+
+function submissionIsAcmOrOi(type) {
+  return type === null || type === '' || type === undefined || type === PROBLEM_TYPE.OI || type === PROBLEM_TYPE.ACM;
 }
 
 function getACRate(acCount, totalCount) {
@@ -269,8 +291,8 @@ function getLevelName(difficulty) {
 }
 
 function getTypeName(type) {
-  if (type != undefined && type != null && PROBLEM_TYPE[type]) {
-    return PROBLEM_TYPE[type]['name'][store.getters.webLanguage];
+  if (type != undefined && type != null && PROBLEM_TYPE_LEVEL[type]) {
+    return PROBLEM_TYPE_LEVEL[type]['name'][store.getters.webLanguage];
   } else {
     return 'unknown [' + type + ']';
   }
@@ -278,8 +300,8 @@ function getTypeName(type) {
 
 function getTypeColor(type) {
   if (type != undefined && type != null) {
-    if (PROBLEM_TYPE[type]) {
-      return 'color: #fff !important;background-color:' + PROBLEM_TYPE[type]['color'] + ' !important;';
+    if (PROBLEM_TYPE_LEVEL[type]) {
+      return 'color: #fff !important;background-color:' + PROBLEM_TYPE_LEVEL[type]['color'] + ' !important;';
     } else {
       return 'color: #fff !important;background-color: rgb(255, 153, 0)!important;';
     }
@@ -313,6 +335,7 @@ function getSwitchFoceusModeRouteName(routeName) {
 }
 function getRouteRealName(routeName, contestID, trainingID, groupID, routeType) {
   const isFullScreen = routeName.includes('full-screen');
+  const isExam = routeName.includes('exam');
   const groupPrefix = groupID ? 'Group' : '';
   const fullPrefix = isFullScreen ? 'Full' : '';
 
@@ -320,7 +343,13 @@ function getRouteRealName(routeName, contestID, trainingID, groupID, routeType) 
     if (trainingID) return fullPrefix ? `${groupPrefix}Training${fullPrefix}${routeType}` : `${groupPrefix}${fullPrefix}${routeType}`;
   }
 
-  if (contestID) return `${groupPrefix}Contest${fullPrefix}${routeType}`;
+  if (contestID) {
+    if (isExam) {
+      return `${groupPrefix}Exam${fullPrefix}${routeType}`;
+    } else {
+      return `${groupPrefix}Contest${fullPrefix}${routeType}`;
+    }
+  }
   if (trainingID) return `${groupPrefix}Training${fullPrefix}${routeType}`;
 
   return `${groupPrefix}${fullPrefix}${routeType}`;
@@ -343,6 +372,8 @@ export default {
   submissionMemoryFormat: submissionMemoryFormat,
   submissionTimeFormat: submissionTimeFormat,
   submissionLengthFormat: submissionLengthFormat,
+  submissionLanguageFormat: submissionLanguageFormat,
+  submissionIsAcmOrOi: submissionIsAcmOrOi,
   getACRate: getACRate,
   filterEmptyValue: filterEmptyValue,
   breakLongWords: breakLongWords,

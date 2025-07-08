@@ -110,7 +110,7 @@
                         {{ $t('m.View_as_PDF') }}
                       </el-link>
                     </span>
-                    <span>
+                    <span v-if="contestRuleType !== CONTEST_TYPE.EXAMINATION">
                       <el-link
                         type="primary"
                         :underline="false"
@@ -120,7 +120,7 @@
                         {{ $t('m.Statistic') }}
                       </el-link>
                     </span>
-                    <span>
+                    <span v-if="contestRuleType !== CONTEST_TYPE.EXAMINATION">
                       <el-link type="primary" :underline="false" @click="goProblemSubmission">
                         <i class="fa fa-bars" aria-hidden="true"></i>
                         {{ $t('m.Solutions') }}
@@ -144,7 +144,7 @@
                   </div>
 
                   <div class="question-intr">
-                    <template v-if="!isCFProblem">
+                    <template v-if="!isCFProblem && isAcmOi">
                       <span>
                         {{ $t('m.Time_Limit') }}：C/C++
                         {{ problemData.problem.timeLimit }}MS，{{
@@ -163,7 +163,7 @@
                       <br />
                     </template>
 
-                    <template v-else>
+                    <template v-else-if="isAcmOi">
                       <span>
                         {{ $t('m.Time_Limit') }}：{{
                         problemData.problem.timeLimit
@@ -191,16 +191,18 @@
                       </span>
                       <br />
                     </template>
-                    <template v-if="isOi">
-                      <span>{{ $t('m.Score') }}：{{ problemData.problem.ioScore }}</span>
-                      <span v-if="!contestID" style="margin-left:5px;">
-                        {{ $t('m.OI_Rank_Score') }}：{{
-                        calcOIRankScore(
-                        problemData.problem.ioScore,
-                        problemData.problem.difficulty
-                        )
-                        }}(0.1*{{ $t('m.Score') }}+2*{{ $t('m.Level') }})
-                      </span>
+                    <template v-if="!isAcm">
+                      <span>{{ $t('m.Score') }}：{{ problemData.problem.score }}</span>
+                      <template v-if="isOi">
+                        <span v-if="!contestID" style="margin-left:5px;">
+                          {{ $t('m.OI_Rank_Score') }}：{{
+                          calcOIRankScore(
+                          problemData.problem.score,
+                          problemData.problem.difficulty
+                          )
+                          }}(0.1*{{ $t('m.Score') }}+2*{{ $t('m.Level') }})
+                        </span>
+                      </template>
                       <br />
                     </template>
 
@@ -283,17 +285,10 @@
                   <!-- 选择题 -->
                   <template v-else-if="isSelection">
                     <div v-for="(example, index) in problemData.problem.examples" :key="index">
-                      <div class="flex-container example" v-if="index % 2 === 0">
+                      <div class="flex-container example">
                         <div class="example-input">
                           <p class="title">{{ String.fromCharCode(65 + index) }}</p>
                           <pre>{{ example.output }}</pre>
-                        </div>
-                        <div
-                          class="example-input"
-                          v-if="index + 1 < problemData.problem.examples.length"
-                        >
-                          <p class="title">{{ String.fromCharCode(65 + index + 1) }}</p>
-                          <pre>{{ problemData.problem.examples[index + 1].output }}</pre>
                         </div>
                       </div>
                     </div>
@@ -445,9 +440,14 @@
                           class="item"
                           effect="dark"
                           :content="$t('m.View_submission_details')"
+                          :disabled="contestRuleType && contestRuleType == CONTEST_TYPE.EXAMINATION"
                           placement="top"
                         >
-                          <el-button type="text" @click="showSubmitDetail(row)">{{ row.language }}</el-button>
+                          <el-button
+                            type="text"
+                            :disabled="contestRuleType && contestRuleType == CONTEST_TYPE.EXAMINATION"
+                            @click="showSubmitDetail(row)"
+                          >{{ submissionLanguageFormat(row.language, row.type) }}</el-button>
                         </el-tooltip>
                       </template>
                     </vxe-table-column>
@@ -613,12 +613,14 @@
               <div style="margin-left: 5px; height: 100%;" v-else>
                 <el-form>
                   <el-form-item :label="$t('m.Filling_Answer')" required>
-                    <el-input
-                      v-for="(selected, index) in problemData.problem.examples"
-                      :key="index"
-                      v-model="selected.output"
-                      style="margin-top: 20px; width:80%;"
-                    ></el-input>
+                    <el-col>
+                      <el-input
+                        v-for="(selected, index) in problemData.problem.examples"
+                        :key="index"
+                        v-model="selected.output"
+                        style="margin-top: 20px; width:100%;"
+                      ></el-input>
+                    </el-col>
                   </el-form-item>
                 </el-form>
               </div>
@@ -954,7 +956,7 @@ export default {
       openFocusMode: false,
       showProblemHorizontalMenu: false,
       isAcm: true,
-      isOi: true,
+      isOi: false,
       isAcmOi: true,
       isSelection: false,
       isFilling: false,
@@ -1254,6 +1256,8 @@ export default {
           right.style.width = "100%";
           left.style.width = "100%";
         }
+        left.style.height = "100%";
+        right.style.height = "100%";
 
         let problemLeftHight = totalHeight - (headerHeight + 94);
         if (this.showProblemHorizontalMenu) {
@@ -1342,7 +1346,10 @@ export default {
       } catch (e) {}
     },
     init() {
-      if (this.$route.name === "ContestFullProblemDetails") {
+      if (
+        this.$route.name === "ContestFullProblemDetails" ||
+        this.$route.name === "ExamFullProblemDetails"
+      ) {
         this.$store.dispatch("getContest");
       }
       this.openFocusMode = utils.isFocusModePage(this.$route.name);
@@ -1381,7 +1388,9 @@ export default {
         this.$route.name === "ContestProblemDetails" ||
         this.$route.name === "ContestFullProblemDetails" ||
         this.$route.name === "GroupContestProblemDetails" ||
-        this.$route.name === "GroupContestFullProblemDetails"
+        this.$route.name === "GroupContestFullProblemDetails" ||
+        this.$route.name === "ExamProblemDetails" ||
+        this.$route.name === "ExamFullProblemDetails"
           ? "getContestProblem"
           : "getProblem";
       this.loading = true;
@@ -1642,7 +1651,7 @@ export default {
       }
       const checkStatus = () => {
         let submitId = this.submissionId;
-        api.getSubmission(submitId).then(
+        api.getSubmission(submitId, this.contestID).then(
           (res) => {
             this.result.status = res.data.data.submission.status;
             if (Object.keys(res.data.data.submission).length !== 0) {
@@ -1671,6 +1680,7 @@ export default {
           },
           (res) => {
             this.submitting = false;
+            this.submitted = false;
             clearTimeout(this.refreshStatus);
           }
         );
@@ -1713,6 +1723,7 @@ export default {
 
       if (!this.isAcmOi) {
         this.code = this.formartCode;
+        this.language = "PHP";
       }
 
       if (this.code.trim() === "") {
@@ -1978,6 +1989,9 @@ export default {
         });
       }
     },
+    submissionLanguageFormat(language, type) {
+      return utils.submissionLanguageFormat(language, type);
+    },
   },
   computed: {
     ...mapGetters([
@@ -2139,6 +2153,7 @@ export default {
   max-width: 600px !important;
 }
 .problem-menu {
+  margin-right: 10px;
   float: left;
 }
 a {

@@ -45,7 +45,6 @@ public interface ProblemMapper extends BaseMapper<Problem> {
 
     List<ProblemResDTO> getAdminContestProblemList(
             @Param("keyword") String keyword,
-            @Param("cid") Long cid,
             @Param("problemType") Integer problemType,
             @Param("oj") String oj,
             @Param("difficulty") Integer difficulty,

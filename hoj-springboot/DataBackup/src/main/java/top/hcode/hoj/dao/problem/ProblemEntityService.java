@@ -48,9 +48,9 @@ public interface ProblemEntityService extends IService<Problem> {
 
     List<ProblemResDTO> getAdminGroupProblemList(String keyword, Long gid);
 
-    IPage<ProblemResDTO> getAdminContestProblemList(IPage<ProblemResDTO> iPage, String keyword, Long cid,
-            Integer problemType, String oj, Integer difficulty, Integer type, Long gid, Boolean isRemote,
-            Long contestGid, List<Long> pidList);
+    IPage<ProblemResDTO> getAdminContestProblemList(IPage<ProblemResDTO> iPage, String keyword, Integer problemType,
+            String oj, Integer difficulty, Integer type, Long gid, Boolean isRemote, Long contestGid,
+            List<Long> pidList);
 
     IPage<ProblemResDTO> getAdminTrainingProblemList(IPage<ProblemResDTO> iPage, String keyword,
             Boolean queryExisted,

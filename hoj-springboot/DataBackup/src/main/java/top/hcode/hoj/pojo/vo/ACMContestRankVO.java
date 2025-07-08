@@ -85,6 +85,9 @@ public class ACMContestRankVO {
     @ApiModelProperty(value = "提交总罚时")
     private Double totalTime;
 
+    @ApiModelProperty(value = "总得分")
+    private Integer totalScore;
+
     @ApiModelProperty(value = "总提交数")
     private Integer total;
 

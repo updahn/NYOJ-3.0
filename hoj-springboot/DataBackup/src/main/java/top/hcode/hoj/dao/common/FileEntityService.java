@@ -18,13 +18,14 @@ public interface FileEntityService extends IService<File> {
 
     List<File> queryBoxFileList();
 
-    List<List<String>> getContestRankExcelHead(List<String> contestProblemDisplayIDList, Boolean isACM);
+    List<List<String>> getContestRankExcelHead(List<String> contestProblemDisplayIDList, Integer contestType);
 
     List<List<String>> getStatisticRankExcelHead(List<String> cidList, Boolean isRoot);
 
     List<List<Object>> changeACMContestRankToExcelRowList(List<ACMContestRankVO> acmContestRankVOList,
             List<String> contestProblemDisplayIDList,
-            String rankShowName);
+            String rankShowName,
+            Boolean isAcm);
 
     List<List<Object>> changOIContestRankToExcelRowList(List<OIContestRankVO> oiContestRankVOList,
             List<String> contestProblemDisplayIDList,

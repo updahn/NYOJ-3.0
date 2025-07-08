@@ -15,6 +15,7 @@ export const m = {
   NavBar_Problem: 'Problem',
   NavBar_Training: 'Training',
   NavBar_Contest: 'Contest',
+  NavBar_Exam: 'Exam',
   NavBar_Status: 'Status',
   NavBar_Rank: 'Rank',
   NavBar_ACM_Rank: 'ACM Rank',
@@ -53,6 +54,12 @@ export const m = {
   NavBar_Training_Rank: 'Training Rank',
   NavBar_Training_Problem: 'Training Problem',
   NavBar_Training_Submission: 'Training Submission',
+  NavBar_Exam_Home: 'Exam Home',
+  NavBar_Exam_Comment: 'Exam Comment',
+  NavBar_Exam_Problem: 'Exam Problem',
+  NavBar_Exam_Submission: 'Exam Submission',
+  NavBar_Exam_Announcement: 'Exam Announcement',
+  NavBar_Exam_Rank: 'Exam Rank',
 
   //  /components/oj/common/Login.vue 登录弹窗
   Login_Username: 'Username',
@@ -465,16 +472,19 @@ export const m = {
   Ended: 'Ended',
   No_contest: 'No contest',
   Contests: 'Contests',
+  Exams: 'Exams',
   Public: 'Public',
   Private: 'Private',
   Protected: 'Protected',
   Official: 'Official',
   Synchronous: 'Synchronous',
+  Examination: 'Examination',
   Public_Tips: 'Public - Any one can see and submit.',
   Protected_Tips: 'Protected - Any one can see, but only users knowing contest password can submit.',
   Private_Tips: 'Private - Only users knowing contest password can see and submit.',
   Official_Tips: 'Official - Depending on the contest requirements, it may require a password to see and submit.',
   Synchronous_Tips: 'Synchronous - Depending on the contest requirements, it may require a password to see and submit.',
+  Examination_Tips: 'Examination - Depending on the contest requirements, it may require a password to see and submit.',
   Contest_Outside_ScoreBoard: 'OutSide Contest ScoreBoard',
 
   // /views/oj/contest/ContestDetail.vue
@@ -520,6 +530,7 @@ export const m = {
   Force_Update: 'Force Update',
   Download_as_CSV: 'Download as CSV',
   TotalTime: 'Time',
+  TotalScore: 'Score',
   Top_10_Teams: 'Top 10 Teams',
   save_as_image: 'save as image',
   Contest_Rank_Seq: 'Rank',
@@ -571,6 +582,7 @@ export const m = {
   Rejudge_All: 'Rejudge All',
   Rejudge_successfully: 'Rejudge successfully',
   Rejudge_failed: 'Rejudge failed',
+  Exam_Rejudge: 'Exam Rejudge',
 
   // /views/oj/contest/children/ScrollBoard.vue
   ScrollBoard_Parameter_Config: 'Scroll Board Config',
@@ -630,6 +642,7 @@ export const m = {
   // /components/oj/common/Announcements.vue
   Contest_Announcement: 'Contest Announcement',
   No_Announcements: 'No Announcements',
+  Exam_Announcement: 'Exam Announcement',
 
   // /components/oj/common/CodeMirror.vue
   Lang: 'Lang',
@@ -669,8 +682,12 @@ export const m = {
   // /components/oj/comment/Comment.vue
   Announcement_of_contest_Q_and_A_area: 'Announcement of Contest Q & A Area',
   Announcement_of_contest_Q_and_A_area_tips1: "Please don't ask questions irrelevant to the contest. No irrigation!",
-  Announcement_of_contest_Q_and_A_area_tips2: 'During the contest, only the comments of yourself and the contest administrator can be seen!',
-  Announcement_of_contest_Q_and_A_area_tips3: "The contest administrator's comments cannot be replied. The comments return to normal at the end of the contest!",
+  Announcement_of_contest_Q_and_A_area_tips2: 'During the contest, only the comments of yourself and the administrator can be seen!',
+  Announcement_of_contest_Q_and_A_area_tips3: "The administrator's comments cannot be replied. The comments return to normal at the end of the contest!",
+  Announcement_of_exam_Q_and_A_area: 'Announcement of Exam Q & A Area',
+  Announcement_of_exam_Q_and_A_area_tips1: "Please don't ask questions irrelevant to the exam. No irrigation!",
+  Announcement_of_exam_Q_and_A_area_tips2: 'During the exam, only the comments of yourself and the administrator can be seen!',
+  Announcement_of_exam_Q_and_A_area_tips3: "The administrator's comments cannot be replied. The comments return to normal at the end of the exam!",
   Come_and_write_down_your_comments: 'Come and write down your comments',
   Inline_Code: 'Inline Code',
   Code_Block: 'Code Block',

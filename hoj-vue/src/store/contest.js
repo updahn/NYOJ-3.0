@@ -62,7 +62,8 @@ const getters = {
     if (
       state.contest.auth === CONTEST_TYPE.PRIVATE ||
       state.contest.auth === CONTEST_TYPE.OFFICIAL || // 正式赛
-      (state.contest.auth === CONTEST_TYPE.SYNCHRONOUS && state.contest.hasPassword) // 同步赛配置有比赛密码的
+      (state.contest.auth === CONTEST_TYPE.SYNCHRONOUS && state.contest.hasPassword) || // 同步赛配置有比赛密码的
+      (state.contest.auth === CONTEST_TYPE.EXAMINATION && state.contest.hasPassword) // 考试赛配置有比赛密码的
     ) {
       // 公开赛需要报名，私有赛需要通过验证密码方可查看比赛
       return !state.intoAccess;
@@ -105,6 +106,7 @@ const getters = {
       state.contest.auth !== CONTEST_TYPE.PUBLIC &&
       state.contest.auth !== CONTEST_TYPE.PROTECTED &&
       !(state.contest.auth === CONTEST_TYPE.SYNCHRONOUS && !state.contest.hasPassword) && // 不是公开同步赛
+      !(state.contest.auth === CONTEST_TYPE.EXAMINATION && !state.contest.hasPassword) && // 不是公开考试赛
       state.contest.auth !== CONTEST_TYPE.OFFICIAL &&
       !state.intoAccess &&
       !getters.isContestAdmin
@@ -256,10 +258,15 @@ const actions = {
             dispatch('getContestAccess', { auth: CONTEST_TYPE.PRIVATE });
           } else if (contest.auth == CONTEST_TYPE.PROTECTED) {
             dispatch('getContestAccess', { auth: CONTEST_TYPE.PROTECTED });
-          } else if (contest.auth == CONTEST_TYPE.OFFICIAL) {
+          } else if (contest.auth == CONTEST_TYPE.OFFICIAL && contest.hasPassword) {
             dispatch('getContestAccess', { auth: CONTEST_TYPE.OFFICIAL });
           } else if (contest.auth == CONTEST_TYPE.SYNCHRONOUS && contest.hasPassword) {
             dispatch('getContestAccess', { auth: CONTEST_TYPE.SYNCHRONOUS });
+          } else if (contest.auth == CONTEST_TYPE.EXAMINATION && contest.hasPassword) {
+            dispatch('getContestAccess', { auth: CONTEST_TYPE.EXAMINATION });
+          } else {
+            commit('contestIntoAccess', { intoAccess: true });
+            commit('contestSubmitAccess', { submitAccess: true });
           }
         },
         (err) => {
@@ -314,7 +321,7 @@ const actions = {
       api
         .getContestAccess(rootState.route.params.contestID)
         .then((res) => {
-          if (contestType.auth == CONTEST_TYPE.PRIVATE || contestType.auth == CONTEST_TYPE.OFFICIAL || contestType.auth == CONTEST_TYPE.SYNCHRONOUS) {
+          if (contestType.auth == CONTEST_TYPE.PRIVATE || contestType.auth == CONTEST_TYPE.OFFICIAL || contestType.auth == CONTEST_TYPE.SYNCHRONOUS || contestType.auth == CONTEST_TYPE.EXAMINATION) {
             commit('contestIntoAccess', { intoAccess: res.data.data.access });
           } else {
             commit('contestSubmitAccess', { submitAccess: res.data.data.access });

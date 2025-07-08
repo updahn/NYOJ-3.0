@@ -9,6 +9,7 @@ import top.hcode.hoj.pojo.vo.ContestVO;
 import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.mapper.ContestMapper;
 import top.hcode.hoj.dao.contest.ContestEntityService;
+import top.hcode.hoj.utils.Constants;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,14 @@ public class ContestEntityServiceImpl extends ServiceImpl<ContestMapper, Contest
         IPage<ContestVO> page = new Page<>(currentPage, limit);
 
         List<ContestVO> contestList = contestMapper.getContestList(page, type, status, keyword);
+
+        if (type == null) {
+            // 全部比赛过滤考试
+            contestList = contestList.stream()
+                    .filter(contest -> contest.getType() != Constants.Contest.AUTH_EXAMINATION.getCode())
+                    .collect(Collectors.toList());
+        }
+
         setRegisterCount(contestList);
 
         return page.setRecords(contestList);

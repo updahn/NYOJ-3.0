@@ -30,6 +30,8 @@ public interface AdminContestProblemService {
 
     public CommonResult<Void> changeProblemDescription(ContestProblemDTO contestProblemDto);
 
+    public CommonResult<Void> changeProblemScore(ContestProblemDTO contestProblemDto);
+
     public CommonResult<Void> importContestRemoteOJProblem(String name, String problemId, Long cid,
             String displayId, Long gid);
 

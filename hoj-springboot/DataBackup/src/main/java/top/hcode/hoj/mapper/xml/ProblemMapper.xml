@@ -25,7 +25,7 @@
         <result column="is_remote" property="isRemote"></result>
         <result column="difficulty" property="difficulty"></result>
         <result column="auth" property="auth"></result>
-        <result column="io_score" property="ioScore"></result>
+        <result column="score" property="score"></result>
         <result column="code_share" property="codeShare"></result>
         <result column="spj_code" property="spjCode"></result>
         <result column="spj_language" property="spjLanguage"></result>
@@ -88,9 +88,9 @@
                 and
                 (
                     p.problem_id like concat('%',#{keyword},'%')
-                    <if test="pid != null and pid != ''">
+                <if test="pid != null and pid != ''">
                         or p.id = #{pid}
-                    </if>
+                </if>
                     or EXISTS (
                         SELECT 1
                         FROM problem_description pd_sub
@@ -187,9 +187,15 @@
                 <if test="contestGid != null">
                     AND p.auth != 3
                 </if>
-                AND (
-                    (p.type = #{problemType} OR p.is_remote = true)
-                )
+                <if test="problemType != 5">
+                    AND (
+                        (p.type = #{problemType} OR p.is_remote = true)
+                    )
+                </if>
+                <!-- 比赛中去除远程题目 -->
+                <if test="problemType == 5">
+                    AND p.is_remote = false
+                </if>
                 AND p.auth != 2
             </if>
 

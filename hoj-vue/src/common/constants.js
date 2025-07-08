@@ -170,7 +170,7 @@ export const PROBLEM_LEVEL = {
   },
 };
 
-export const PROBLEM_TYPE = {
+export const PROBLEM_TYPE_LEVEL = {
   '0': {
     name: {
       'zh-CN': 'ACM',
@@ -206,6 +206,14 @@ export const PROBLEM_TYPE = {
     },
     color: '#881E1F',
   },
+};
+
+export const PROBLEM_TYPE = {
+  ACM: 0,
+  OI: 1,
+  SELECT: 2,
+  FILL: 3,
+  DECIDED: 4,
 };
 
 export const REMOTE_OJ = [
@@ -382,6 +390,7 @@ export const RULE_TYPE = {
   OJ: 4,
   NewOJ: 5,
   Code: 6,
+  EXAM: 5,
 };
 
 export const CONTEST_TYPE_REVERSE = {
@@ -420,6 +429,13 @@ export const CONTEST_TYPE_REVERSE = {
     submit: false, // 同步赛 根据比赛要求可能需要密码才能看和提交
     look: false,
   },
+  5: {
+    name: 'Examination',
+    color: 'info',
+    tips: 'Examination_Tips',
+    submit: false, // 考试 根据比赛要求可能需要密码才能看和提交
+    look: false,
+  },
 };
 
 export const CONTEST_TYPE = {
@@ -428,6 +444,7 @@ export const CONTEST_TYPE = {
   PROTECTED: 2,
   OFFICIAL: 3,
   SYNCHRONOUS: 4,
+  EXAMINATION: 5,
 };
 
 export const USER_TYPE = {
@@ -448,6 +465,7 @@ export const JUDGE_CASE_MODE = {
 export const FOCUS_MODE_ROUTE_NAME = {
   TrainingFullProblemDetails: 'TrainingProblemDetails',
   ContestFullProblemDetails: 'ContestProblemDetails',
+  ExamFullProblemDetails: 'ExamProblemDetails',
   GroupTrainingFullProblemDetails: 'GroupTrainingProblemDetails',
   GroupContestFullProblemDetails: 'GroupContestProblemDetails',
 };

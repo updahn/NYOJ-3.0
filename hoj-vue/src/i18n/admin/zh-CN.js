@@ -259,6 +259,7 @@ export const m = {
   Add_From_Public_Problem: '从公共题库添加题目',
   ACM_Contest_Add_From_Public_Problem_Tips: '当前比赛为ACM赛制：只支持导入ACM类型的题目和远程题目',
   OI_Contest_Add_From_Public_Problem_Tips: '当前比赛为OI赛制：只支持导入OI类型的题目和远程题目',
+  EXAM_Contest_Add_From_Public_Problem_Tips: '当前比赛为考试赛制：支持导入所有类型的本地题目',
   Original_Display: '原题显示',
   Contest_Display: '比赛显示',
   Auth: '权限',
@@ -392,9 +393,9 @@ export const m = {
   Problem_Sample2: '答案',
   Problem_Answer_Output: '答案输出',
   Examples_Desc: '上传文件：将所有的数据文件所在的文件夹压缩为一个zip类型的压缩包',
-  Answer_Examples_Desc1: '题目答案：选择题，答案输出为换行相隔的按照字典顺序的答案（例如选择`A`，`B`），则输入`A` `\\n` `B`',
-  Answer_Examples_Desc2: '题目答案：填空题，答案输出为换行相隔的答案（例如选择`A`，`B`），则输入`A` `\\n` `B`',
-  Answer_Examples_Desc3: '题目答案：判断题，答案输出为 ‘YES’ 或者 ‘NO’，一般为一个！',
+  Answer_Examples_Desc1: '题目答案：选择题，输出为换行隔开的答案，例如：<pre>A\nB</pre>',
+  Answer_Examples_Desc2: '题目答案：填空题，输出为换行隔开的答案，例如：<pre>填空1\n填空2</pre>',
+  Answer_Examples_Desc3: '题目答案：判断题，答案选择为 “YES” 或者 “NO”！',
 
   // /views/admin/problem/tag
   Admin_Tag: '标签管理',
@@ -533,6 +534,7 @@ export const m = {
   Contest_Award_Null: '不设置',
   Contest_Award_Set_Number: '设置人数',
   Contest_Award_Set_Proportion: '设置占比',
+  Contest_Award_Set_Score: '设置分数',
   Contest_Award_Priority: '优先级',
   Contest_Award_Name: '奖项名称',
   Contest_Award_Background: '背景颜色',
@@ -540,6 +542,7 @@ export const m = {
   Contest_Award_Show: '样式展示',
   Contest_Award_Number: '人数',
   Contest_Award_Proportion: '占比',
+  Contest_Award_Score: '分数',
   Allow_Submission_After_The_Contest_Ends: '是否允许比赛结束后提交',
   Synchronous: '同步赛',
   Synchronous_School: '同步赛的学校',
@@ -559,6 +562,7 @@ export const m = {
   Range_ID_error: '题目ID范围错误',
   Problem_ID_and_Display_ID_length_not_match: '题目ID和比赛展示ID数量不一致',
   Modify_endTime: '信息修改结束时间',
+  Update_Problem_Score: '更新题目分数',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: '讨论ID',

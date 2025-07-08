@@ -74,6 +74,10 @@ public class JudgeEntityServiceImpl extends ServiceImpl<JudgeMapper, Judge> impl
             List<ProblemDescription> problemList = problemDescriptionMapper.selectList(problemQueryWrapper);
             HashMap<Long, String> storeMap = new HashMap<>(limit);
             for (JudgeVO judgeVo : records) {
+                // 过滤acm题目分数
+                if (judgeVo.getType().intValue() == Constants.ProblemType.ACM.getType()) {
+                    judgeVo.setScore(null);
+                }
                 judgeVo.setTitle(getProblemTitleByPid(judgeVo.getPid(), problemList, storeMap));
             }
         }

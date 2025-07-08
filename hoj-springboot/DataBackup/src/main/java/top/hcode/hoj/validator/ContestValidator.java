@@ -63,8 +63,9 @@ public class ContestValidator {
         commonValidator.validateContentLength(adminContestVO.getDescription(), "比赛描述", 65535);
 
         if (!Objects.equals(Constants.Contest.TYPE_OI.getCode(), adminContestVO.getType())
-                && !Objects.equals(Constants.Contest.TYPE_ACM.getCode(), adminContestVO.getType())) {
-            throw new StatusFailException("比赛的赛制必须为ACM(0)、OI(1)！");
+                && !Objects.equals(Constants.Contest.TYPE_ACM.getCode(), adminContestVO.getType())
+                && !Objects.equals(Constants.Contest.TYPE_EXAM.getCode(), adminContestVO.getType())) {
+            throw new StatusFailException("比赛的赛制必须为ACM(0)、OI(1)、考试(5)！");
         }
 
         if (Objects.equals(Constants.Contest.TYPE_OI.getCode(), adminContestVO.getType())) {
@@ -79,8 +80,9 @@ public class ContestValidator {
                 && !Objects.equals(Constants.Contest.AUTH_PRIVATE.getCode(), adminContestVO.getAuth())
                 && !Objects.equals(Constants.Contest.AUTH_PROTECT.getCode(), adminContestVO.getAuth())
                 && !Objects.equals(Constants.Contest.AUTH_OFFICIAL.getCode(), adminContestVO.getAuth())
-                && !Objects.equals(Constants.Contest.AUTH_SYNCHRONOUS.getCode(), adminContestVO.getAuth())) {
-            throw new StatusFailException("比赛的权限必须为公开赛(0)、私有赛(1)、保护赛(2)、正式赛(3)、同步赛(4)！");
+                && !Objects.equals(Constants.Contest.AUTH_SYNCHRONOUS.getCode(), adminContestVO.getAuth())
+                && !Objects.equals(Constants.Contest.AUTH_EXAMINATION.getCode(), adminContestVO.getAuth())) {
+            throw new StatusFailException("比赛的权限必须为公开赛(0)、私有赛(1)、保护赛(2)、正式赛(3)、同步赛(4)、考试(5)！");
         }
     }
 
@@ -141,7 +143,10 @@ public class ContestValidator {
             if (contest.getAuth().intValue() == Constants.Contest.AUTH_PRIVATE.getCode()
                     || (contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()
                             && !StringUtils.isEmpty(contest.getPwd()))
-                    || contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode()) {
+                    || (contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()
+                            && !StringUtils.isEmpty(contest.getPwd()))
+                    || (contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode()
+                            && !StringUtils.isEmpty(contest.getPwd()))) {
                 QueryWrapper<ContestRegister> registerQueryWrapper = new QueryWrapper<>();
                 registerQueryWrapper.eq("cid", contest.getId()).eq("uid", userRolesVo.getUid());
                 ContestRegister register = contestRegisterEntityService.getOne(registerQueryWrapper);
@@ -149,6 +154,7 @@ public class ContestValidator {
                     throw new StatusForbiddenException(
                             contest.getAuth().intValue() == Constants.Contest.AUTH_OFFICIAL.getCode()
                                     || contest.getAuth().intValue() == Constants.Contest.AUTH_SYNCHRONOUS.getCode()
+                                    || contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()
                                             ? "对不起，请先到比赛报名页进行注册！"
                                             : "对不起，请先到比赛首页输入比赛密码进行注册！");
                 }

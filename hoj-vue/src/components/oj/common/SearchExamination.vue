@@ -85,7 +85,7 @@ export default {
     },
     getExaminationSeatList(page) {
       this.loading = true;
-      let contestId = this.$route.params.contestId;
+      let contestId = this.$route.params.contestID;
       api
         .getExaminationSeatList(page, this.pageSize, contestId, this.keyword)
         .then(

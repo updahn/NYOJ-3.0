@@ -81,7 +81,7 @@ public class JudgeServiceImpl implements JudgeService {
         QueryWrapper<Problem> problemQueryWrapper = new QueryWrapper<>();
         problemQueryWrapper.select("id",
                 "type",
-                "io_score",
+                "score",
                 "difficulty",
                 "judge_mode",
                 "judge_case_mode",

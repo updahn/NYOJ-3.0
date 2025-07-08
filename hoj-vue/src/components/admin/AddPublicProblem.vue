@@ -3,9 +3,11 @@
     <div style="margin-bottom:10px" v-if="contest.type != undefined">
       <span class="tips">
         {{
-        contest.type == 0
+        contest.type == CONTEST_TYPE.ACM
         ? $t('m.ACM_Contest_Add_From_Public_Problem_Tips')
-        : $t('m.OI_Contest_Add_From_Public_Problem_Tips')
+        : contest.type == CONTEST_TYPE.OI
+        ? $t('m.OI_Contest_Add_From_Public_Problem_Tips')
+        : $t('m.EXAM_Contest_Add_From_Public_Problem_Tips')
         }}
       </span>
     </div>
@@ -21,6 +23,15 @@
     <vxe-table :data="problems" :loading="loading" auto-resize stripe align="center">
       <vxe-table-column title="ID" min-width="100" field="problemId"></vxe-table-column>
       <vxe-table-column min-width="150" :title="$t('m.Title')" field="title"></vxe-table-column>
+      <vxe-table-column min-width="150" :title="$t('m.Type')" field="type">
+        <template v-slot="{ row }">
+          <el-tag effect="dark" color="#1559A1" v-if="row.type == 0">{{ 'ACM' }}</el-tag>
+          <el-tag effect="dark" color="#19be6b" v-if="row.type == 1">{{ 'OI' }}</el-tag>
+          <el-tag effect="dark" color="#66B1FF" v-if="row.type == 2">{{ $t('m.Selection') }}</el-tag>
+          <el-tag effect="dark" color="#EEAC3C" v-if="row.type == 3">{{ $t('m.Filling') }}</el-tag>
+          <el-tag effect="dark" color="#881E1F" v-if="row.type == 4">{{ $t('m.Decide') }}</el-tag>
+        </template>
+      </vxe-table-column>
       <vxe-table-column :title="$t('m.Option')" align="center" min-width="100">
         <template v-slot="{ row }">
           <el-tooltip effect="dark" :content="$t('m.Add')" placement="top">
@@ -75,7 +86,7 @@
 <script>
 import api from "@/common/api";
 import myMessage from "@/common/message";
-import utils from "@/common/utils";
+import { CONTEST_TYPE } from "@/common/constants";
 
 export default {
   name: "add-problem-from-public",
@@ -96,9 +107,11 @@ export default {
       peid: null,
       displayId: null,
       problemId: null,
+      CONTEST_TYPE: {},
     };
   },
   mounted() {
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     if (this.contestID) {
       api
         .admin_getContest(this.contestID)

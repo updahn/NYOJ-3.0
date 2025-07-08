@@ -28,7 +28,7 @@ public class AdminContestVO {
     @ApiModelProperty(value = "比赛标题")
     private String title;
 
-    @ApiModelProperty(value = "0为acm赛制，1为比分赛制")
+    @ApiModelProperty(value = "0为acm赛制，1为比分赛制，2为考试赛制")
     private Integer type;
 
     @ApiModelProperty(value = "比赛说明")
@@ -37,7 +37,7 @@ public class AdminContestVO {
     @ApiModelProperty(value = "比赛来源，原创为0，克隆赛为比赛id")
     private Integer source;
 
-    @ApiModelProperty(value = "0为公开赛，1为私有赛（访问有密码），2为保护赛（提交有密码），4为同步赛")
+    @ApiModelProperty(value = "0为公开赛，1为私有赛（访问有密码），2为保护赛（提交有密码），4为同步赛，5为考试")
     private Integer auth;
 
     @ApiModelProperty(value = "比赛密码")

@@ -144,8 +144,9 @@ public class ContestFileManager {
         List<String> contestProblemDisplayIDList = contestProblemEntityService.list(contestProblemQueryWrapper)
                 .stream().map(ContestProblem::getDisplayId).collect(Collectors.toList());
 
-        if (contest.getType().intValue() == Constants.Contest.TYPE_ACM.getCode()) { // ACM比赛
-
+        if (contest.getType().intValue() == Constants.Contest.TYPE_ACM.getCode()
+                || contest.getType().intValue() == Constants.Contest.TYPE_EXAM.getCode()) {
+            // ACM比赛或者考试
             List<ACMContestRankVO> acmContestRankVOList = contestCalculateRankManager.calcACMRank(
                     isOpenSealRank,
                     removeStar,
@@ -156,10 +157,11 @@ public class ContestFileManager {
                     isContainsAfterContestJudge,
                     null);
             EasyExcel.write(response.getOutputStream())
-                    .head(fileEntityService.getContestRankExcelHead(contestProblemDisplayIDList, true))
+                    .head(fileEntityService.getContestRankExcelHead(contestProblemDisplayIDList, contest.getType()))
                     .sheet("rank")
                     .doWrite(fileEntityService.changeACMContestRankToExcelRowList(acmContestRankVOList,
-                            contestProblemDisplayIDList, contest.getRankShowName()));
+                            contestProblemDisplayIDList, contest.getRankShowName(),
+                            contest.getType() == Constants.Contest.TYPE_ACM.getCode()));
         } else {
             List<OIContestRankVO> oiContestRankVOList = contestCalculateRankManager.calcOIRank(
                     isOpenSealRank,
@@ -171,7 +173,7 @@ public class ContestFileManager {
                     isContainsAfterContestJudge,
                     null);
             EasyExcel.write(response.getOutputStream())
-                    .head(fileEntityService.getContestRankExcelHead(contestProblemDisplayIDList, false))
+                    .head(fileEntityService.getContestRankExcelHead(contestProblemDisplayIDList, contest.getType()))
                     .sheet("rank")
                     .doWrite(fileEntityService.changOIContestRankToExcelRowList(oiContestRankVOList,
                             contestProblemDisplayIDList, contest.getRankShowName()));

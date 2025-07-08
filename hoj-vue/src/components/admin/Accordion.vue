@@ -1,6 +1,6 @@
 <template>
   <div class="accordion">
-    <header>
+    <header v-if="title !== ''">
       <span class="title">{{ title }}</span>
       <span class="header_right">
         <slot name="header"></slot>

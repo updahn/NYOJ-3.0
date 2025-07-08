@@ -53,8 +53,8 @@ public class ProblemResDTO {
     @ApiModelProperty(value = "默认为1公开，2为私有，3为比赛中")
     private Integer auth;
 
-    @ApiModelProperty(value = "当该题目为oi题目时的分数")
-    private Integer ioScore;
+    @ApiModelProperty(value = "当该题目的分数")
+    private Integer score;
 
     @ApiModelProperty(value = "该题目对应的相关提交代码，用户是否可用分享")
     private Boolean codeShare;

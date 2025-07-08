@@ -1794,6 +1794,9 @@ const adminApi = {
   admin_changeContestProblemDescription(data) {
     return ajax('/api/admin/contest/change-problem-description', 'post', { data });
   },
+  admin_changeContestProblemScore(data) {
+    return ajax('/api/admin/contest/change-problem-score', 'post', { data });
+  },
   admin_changeTrainingProblemDescription(data) {
     return ajax('/api/admin/training/change-problem-description', 'post', { data });
   },

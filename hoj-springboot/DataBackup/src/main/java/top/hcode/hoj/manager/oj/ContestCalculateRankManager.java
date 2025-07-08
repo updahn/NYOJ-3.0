@@ -133,6 +133,26 @@ public class ContestCalculateRankManager {
                 time);
     }
 
+    public List<ACMContestRankVO> calcEXAMRank(boolean isOpenSealRank,
+            boolean removeStar,
+            Contest contest,
+            String currentUserId,
+            List<String> concernedList,
+            List<Integer> externalCidList,
+            boolean isContainsAfterContestJudge,
+            Long time) {
+        return calcACMRank(isOpenSealRank,
+                removeStar,
+                contest,
+                currentUserId,
+                concernedList,
+                externalCidList,
+                false,
+                null,
+                isContainsAfterContestJudge,
+                time);
+    }
+
     /**
      * @param isOpenSealRank              是否是查询封榜后的数据
      * @param removeStar                  是否需要移除打星队伍
@@ -222,15 +242,25 @@ public class ContestCalculateRankManager {
         }
 
         // 重新排序
-        List<ACMContestRankVO> result = orderResultList.stream()
-                .sorted(Comparator.comparing(ACMContestRankVO::getAc, Comparator.reverseOrder()) // 先以总ac数降序
-                        .thenComparing(ACMContestRankVO::getTotalTime) // 再以总耗时升序
-                ).collect(Collectors.toList());
+        List<ACMContestRankVO> result = new ArrayList<>();
+
+        if (contest.getType().intValue() == Constants.Contest.TYPE_EXAM.getCode()) {
+            result = orderResultList.stream()
+                    .sorted(Comparator.comparing(ACMContestRankVO::getTotalScore, Comparator.reverseOrder()) // 先以总分数降序
+                            .thenComparing(ACMContestRankVO::getAc, Comparator.reverseOrder()) // 再以总ac数升序
+                            .thenComparing(ACMContestRankVO::getTotalTime) // 再以总耗时升序
+                    ).collect(Collectors.toList());
+        } else {
+            result = orderResultList.stream()
+                    .sorted(Comparator.comparing(ACMContestRankVO::getAc, Comparator.reverseOrder()) // 先以总ac数降序
+                            .thenComparing(ACMContestRankVO::getTotalTime) // 再以总耗时升序
+                    ).collect(Collectors.toList());
+        }
 
         // 将本oj的synchronous状态设为false
         orderResultList.forEach(ACMContestRankvo -> ACMContestRankvo.setSynchronous(false));
 
-        return getTopRank(removeStar, isNeedSetAward, currentUserId, concernedList, result, starAccountMap,
+        return getTopRank(contest, removeStar, isNeedSetAward, currentUserId, concernedList, result, starAccountMap,
                 awardConfigVoList,
                 needAddConcernedUser);
     }
@@ -440,7 +470,7 @@ public class ContestCalculateRankManager {
                         .thenComparing(ACMContestRankVO::getTotalTime) // 再以总耗时升序
                 ).collect(Collectors.toList());
 
-        return getTopRank(removeStar, isNeedSetAward, currentUserId, concernedList, result, starAccountMap,
+        return getTopRank(contest, removeStar, isNeedSetAward, currentUserId, concernedList, result, starAccountMap,
                 awardConfigVoList,
                 needAddConcernedUser);
     }
@@ -707,6 +737,7 @@ public class ContestCalculateRankManager {
                         .setNickname(contestRecord.getNickname())
                         .setAc(0.0)
                         .setTotalTime(0.0)
+                        .setTotalScore(0)
                         .setTotal(0);
 
                 // 如果为正式赛，将头像替换为学校校徽
@@ -764,6 +795,11 @@ public class ContestCalculateRankManager {
 
                 // 记录已经按题目提交耗时time升序了
 
+                if (contestRecord.getScore() != null) {
+                    // 总得分加上该题得到的分数
+                    ACMContestRankVo.setTotalScore(ACMContestRankVo.getTotalScore() + contestRecord.getScore());
+                }
+
                 // 通过的话
                 if (contestRecord.getStatus().intValue() == Constants.Contest.RECORD_AC.getCode()) {
                     // 总解决题目次数ac+1
@@ -787,6 +823,8 @@ public class ContestCalculateRankManager {
                     problemSubmissionInfo.put("isFirstAC", isFirstAC);
                     problemSubmissionInfo.put("ACTime", contestRecord.getTime());
                     problemSubmissionInfo.put("errorNum", errorNumber);
+                    problemSubmissionInfo.put("score", contestRecord.getScore());
+
                     if (isAfterContestJudge) {
                         problemSubmissionInfo.put("isAfterContest", true);
                     }
@@ -809,10 +847,20 @@ public class ContestCalculateRankManager {
             ACMContestRankVo.getSubmissionInfo().put(contestRecord.getDisplayId(), problemSubmissionInfo);
         }
 
-        List<ACMContestRankVO> orderResultList = result.stream()
-                .sorted(Comparator.comparing(ACMContestRankVO::getAc, Comparator.reverseOrder()) // 先以总ac数降序
-                        .thenComparing(ACMContestRankVO::getTotalTime) // 再以总耗时升序
-                ).collect(Collectors.toList());
+        List<ACMContestRankVO> orderResultList = new ArrayList<>();
+
+        if (contest.getType().intValue() == Constants.Contest.TYPE_EXAM.getCode()) {
+            orderResultList = result.stream()
+                    .sorted(Comparator.comparing(ACMContestRankVO::getTotalScore, Comparator.reverseOrder()) // 先以总分数降序
+                            .thenComparing(ACMContestRankVO::getAc, Comparator.reverseOrder()) // 再以总ac数升序
+                            .thenComparing(ACMContestRankVO::getTotalTime) // 再以总耗时升序
+                    ).collect(Collectors.toList());
+        } else {
+            orderResultList = result.stream()
+                    .sorted(Comparator.comparing(ACMContestRankVO::getAc, Comparator.reverseOrder()) // 先以总ac数降序
+                            .thenComparing(ACMContestRankVO::getTotalTime) // 再以总耗时升序
+                    ).collect(Collectors.toList());
+        }
 
         return orderResultList;
     }
@@ -1190,13 +1238,23 @@ public class ContestCalculateRankManager {
                     }
                 }
             }
-        } else {
+        } else if (awardType == 2) {
             for (JSONObject object : list) {
                 ContestAwardConfigVO configVo = JSONUtil.toBean(object, ContestAwardConfigVO.class);
                 if (configVo.getNum() != null && configVo.getNum() > 0) {
                     queue.offer(configVo);
                 }
             }
+        } else if (awardType == 3) {
+            // 筛选总得分大于，按num从大到小排序
+            list.stream()
+                    .sorted((o1, o2) -> o2.getInt("num", 0) - o1.getInt("num", 0))
+                    .map(object -> JSONUtil.toBean(object, ContestAwardConfigVO.class))
+                    .filter(configVo -> configVo.getNum() != null && configVo.getNum() > 0)
+                    .forEach(configVo -> {
+                        configVo.setNum(1);
+                        queue.offer(configVo);
+                    });
         }
         return queue;
     }
@@ -1211,6 +1269,7 @@ public class ContestCalculateRankManager {
     }
 
     public List<ACMContestRankVO> getTopRank(
+            Contest contest,
             boolean removeStar,
             boolean isNeedSetAward,
             String currentUserId,
@@ -1277,24 +1336,42 @@ public class ContestCalculateRankManager {
                 }
 
                 if (isNeedSetAward && currentACMRankVo.getAc() > 0) {
-                    if (configVo == null || configVo.getNum() == 0) {
+                    if (contest.getType().intValue() == Constants.Contest.TYPE_EXAM.getCode()) {
                         if (!awardConfigVoList.isEmpty()) {
-                            configVo = awardConfigVoList.poll();
+                            // 直接从队列中查找符合条件的奖项
+                            awardConfigVoList.stream()
+                                    .filter(award -> award != null && award.getNum() != null && award.getNum() > 0)
+                                    .filter(award -> currentACMRankVo.getTotalScore() != null
+                                            && currentACMRankVo.getTotalScore() > 0
+                                            && currentACMRankVo.getTotalScore() >= award.getNum())
+                                    .findFirst()
+                                    .ifPresent(award -> {
+                                        currentACMRankVo.setAwardName(award.getName());
+                                        currentACMRankVo.setAwardBackground(award.getBackground());
+                                        currentACMRankVo.setAwardColor(award.getColor());
+                                        currentACMRankVo.setIsWinAward(true);
+                                    });
+                        }
+                    } else {
+                        if (configVo == null || configVo.getNum() == 0) {
+                            if (!awardConfigVoList.isEmpty()) {
+                                configVo = awardConfigVoList.poll();
+                                currentACMRankVo.setAwardName(configVo.getName());
+                                currentACMRankVo.setAwardBackground(configVo.getBackground());
+                                currentACMRankVo.setAwardColor(configVo.getColor());
+                                currentACMRankVo.setIsWinAward(true);
+                                configVo.setNum(configVo.getNum() - 1);
+                            } else {
+                                isNeedSetAward = false;
+                                currentACMRankVo.setIsWinAward(false);
+                            }
+                        } else {
                             currentACMRankVo.setAwardName(configVo.getName());
                             currentACMRankVo.setAwardBackground(configVo.getBackground());
                             currentACMRankVo.setAwardColor(configVo.getColor());
                             currentACMRankVo.setIsWinAward(true);
                             configVo.setNum(configVo.getNum() - 1);
-                        } else {
-                            isNeedSetAward = false;
-                            currentACMRankVo.setIsWinAward(false);
                         }
-                    } else {
-                        currentACMRankVo.setAwardName(configVo.getName());
-                        currentACMRankVo.setAwardBackground(configVo.getBackground());
-                        currentACMRankVo.setAwardColor(configVo.getColor());
-                        currentACMRankVo.setIsWinAward(true);
-                        configVo.setNum(configVo.getNum() - 1);
                     }
                 } else {
                     currentACMRankVo.setIsWinAward(false);

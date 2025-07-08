@@ -17,6 +17,7 @@
                 v-model="formFilter.onlyMine"
                 :active-text="$t('m.Mine')"
                 :width="40"
+                :disabled="canHandleOnlyMine"
                 @change="handleOnlyMine"
                 :inactive-text="$t('m.All')"
               ></el-switch>
@@ -28,6 +29,7 @@
                 @command="handleStatusChange"
                 placement="bottom"
                 trigger="hover"
+                :disabled="canHandleOnlyMine"
               >
                 <span class="el-dropdown-link">
                   {{ status }}
@@ -227,22 +229,25 @@
                   :type="JUDGE_STATUS[row.status]['type']"
                 >{{ row.score }}</el-tag>
               </template>
-              <template v-else-if="row.score != null">
+              <template v-else-if="row.score != null && row.type != RULE_TYPE.ACM">
                 <el-tooltip placement="top">
                   <div slot="content">
                     {{ $t('m.Problem_Score') }}：{{
                     row.score != null ? row.score : $t('m.Unknown')
                     }}
-                    <br />
-                    {{ $t('m.OI_Rank_Score') }}：{{
-                    row.oiRankScore != null
-                    ? row.oiRankScore
-                    : $t('m.Unknown')
-                    }}
-                    <br />
-                    {{
-                    $t('m.OI_Rank_Calculation_Rule')
-                    }}：(score*0.1+difficulty*2)
+                    <!-- 如果是oi题目 -->
+                    <div v-if="row.type == 1">
+                      <br />
+                      {{ $t('m.OI_Rank_Score') }}：{{
+                      row.oiRankScore != null
+                      ? row.oiRankScore
+                      : $t('m.Unknown')
+                      }}
+                      <br />
+                      {{
+                      $t('m.OI_Rank_Calculation_Rule')
+                      }}：(score*0.1+difficulty*2)
+                    </div>
                   </div>
                   <el-tag
                     effect="plain"
@@ -269,18 +274,18 @@
           </vxe-table-column>
           <vxe-table-column field="time" :title="$t('m.Time')" min-width="96">
             <template v-slot="{ row }">
-              <span>{{ submissionTimeFormat(row.time) }}</span>
+              <span>{{ submissionTimeFormat(row.time, row.type) }}</span>
             </template>
           </vxe-table-column>
           <vxe-table-column field="memory" :title="$t('m.Memory')" min-width="96">
             <template v-slot="{ row }">
-              <span>{{ submissionMemoryFormat(row.memory) }}</span>
+              <span>{{ submissionMemoryFormat(row.memory, row.type) }}</span>
             </template>
           </vxe-table-column>
 
           <vxe-table-column field="length" :title="$t('m.Length')" min-width="80">
             <template v-slot="{ row }">
-              <span>{{ submissionLengthFormat(row.length) }}</span>
+              <span>{{ submissionLengthFormat(row.length, row.type) }}</span>
             </template>
           </vxe-table-column>
 
@@ -289,13 +294,18 @@
               <el-tooltip
                 class="item"
                 effect="dark"
+                :disabled="contestRuleType && contestRuleType == CONTEST_TYPE.EXAMINATION"
                 :content="$t('m.View_submission_details')"
                 placement="top"
               >
                 <span
+                  v-if="contestRuleType && contestRuleType == CONTEST_TYPE.EXAMINATION"
+                >{{ submissionLanguageFormat(row.language, row.type) }}</span>
+                <span
+                  v-else
                   @click="showSubmitDetail(row)"
                   style="color: rgb(87, 163, 243); font-size: .8125rem;"
-                >{{ row.language }}</span>
+                >{{ submissionLanguageFormat(row.language, row.type) }}</span>
               </el-tooltip>
             </template>
           </vxe-table-column>
@@ -479,7 +489,8 @@ export default {
     delete this.CHANGE_JUDGE_STATUS_LIST["5"];
     delete this.CHANGE_JUDGE_STATUS_LIST["6"];
     delete this.CHANGE_JUDGE_STATUS_LIST["7"];
-    this.getData();
+    this.init();
+    this.getSubmissions();
   },
   methods: {
     init() {
@@ -504,10 +515,6 @@ export default {
       this.routeName = this.$route.name;
     },
 
-    getData() {
-      this.getSubmissions();
-    },
-
     buildQuery() {
       return {
         onlyMine: this.formFilter.onlyMine,
@@ -520,16 +527,20 @@ export default {
       };
     },
 
-    submissionTimeFormat(time) {
-      return utils.submissionTimeFormat(time);
+    submissionTimeFormat(time, type) {
+      return utils.submissionTimeFormat(time, type);
     },
 
-    submissionMemoryFormat(memory) {
-      return utils.submissionMemoryFormat(memory);
+    submissionMemoryFormat(memory, type) {
+      return utils.submissionMemoryFormat(memory, null, type);
     },
 
-    submissionLengthFormat(length) {
-      return utils.submissionLengthFormat(length);
+    submissionLengthFormat(length, type) {
+      return utils.submissionLengthFormat(length, type);
+    },
+
+    submissionLanguageFormat(language, type) {
+      return utils.submissionLanguageFormat(language, type);
     },
     reSubmit(row) {
       api.reSubmitRemoteJudge(row.submitId).then((res) => {
@@ -1040,7 +1051,6 @@ export default {
       "contestRuleType",
       "contestStatus",
       "ContestRealTimePermission",
-      "isAdminRole",
       "contestAuth",
     ]),
     title() {
@@ -1064,9 +1074,21 @@ export default {
     },
     scoreColumnVisible() {
       return (
-        (this.contestID && this.contestRuleType == this.RULE_TYPE.OI) ||
+        (this.contestID && this.contestRuleType != this.RULE_TYPE.ACM) ||
         !this.contestID
       );
+    },
+    canHandleOnlyMine() {
+      let isExam =
+        this.contestAuth &&
+        this.contestAuth === this.CONTEST_TYPE.EXAMINATION &&
+        !this.isAdminRole;
+      // 如果是管理员除外，考试只能查看自己的提交
+
+      if (isExam) {
+        this.formFilter.onlyMine = true;
+      }
+      return isExam;
     },
   },
   watch: {
@@ -1076,12 +1098,12 @@ export default {
           clearInterval(this.refreshStatus);
         }
         this.init();
-        this.getData();
+        this.getSubmissions();
       }
     },
     isAuthenticated() {
       this.init();
-      this.getData();
+      this.getSubmissions();
     },
   },
   beforeRouteLeave(to, from, next) {

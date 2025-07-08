@@ -296,7 +296,7 @@ public class JudgeStrategy {
 
     // 获取判题的运行时间，运行空间，OI得分
     public HashMap<String, Object> computeResultInfo(List<JudgeCase> allTestCaseResultList,
-            Boolean isOI,
+            Integer type,
             Integer errorCaseNum,
             Integer totalScore,
             Integer problemDifficulty,
@@ -309,52 +309,53 @@ public class JudgeStrategy {
         allTestCaseResultList.stream().max(Comparator.comparing(JudgeCase::getMemory))
                 .ifPresent(t -> result.put("memory", t.getMemory()));
 
-        // OI题目计算得分
-        if (isOI) {
-            // 全对的直接用总分*0.1+2*题目难度
-            if (errorCaseNum == 0 && Constants.JudgeCaseMode.DEFAULT.getMode().equals(judgeCaseMode)) {
-                int oiRankScore = (int) Math.round(totalScore * 0.1 + 2 * problemDifficulty);
-                result.put("score", totalScore);
+        // 全对的直接用总分*0.1+2*题目难度
+        if (errorCaseNum == 0 && Constants.JudgeCaseMode.DEFAULT.getMode().equals(judgeCaseMode)) {
+            int oiRankScore = (int) Math.round(totalScore * 0.1 + 2 * problemDifficulty);
+            result.put("score", totalScore);
+            if (type == Constants.Contest.TYPE_OI.getCode()) {
                 result.put("oiRankScore", oiRankScore);
+            }
+        } else {
+            int sumScore = 0;
+            if (Constants.JudgeCaseMode.SUBTASK_LOWEST.getMode().equals(judgeCaseMode)) {
+                HashMap<Integer, Integer> groupNumMapScore = new HashMap<>();
+                for (JudgeCase testcaseResult : allTestCaseResultList) {
+                    groupNumMapScore.merge(testcaseResult.getGroupNum(), testcaseResult.getScore(), Math::min);
+                }
+                for (Integer minScore : groupNumMapScore.values()) {
+                    sumScore += minScore;
+                }
+            } else if (Constants.JudgeCaseMode.SUBTASK_AVERAGE.getMode().equals(judgeCaseMode)) {
+                // 预处理 切换成Map Key: groupNum Value: <count,sum_score>
+                HashMap<Integer, Pair_<Integer, Integer>> groupNumMapScore = new HashMap<>();
+                for (JudgeCase testcaseResult : allTestCaseResultList) {
+                    Pair_<Integer, Integer> pair = groupNumMapScore.get(testcaseResult.getGroupNum());
+                    if (pair == null) {
+                        groupNumMapScore.put(testcaseResult.getGroupNum(),
+                                new Pair_<>(1, testcaseResult.getScore()));
+                    } else {
+                        int count = pair.getKey() + 1;
+                        int score = pair.getValue() + testcaseResult.getScore();
+                        groupNumMapScore.put(testcaseResult.getGroupNum(), new Pair_<>(count, score));
+                    }
+                }
+                for (Pair_<Integer, Integer> pair : groupNumMapScore.values()) {
+                    sumScore += (int) Math.round(pair.getValue() * 1.0 / pair.getKey());
+                }
             } else {
-                int sumScore = 0;
-                if (Constants.JudgeCaseMode.SUBTASK_LOWEST.getMode().equals(judgeCaseMode)) {
-                    HashMap<Integer, Integer> groupNumMapScore = new HashMap<>();
-                    for (JudgeCase testcaseResult : allTestCaseResultList) {
-                        groupNumMapScore.merge(testcaseResult.getGroupNum(), testcaseResult.getScore(), Math::min);
-                    }
-                    for (Integer minScore : groupNumMapScore.values()) {
-                        sumScore += minScore;
-                    }
-                } else if (Constants.JudgeCaseMode.SUBTASK_AVERAGE.getMode().equals(judgeCaseMode)) {
-                    // 预处理 切换成Map Key: groupNum Value: <count,sum_score>
-                    HashMap<Integer, Pair_<Integer, Integer>> groupNumMapScore = new HashMap<>();
-                    for (JudgeCase testcaseResult : allTestCaseResultList) {
-                        Pair_<Integer, Integer> pair = groupNumMapScore.get(testcaseResult.getGroupNum());
-                        if (pair == null) {
-                            groupNumMapScore.put(testcaseResult.getGroupNum(),
-                                    new Pair_<>(1, testcaseResult.getScore()));
-                        } else {
-                            int count = pair.getKey() + 1;
-                            int score = pair.getValue() + testcaseResult.getScore();
-                            groupNumMapScore.put(testcaseResult.getGroupNum(), new Pair_<>(count, score));
-                        }
-                    }
-                    for (Pair_<Integer, Integer> pair : groupNumMapScore.values()) {
-                        sumScore += (int) Math.round(pair.getValue() * 1.0 / pair.getKey());
-                    }
-                } else {
-                    for (JudgeCase testcaseResult : allTestCaseResultList) {
-                        sumScore += testcaseResult.getScore();
-                    }
+                for (JudgeCase testcaseResult : allTestCaseResultList) {
+                    sumScore += testcaseResult.getScore();
                 }
-                if (totalScore != 0 && sumScore > totalScore) {
-                    sumScore = totalScore;
-                }
-                // 测试点总得分*0.1+2*题目难度*（测试点总得分/题目总分）
-                int oiRankScore = (int) Math
-                        .round(sumScore * 0.1 + 2 * problemDifficulty * (sumScore * 1.0 / totalScore));
-                result.put("score", sumScore);
+            }
+            if (totalScore != 0 && sumScore > totalScore) {
+                sumScore = totalScore;
+            }
+            // 测试点总得分*0.1+2*题目难度*（测试点总得分/题目总分）
+            int oiRankScore = (int) Math
+                    .round(sumScore * 0.1 + 2 * problemDifficulty * (sumScore * 1.0 / totalScore));
+            result.put("score", sumScore);
+            if (type == Constants.Contest.TYPE_OI.getCode()) {
                 result.put("oiRankScore", oiRankScore);
             }
         }
@@ -366,10 +367,7 @@ public class JudgeStrategy {
             Problem problem,
             Judge judge,
             String judgeCaseMode) {
-
         boolean isACM = Objects.equals(problem.getType(), Constants.Contest.TYPE_ACM.getCode());
-        boolean isOI = Objects.equals(problem.getType(), Constants.Contest.TYPE_OI.getCode());
-
         List<JSONObject> errorTestCaseList = new LinkedList<>();
 
         List<JudgeCase> allCaseResList = new LinkedList<>();
@@ -409,27 +407,21 @@ public class JudgeStrategy {
                 judgeCase.setUserOutput(msg);
             }
 
-            if (isOI) {
-                int oiScore = jsonObject.getInt("score");
-                if (Objects.equals(status, Constants.Judge.STATUS_ACCEPTED.getStatus())) {
-                    judgeCase.setScore(oiScore);
-                } else if (Objects.equals(status, Constants.Judge.STATUS_PARTIAL_ACCEPTED.getStatus())) {
-                    errorTestCaseList.add(jsonObject);
-                    Double percentage = jsonObject.getDouble("percentage");
-                    if (percentage != null) {
-                        int score = (int) Math.floor(percentage * oiScore);
-                        judgeCase.setScore(score);
-                    } else {
-                        judgeCase.setScore(0);
-                    }
+            int oiScore = jsonObject.getInt("score");
+            if (Objects.equals(status, Constants.Judge.STATUS_ACCEPTED.getStatus())) {
+                judgeCase.setScore(oiScore);
+            } else if (Objects.equals(status, Constants.Judge.STATUS_PARTIAL_ACCEPTED.getStatus())) {
+                errorTestCaseList.add(jsonObject);
+                Double percentage = jsonObject.getDouble("percentage");
+                if (percentage != null) {
+                    int score = (int) Math.floor(percentage * oiScore);
+                    judgeCase.setScore(score);
                 } else {
-                    errorTestCaseList.add(jsonObject);
                     judgeCase.setScore(0);
                 }
             } else {
-                if (!Objects.equals(status, Constants.Judge.STATUS_ACCEPTED.getStatus())) {
-                    errorTestCaseList.add(jsonObject);
-                }
+                errorTestCaseList.add(jsonObject);
+                judgeCase.setScore(0);
             }
 
             allCaseResList.add(judgeCase);
@@ -441,11 +433,11 @@ public class JudgeStrategy {
             log.error("题号为：" + problem.getId() + "，提交id为：" + judge.getSubmitId() + "的各个测试数据点的结果更新到数据库操作失败");
         }
 
-        // 获取判题的运行时间，运行空间，OI得分
+        // 获取判题的运行时间，运行空间，得分
         HashMap<String, Object> result = computeResultInfo(allCaseResList,
-                isOI,
+                problem.getType(),
                 errorTestCaseList.size(),
-                problem.getIoScore(),
+                problem.getScore(),
                 problem.getDifficulty(),
                 judgeCaseMode);
 

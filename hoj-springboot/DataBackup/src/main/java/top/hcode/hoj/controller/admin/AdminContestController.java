@@ -181,6 +181,12 @@ public class AdminContestController {
         return adminContestProblemService.changeProblemDescription(contestProblemDto);
     }
 
+    @PostMapping("/change-problem-score")
+    @RequiresAuthentication
+    public CommonResult<Void> changeProblemScore(@RequestBody ContestProblemDTO contestProblemDto) {
+        return adminContestProblemService.changeProblemScore(contestProblemDto);
+    }
+
     @GetMapping("/import-remote-oj-problem")
     @RequiresAuthentication
     @Transactional(rollbackFor = Exception.class)

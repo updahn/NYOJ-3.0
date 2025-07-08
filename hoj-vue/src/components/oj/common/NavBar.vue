@@ -47,6 +47,10 @@
               <i class="el-icon-trophy"></i>
               {{ $t("m.NavBar_Contest") }}
             </el-menu-item>
+            <el-menu-item index="/exam">
+              <i class="el-icon-data-board"></i>
+              {{ $t("m.NavBar_Exam") }}
+            </el-menu-item>
             <el-menu-item index="/submissions">
               <i class="el-icon-s-marketing"></i>
               {{ $t("m.NavBar_Status") }}
@@ -207,6 +211,32 @@
               {{ $t("m.NavBar_Contest_Comment") }}
             </el-menu-item>
           </template>
+          <template v-else-if="mode == 'exam'">
+            <el-menu-item :index="getExamHomePath">
+              <i class="el-icon-trophy"></i>
+              {{ $t("m.NavBar_Exam_Home") }}
+            </el-menu-item>
+            <el-menu-item :index="getExamProblemPath">
+              <i class="fa fa-list navbar-icon"></i>
+              {{ $t("m.NavBar_Exam_Problem") }}
+            </el-menu-item>
+            <el-menu-item :index="getExamSubmissionsPath">
+              <i class="el-icon-menu"></i>
+              {{ $t("m.NavBar_Exam_Submission") }}
+            </el-menu-item>
+            <el-menu-item v-if="isAdminRole" :index="getExamRankPath">
+              <i class="fa fa-bar-chart navbar-icon"></i>
+              {{ $t("m.NavBar_Exam_Rank") }}
+            </el-menu-item>
+            <el-menu-item :index="getExamAnnouncementPath">
+              <i class="el-icon-s-flag navbar-icon"></i>
+              {{ $t("m.NavBar_Exam_Announcement") }}
+            </el-menu-item>
+            <el-menu-item :index="getExamCommentPath">
+              <i class="fa fa-commenting navbar-icon"></i>
+              {{ $t("m.NavBar_Exam_Comment") }}
+            </el-menu-item>
+          </template>
 
           <div style="margin-left: auto;">
             <template v-if="!isAuthenticated">
@@ -334,6 +364,31 @@
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
+            </template>
+            <template v-else-if="mode == 'contest'">
+              <div
+                style="float: right; margin-top: 13px; margin-right: 10px;"
+                v-if="supportFocusMode"
+              >
+                <span class="hidden-sm-and-down">
+                  <el-tooltip :content="$t('m.Exit_Focus_Mode')" placement="bottom">
+                    <el-button @click="switchFocusMode" size="small">
+                      <svg
+                        focusable="false"
+                        viewBox="0 0 1024 1024"
+                        fill="currentColor"
+                        width="0.95em"
+                        height="0.95em"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M463.04 863.32h-88.51V641.14H152.35v-88.87H463.4l-.36 311.05zM863.32 463.4H552.27l.31-311.05h88.56v222.18h222.18v88.87z"
+                        />
+                      </svg>
+                    </el-button>
+                  </el-tooltip>
+                </span>
+              </div>
             </template>
           </div>
         </el-menu>
@@ -593,6 +648,21 @@
               <mu-list-item-title>
                 {{
                 $t("m.NavBar_Contest")
+                }}
+              </mu-list-item-title>
+            </mu-list-item>
+            <mu-list-item
+              button
+              to="/exam"
+              @click="opendrawer = !opendrawer"
+              active-class="mobile-menu-active"
+            >
+              <mu-list-item-action>
+                <mu-icon value=":el-icon-data-board" size="24"></mu-icon>
+              </mu-list-item-action>
+              <mu-list-item-title>
+                {{
+                $t("m.NavBar_Exam")
                 }}
               </mu-list-item-title>
             </mu-list-item>
@@ -926,6 +996,7 @@ import MsgSvg from "@/components/oj/msg/msgSvg";
 import { mapGetters, mapActions } from "vuex";
 import Avatar from "vue-avatar";
 import api from "@/common/api";
+import utils from "@/common/utils";
 
 export default {
   components: {
@@ -1088,6 +1159,10 @@ export default {
           this.groupTitle = res.data.data.name;
         });
       }
+
+      if (this.$route.params.contestID) {
+        this.$store.dispatch("getContest");
+      }
     },
     goUserHome() {
       const routeName = this.$route.params.groupID
@@ -1100,6 +1175,30 @@ export default {
     goRank() {
       this.$router.push({
         name: "ACM Rank",
+      });
+    },
+    switchFocusMode() {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      let routeName = this.contestID
+        ? this.groupID
+          ? "GroupContestProblemList"
+          : "ContestProblemList"
+        : this.trainingID
+        ? this.groupID
+          ? "GroupTrainingProblemList"
+          : "TrainingProblemList"
+        : null;
+
+      this.$router.push({
+        name: routeName,
+        params: {
+          trainingID: this.trainingID,
+          contestID: this.contestID,
+          groupID: this.groupID,
+        },
       });
     },
   },
@@ -1115,6 +1214,7 @@ export default {
       "webLanguage",
       "groupMenuDisabled",
       "isGroupAdmin",
+      "contestAuth",
     ]),
     avatar() {
       return this.$store.getters.userInfo.avatar;
@@ -1272,6 +1372,33 @@ export default {
       } else {
         return `/contest/${cid}/full-screen/comment`;
       }
+    },
+    supportFocusMode() {
+      return utils.supportFocusMode(this.$route.name);
+    },
+    getExamHomePath() {
+      let cid = this.$route.params.contestID;
+      return `/exam/${cid}`;
+    },
+    getExamProblemPath() {
+      let cid = this.$route.params.contestID;
+      return `/exam/${cid}/full-screen/problem`;
+    },
+    getExamSubmissionsPath() {
+      let cid = this.$route.params.contestID;
+      return `/exam/${cid}/full-screen/submissions`;
+    },
+    getExamRankPath() {
+      let cid = this.$route.params.contestID;
+      return `/exam/${cid}/full-screen/rank`;
+    },
+    getExamAnnouncementPath() {
+      let cid = this.$route.params.contestID;
+      return `/exam/${cid}/full-screen/announcement`;
+    },
+    getExamCommentPath() {
+      let cid = this.$route.params.contestID;
+      return `/exam/${cid}/full-screen/comment`;
     },
   },
   watch: {

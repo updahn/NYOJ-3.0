@@ -5,14 +5,18 @@
       <el-col :span="24">
         <el-card shadow>
           <div slot="header">
-            <span class="panel-title">
+            <span class="panel-title" v-if="isContest">
               {{
               query.type === '' ? $t('m.All') : parseContestType(query.type)
               }}
               {{ $t('m.Contests') }}
             </span>
+            <span class="panel-title" v-else>
+              {{ $t('m.All') }}
+              {{ $t('m.Exams') }}
+            </span>
             <div class="filter-row">
-              <span>
+              <span v-if="isContest">
                 <el-dropdown
                   @command="onRuleChange"
                   placement="bottom"
@@ -111,12 +115,20 @@
                         :preview-src-list="[acmSrc]"
                       ></el-image>
                     </template>
-                    <template v-else>
+                    <template v-else-if="contest.type == 1">
                       <el-image
                         :src="oiSrc"
                         class="trophy"
                         style="width: 100px;"
                         :preview-src-list="[oiSrc]"
+                      ></el-image>
+                    </template>
+                    <template v-else>
+                      <el-image
+                        :src="examSrc"
+                        class="trophy"
+                        style="width: 100px;"
+                        :preview-src-list="[examSrc]"
                       ></el-image>
                     </template>
                   </el-col>
@@ -151,7 +163,7 @@
                             {{ contest.type | parseContestType }}
                           </el-button>
                         </template>
-                        <template v-else>
+                        <template v-else-if="contest.type == 1">
                           <el-tooltip
                             :content="
                                 $t('m.Contest_Rank') +
@@ -177,9 +189,28 @@
                             </el-button>
                           </el-tooltip>
                         </template>
+                        <template v-else>
+                          <el-tooltip
+                            :content="$t('m.Examination_Tips')"
+                            placement="top"
+                            effect="light"
+                          >
+                            <el-button
+                              :type="'danger'"
+                              round
+                              @click="onRuleChange(contest.type)"
+                              size="mini"
+                              style="margin-right: 10px;"
+                            >
+                              <i class="fa fa-trophy"></i>
+                              {{ contest.type | parseContestType }}
+                            </el-button>
+                          </el-tooltip>
+                        </template>
                       </li>
                       <li>
                         <el-tooltip
+                          v-if="contest.auth != CONTEST_TYPE.EXAMINATION"
                           :content="
                               $t('m.' + CONTEST_TYPE_REVERSE[contest.auth].tips)
                             "
@@ -202,7 +233,7 @@
                         <i class="el-icon-user-solid" style="color:rgb(48, 145, 242);"></i>
                         x{{ contest.count }}
                       </li>
-                      <li v-if="contest.openRank">
+                      <li v-if="contest.openRank && contest.auth != CONTEST_TYPE.EXAMINATION">
                         <el-tooltip
                           :content="$t('m.Contest_Outside_ScoreBoard')"
                           placement="top"
@@ -301,7 +332,10 @@ export default {
       CONTEST_TYPE: {},
       acmSrc: require("@/assets/acm.jpg"),
       oiSrc: require("@/assets/oi.jpg"),
+      examSrc: require("@/assets/exam.png"),
       loading: true,
+      routeName: null,
+      isContest: true,
     };
   },
   created() {
@@ -318,12 +352,16 @@ export default {
   },
   methods: {
     init() {
+      this.routeName = this.$route.name;
+      this.isContest = this.routeName.toLowerCase().includes("contest");
       let route = this.$route.query;
       this.query.status = route.status || "";
       if (route.type === 0 || route.type === "0") {
         this.query.type = 0;
       } else if (route.type === 1 || route.type === "1") {
         this.query.type = 1;
+      } else if (route.type === 5 || route.type === "5") {
+        this.query.type = 5;
       } else {
         this.query.type = "";
       }
@@ -333,6 +371,9 @@ export default {
     },
     getContestList() {
       this.loading = true;
+      if (!this.isContest) {
+        this.query.type = 5;
+      }
       api.getContestList(this.currentPage, this.limit, this.query).then(
         (res) => {
           this.contests = res.data.data.records;
@@ -382,7 +423,7 @@ export default {
     },
     toContest(contest) {
       this.$router.push({
-        name: "ContestDetails",
+        name: this.isContest ? "ContestDetails" : "ExamDetails",
         params: { contestID: contest.id },
       });
     },

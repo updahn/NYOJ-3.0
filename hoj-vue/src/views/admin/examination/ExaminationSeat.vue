@@ -289,7 +289,7 @@ export default {
       this.currentChange(1);
     },
     getExaminationRoomList(page) {
-      let cid = parseInt(this.$route.params.contestId);
+      let cid = parseInt(this.$route.params.contestID);
       this.loading = true;
       api.getExaminationRoomList(page, this.pageSize, this.keyword, cid).then(
         (res) => {
@@ -375,7 +375,7 @@ export default {
       }
     },
     goAddExaminationSeat() {
-      let cid = parseInt(this.$route.params.contestId);
+      let cid = parseInt(this.$route.params.contestID);
 
       this.examinationSeatData.cid = cid;
 
@@ -424,7 +424,7 @@ export default {
       }
     },
     getExaminationSeat() {
-      let cid = parseInt(this.$route.params.contestId);
+      let cid = parseInt(this.$route.params.contestID);
       api.getExaminationSeat(null, cid).then(
         (res) => {
           let data = res.data.data;

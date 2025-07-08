@@ -106,7 +106,7 @@ public class QOJProblemStrategy extends ProblemStrategy {
 		String score = ReUtil.get("<span class=.*?>Total points:\\s*(\\d*)\\s*</span>",
 				html, 1);
 
-		info.setIoScore(score != null ? Integer.parseInt(score) : null);
+		info.setScore(score != null ? Integer.parseInt(score) : null);
 
 		// 判断是否为pdf文档
 		String uri = HtmlUtil.unescape(ReUtil.get("<iframe src=\"([\\s\\S]*?)\"", html, 1));

@@ -208,7 +208,9 @@ export default {
     ...mapGetters(["isMainAdminRole", "contestGid"]),
     title() {
       if (this.listVisible) {
-        return this.isContest
+        return this.isExam
+          ? this.$i18n.t("m.Exam_Announcement")
+          : this.isContest
           ? this.$i18n.t("m.Contest_Announcement")
           : this.$i18n.t("m.Announcement");
       } else {
@@ -218,15 +220,24 @@ export default {
     isContest() {
       return !!this.$route.params.contestID;
     },
+    isExam() {
+      return this.$route.name.toLowerCase().includes("exam");
+    },
     announcementID() {
       return this.$route.params.announcementID;
     },
     route_name() {
       let name = this.$route.name;
-      if (name === "ContestFullAnnouncement") {
-        return "ContestFullAnnouncement";
+
+      if (name.toLowerCase().includes("full")) {
+        return name;
       }
-      return this.isContest ? "ContestAnnouncementList" : "Announcements";
+
+      return this.isExam
+        ? "ExamAnnouncementList"
+        : this.isContest
+        ? "ContestAnnouncementList"
+        : "Announcements";
     },
     edit_route_name() {
       return this.isContest

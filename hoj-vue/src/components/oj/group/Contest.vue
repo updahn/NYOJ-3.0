@@ -7,6 +7,16 @@
         </div>
         <el-form label-position="top">
           <el-row :gutter="20">
+            <el-col :md="8" :xs="24">
+              <el-form-item :label="$t('m.Contest_Auth')" required>
+                <el-radio-group v-model="contest.auth">
+                  <el-radio :label="0">{{ $t('m.Public') }}</el-radio>
+                  <el-radio :label="1">{{ $t('m.Private') }}</el-radio>
+                  <el-radio :label="2">{{ $t('m.Protected') }}</el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+
             <el-col :span="24">
               <el-form-item :label="$t('m.Contest_Title')" required>
                 <el-input v-model="contest.title" :placeholder="$t('m.Contest_Title')"></el-input>
@@ -166,7 +176,7 @@
             </el-col>
           </el-row>
 
-          <el-row>
+          <el-row :gutter="20">
             <el-col :span="24">
               <el-form-item :label="$t('m.Rank_Show_Name')" required>
                 <el-radio-group v-model="contest.rankShowName">
@@ -221,15 +231,6 @@
               </el-form-item>
             </el-col>
 
-            <el-col :md="8" :xs="24">
-              <el-form-item :label="$t('m.Contest_Auth')" required>
-                <el-select v-model="contest.auth">
-                  <el-option :label="$t('m.Public')" :value="0"></el-option>
-                  <el-option :label="$t('m.Private')" :value="1"></el-option>
-                  <el-option :label="$t('m.Protected')" :value="2"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
             <el-col :md="8" :xs="24">
               <el-form-item
                 :label="$t('m.Contest_Password')"

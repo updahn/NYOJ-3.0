@@ -372,7 +372,7 @@ public class JudgeManager {
      * @Since 2021/1/2
      */
     public SubmissionInfoVO getSubmission(Long submitId, Long cid)
-            throws StatusNotFoundException, StatusAccessDeniedException {
+            throws StatusNotFoundException, StatusAccessDeniedException, StatusFailException {
 
         Boolean isSynchronous = false;
         Judge judge = judgeEntityService.getById(submitId);
@@ -386,12 +386,20 @@ public class JudgeManager {
             throw new StatusNotFoundException("此提交数据不存在！");
         }
 
+        boolean isRoot = groupManager.getGroupAuthAdmin(judge.getGid());
+
+        Contest contest = contestEntityService.getById(cid);
+
+        // 考试只有超管可以查看
+        if (!isRoot &&
+                contest != null && contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()) {
+            throw new StatusFailException("对不起，您无权限查看考试提交！");
+        }
+
         problem = isSynchronous ? synchronousManager.getSynchronousProblem(judge.getDisplayPid(), cid)
                 : problemEntityService.getProblemResDTO(judge.getPid(), null, null, null);
 
         AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
-
-        boolean isRoot = groupManager.getGroupAuthAdmin(judge.getGid());
 
         // 清空vj信息
         judge.setVjudgeUsername(null);
@@ -409,8 +417,7 @@ public class JudgeManager {
             if (userRolesVo == null) {
                 throw new StatusAccessDeniedException("请先登录！");
             }
-            Contest contest = contestEntityService.getById(judge.getCid());
-            if (!isRoot && !userRolesVo.getUid().equals(contest.getUid())
+            if (contest != null && !isRoot && !userRolesVo.getUid().equals(contest.getUid())
                     && !(judge.getGid() != null && groupValidator.isGroupRoot(userRolesVo.getUid(), judge.getGid()))) {
                 // 如果是比赛,那么还需要判断是否为封榜,比赛管理员和超级管理员可以有权限查看(ACM题目除外)
                 if (contest.getType().intValue() == Constants.Contest.TYPE_OI.getCode()
@@ -472,6 +479,7 @@ public class JudgeManager {
 
         submissionInfoVo.setSubmission(judge);
         submissionInfoVo.setCodeShare(problem.getCodeShare());
+        submissionInfoVo.setType(problem.getType());
 
         return submissionInfoVo;
 
@@ -550,7 +558,7 @@ public class JudgeManager {
             searchUsername = searchUsername.trim();
         }
 
-        return judgeEntityService.getCommonJudgeList(limit,
+        IPage<JudgeVO> judgeList = judgeEntityService.getCommonJudgeList(limit,
                 currentPage,
                 searchPid,
                 searchStatus,
@@ -558,6 +566,8 @@ public class JudgeManager {
                 uid,
                 completeProblemID,
                 gid);
+
+        return judgeList;
     }
 
     /**
@@ -585,6 +595,13 @@ public class JudgeManager {
             judge.setVjudgeSubmitId(null);
             judge.setVjudgePassword(null);
             result.put(judge.getSubmitId(), judge);
+
+            QueryWrapper<Problem> problemQueryWrapper = new QueryWrapper<>();
+            problemQueryWrapper.select("type", "id").eq("id", judge.getPid());
+            Problem problem = problemEntityService.getOne(problemQueryWrapper);
+            if (problem.getType().intValue() == Constants.ProblemType.ACM.getType()) {
+                judge.setScore(null);
+            }
         }
         return result;
     }
@@ -637,6 +654,14 @@ public class JudgeManager {
                 judge.setMemory(null);
                 judge.setLength(null);
             }
+
+            QueryWrapper<Problem> problemQueryWrapper = new QueryWrapper<>();
+            problemQueryWrapper.select("type", "id").eq("id", judge.getPid());
+            Problem problem = problemEntityService.getOne(problemQueryWrapper);
+            if (problem.getType().intValue() == Constants.ProblemType.ACM.getType()) {
+                judge.setScore(null);
+            }
+
             result.put(judge.getSubmitId(), judge);
         }
         return result;
@@ -648,7 +673,7 @@ public class JudgeManager {
      * @Since 2020/10/29
      */
     public JudgeCaseVO getALLCaseResult(Long submitId, Long cid)
-            throws StatusNotFoundException, StatusForbiddenException {
+            throws StatusNotFoundException, StatusForbiddenException, StatusFailException {
 
         Boolean isSynchronous = false;
         Judge judge = judgeEntityService.getById(submitId);
@@ -670,10 +695,18 @@ public class JudgeManager {
             return null;
         }
 
-        AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
-
         boolean isRoot = SecurityUtils.getSubject().hasRole("root")
                 || SecurityUtils.getSubject().hasRole("admin");
+
+        Contest contest = contestEntityService.getById(cid);
+
+        // 考试只有超管可以查看
+        if (!isRoot &&
+                contest != null && contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()) {
+            throw new StatusFailException("对不起，您无权限查看考试数据！");
+        }
+
+        AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
 
         QueryWrapper<JudgeCase> wrapper = new QueryWrapper<>();
 
@@ -690,7 +723,6 @@ public class JudgeManager {
                 throw new StatusForbiddenException("您还未登录！不可查看比赛提交的测试点详情！");
             }
             if (!isRoot) {
-                Contest contest = contestEntityService.getById(judge.getCid());
                 // 如果不是比赛管理员 需要受到规则限制
                 if (!contest.getUid().equals(userRolesVo.getUid()) ||
                         (contest.getIsGroup() && !groupValidator.isGroupRoot(userRolesVo.getUid(), contest.getGid()))) {

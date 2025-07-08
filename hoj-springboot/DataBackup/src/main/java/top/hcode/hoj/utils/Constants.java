@@ -148,6 +148,7 @@ public class Constants {
         TYPE_OJ(4, "OJ"),
         TYPE_NEWOJ(5, "NEWOJ"),
         TYPE_CODE(6, "CODE"),
+        TYPE_EXAM(5, "EXAM"),
 
         STATUS_SCHEDULED(-1, "Scheduled"),
         STATUS_RUNNING(0, "Running"),
@@ -158,6 +159,7 @@ public class Constants {
         AUTH_PROTECT(2, "Protect"),
         AUTH_OFFICIAL(3, "Official"),
         AUTH_SYNCHRONOUS(4, "Synchronous"),
+        AUTH_EXAMINATION(5, "Examination"),
 
         RECORD_NOT_AC_PENALTY(-1, "未AC通过算罚时"),
         RECORD_NOT_AC_NOT_PENALTY(0, "未AC通过不罚时"),

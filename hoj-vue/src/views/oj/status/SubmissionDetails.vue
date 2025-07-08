@@ -17,21 +17,30 @@
             <pre>{{ submission.errorMessage }}</pre>
           </div>
           <div v-else class="content">
-            <span class="span-row">
+            <span class="span-row" v-if="submissionIsAcmOrOi(submission.type)">
               {{ $t('m.Time') }}:
-              {{ submissionTimeFormat(submission.time) }}
+              {{ submissionTimeFormat(submission.time, submission.type) }}
             </span>
-            <span class="span-row">
+            <span class="span-row" v-if="submissionIsAcmOrOi(submission.type)">
               {{ $t('m.Memory') }}:
-              {{ submissionMemoryFormat(submission.memory) }}
+              {{ submissionMemoryFormat(submission.memory, submission.type) }}
             </span>
-            <span class="span-row">
+            <span class="span-row" v-if="submissionIsAcmOrOi(submission.type)">
               {{ $t('m.Length') }}:
-              {{ submissionLengthFormat(submission.length) }}
+              {{ submissionLengthFormat(submission.length, submission.type) }}
             </span>
-            <span class="span-row">{{ $t('m.Language') }}: {{ submission.language }}</span>
+            <span
+              class="span-row"
+            >{{ $t('m.Language') }}: {{ submissionLanguageFormat(submission.language, submission.type) }}</span>
             <span class="span-row">{{ $t('m.Author') }}: {{ submission.username }}</span>
           </div>
+          <span
+            class="content span-row"
+            v-if="submission.status == JUDGE_STATUS_RESERVE.ac && !isACMProblem(submission.type)"
+          >
+            {{ $t('m.Score') }}:
+            {{ submission.score }}
+          </span>
         </template>
       </el-alert>
     </el-col>
@@ -69,17 +78,29 @@
             </span>
           </template>
         </vxe-table-column>
-        <vxe-table-column :title="$t('m.Time')" min-width="96">
+        <vxe-table-column
+          :title="$t('m.Time')"
+          min-width="96"
+          v-if="submissionIsAcmOrOi(submission.type)"
+        >
           <template v-slot="{ row }">
             <span>{{ submissionTimeFormat(row.time) }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column :title="$t('m.Memory')" min-width="96">
+        <vxe-table-column
+          :title="$t('m.Memory')"
+          min-width="96"
+          v-if="submissionIsAcmOrOi(submission.type)"
+        >
           <template v-slot="{ row }">
             <span>{{ submissionMemoryFormat(row.memory) }}</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column :title="$t('m.Score')" min-width="64" v-if="isIOProblem">
+        <vxe-table-column
+          :title="$t('m.Score')"
+          min-width="64"
+          v-if="!isACMProblem(submission.type)"
+        >
           <template v-slot="{ row }">
             <template v-if="row.score != null">
               <el-tooltip placement="top">
@@ -104,14 +125,18 @@
             </template>
           </template>
         </vxe-table-column>
-        <vxe-table-column :title="$t('m.Length')" min-width="80">
+        <vxe-table-column
+          :title="$t('m.Length')"
+          min-width="80"
+          v-if="submissionIsAcmOrOi(submission.type)"
+        >
           <template v-slot="{ row }">
             <span>{{ submissionLengthFormat(row.length) }}</span>
           </template>
         </vxe-table-column>
       </vxe-table>
     </el-col>
-    <template v-if="testCaseResult != null">
+    <template v-if="testCaseResult != null && submissionIsAcmOrOi(submission.type)">
       <template
         v-if="testCaseResult.judgeCaseMode == JUDGE_CASE_MODE.DEFAULT
         || testCaseResult.judgeCaseMode == JUDGE_CASE_MODE.ERGODIC_WITHOUT_ERROR "
@@ -263,6 +288,7 @@ import {
   JUDGE_STATUS,
   JUDGE_STATUS_RESERVE,
   JUDGE_CASE_MODE,
+  RULE_TYPE,
 } from "@/common/constants";
 import utils from "@/common/utils";
 import myMessage from "@/common/message";
@@ -292,6 +318,7 @@ export default {
         author: "",
         errorMessage: "",
         share: true,
+        type: 0,
       },
       tableData: [],
       testCaseResult: {},
@@ -303,6 +330,7 @@ export default {
       JUDGE_CASE_MODE: "",
       activeName: null,
       isMobile: false,
+      RULE_TYPE: {},
     };
   },
   mounted() {
@@ -315,6 +343,7 @@ export default {
     this.JUDGE_STATUS = Object.assign({}, JUDGE_STATUS);
     this.JUDGE_STATUS_RESERVE = Object.assign({}, JUDGE_STATUS_RESERVE);
     this.JUDGE_CASE_MODE = Object.assign({}, JUDGE_CASE_MODE);
+    this.RULE_TYPE = Object.assign({}, RULE_TYPE);
   },
   methods: {
     doCopy() {
@@ -328,16 +357,24 @@ export default {
       );
     },
 
-    submissionTimeFormat(time) {
-      return utils.submissionTimeFormat(time);
+    submissionTimeFormat(time, type) {
+      return utils.submissionTimeFormat(time, type);
     },
 
-    submissionMemoryFormat(memory) {
-      return utils.submissionMemoryFormat(memory);
+    submissionMemoryFormat(memory, type) {
+      return utils.submissionMemoryFormat(memory, null, type);
     },
 
-    submissionLengthFormat(length) {
-      return utils.submissionLengthFormat(length);
+    submissionLengthFormat(length, type) {
+      return utils.submissionLengthFormat(length, type);
+    },
+
+    submissionLanguageFormat(language, type) {
+      return utils.submissionLanguageFormat(language, type);
+    },
+
+    submissionIsAcmOrOi(type) {
+      return utils.submissionIsAcmOrOi(type);
     },
 
     getProblemUri(row) {
@@ -396,7 +433,7 @@ export default {
               !this.isIOProblem
             ) {
               // score exist means the submission is OI problem submission
-              if (data.submission.score !== null) {
+              if (data.submission.type === this.RULE_TYPE.OI) {
                 this.isIOProblem = true;
               }
             }
@@ -405,6 +442,7 @@ export default {
               data.submission.displayPid = this.$route.params.problemID;
             }
             this.submission = data.submission;
+            this.submission.type = data.type;
             this.tableData = [data.submission];
             if (data.submission.cid != 0) {
               // 比赛的提交不可分享
@@ -452,6 +490,10 @@ export default {
         },
         () => {}
       );
+    },
+
+    isACMProblem(type) {
+      return type === this.RULE_TYPE.ACM;
     },
   },
   watch: {

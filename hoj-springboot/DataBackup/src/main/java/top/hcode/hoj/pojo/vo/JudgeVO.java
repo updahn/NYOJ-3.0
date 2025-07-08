@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import top.hcode.hoj.pojo.entity.judge.Judge;
 
 import java.util.Date;
 
@@ -92,6 +91,9 @@ public class JudgeVO {
 
     @ApiModelProperty(value = "是否人工评测")
     private Boolean isManual;
+
+    @ApiModelProperty(value = "0为ACM,1为OI,2为选择,3为填空,4为判断")
+    private Integer type;
 
     @ApiModelProperty(value = "是否为同步赛数据")
     private Boolean synchronous;

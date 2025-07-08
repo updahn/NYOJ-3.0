@@ -123,6 +123,11 @@ public class ContestScoreboardManager {
             }
         }
 
+        // 考试只有超管可以查看
+        if (!isRoot && contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()) {
+            throw new StatusFailException("对不起，您无权限查看排行榜！");
+        }
+
         Integer currentPage = contestRankDto.getCurrentPage();
         Integer limit = contestRankDto.getLimit();
         // 页数，每页题数若为空，设置默认值

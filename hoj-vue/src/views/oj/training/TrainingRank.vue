@@ -126,6 +126,11 @@
             </span>
           </template>
         </vxe-table-column>
+        <vxe-table-column field="totalScore" :title="$t('m.Total_Score')" min-width="90">
+          <template v-slot="{ row }">
+            <span>{{ row.totalScore }}</span>
+          </template>
+        </vxe-table-column>
         <vxe-table-column
           min-width="70"
           v-for="(problem, index) in trainingProblemList"

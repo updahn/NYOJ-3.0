@@ -275,16 +275,17 @@ public class RejudgeManager {
         Integer oiRankScore = null;
         if (score != null) {
             Problem problem = problemEntityService.getById(judge.getPid());
-            if (problem != null && Objects.equals(problem.getType(), Constants.Contest.TYPE_OI.getCode())
-                    && problem.getIoScore() != null) {
-                if (score > problem.getIoScore()) {
-                    score = problem.getIoScore();
+            if (problem != null && problem.getScore() != null) {
+                if (score > problem.getScore()) {
+                    score = problem.getScore();
                 } else if (score < 0) {
                     score = 0;
                 }
-                oiRankScore = (int) Math.round(problem.getDifficulty() * 2 + 0.1 * score);
-                judgeUpdateWrapper.set("score", score)
-                        .set("oi_rank_score", oiRankScore);
+                judgeUpdateWrapper.set("score", score);
+                if (problem.getType().intValue() == Constants.Contest.TYPE_OI.getCode()) {
+                    oiRankScore = (int) Math.round(problem.getDifficulty() * 2 + 0.1 * score);
+                    judgeUpdateWrapper.set("oi_rank_score", oiRankScore);
+                }
             } else {
                 score = null;
             }

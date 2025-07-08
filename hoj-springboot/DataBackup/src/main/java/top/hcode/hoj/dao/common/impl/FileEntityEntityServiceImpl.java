@@ -10,6 +10,7 @@ import top.hcode.hoj.pojo.vo.ACMContestRankVO;
 import top.hcode.hoj.pojo.vo.OIContestRankVO;
 import top.hcode.hoj.dao.common.FileEntityService;
 import top.hcode.hoj.dao.contest.ContestEntityService;
+import top.hcode.hoj.utils.Constants;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -64,7 +65,7 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
     }
 
     @Override
-    public List<List<String>> getContestRankExcelHead(List<String> contestProblemDisplayIDList, Boolean isACM) {
+    public List<List<String>> getContestRankExcelHead(List<String> contestProblemDisplayIDList, Integer contestType) {
         List<List<String>> headList = new LinkedList<>();
 
         List<String> head0 = new LinkedList<>();
@@ -92,12 +93,21 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
         headList.add(head6);
 
         List<String> head7 = new LinkedList<>();
-        if (isACM) {
+        if (contestType == Constants.Contest.TYPE_ACM.getCode()) {
             head7.add("AC");
             List<String> head8 = new LinkedList<>();
             head8.add("Total Submission");
             List<String> head9 = new LinkedList<>();
             head9.add("Total Penalty Time");
+            headList.add(head7);
+            headList.add(head8);
+            headList.add(head9);
+        } else if (contestType == Constants.Contest.TYPE_EXAM.getCode()) {
+            head7.add("AC");
+            List<String> head8 = new LinkedList<>();
+            head8.add("Total Submission");
+            List<String> head9 = new LinkedList<>();
+            head9.add("Total Score");
             headList.add(head7);
             headList.add(head8);
             headList.add(head9);
@@ -166,7 +176,8 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
     @Override
     public List<List<Object>> changeACMContestRankToExcelRowList(List<ACMContestRankVO> acmContestRankVOList,
             List<String> contestProblemDisplayIDList,
-            String rankShowName) {
+            String rankShowName,
+            Boolean isAcm) {
         List<List<Object>> allRowDataList = new LinkedList<>();
         for (ACMContestRankVO acmContestRankVo : acmContestRankVOList) {
             List<Object> rowData = new LinkedList<>();
@@ -187,7 +198,11 @@ public class FileEntityEntityServiceImpl extends ServiceImpl<FileMapper, File> i
             rowData.add(acmContestRankVo.getCourse());
             rowData.add(acmContestRankVo.getAc());
             rowData.add(acmContestRankVo.getTotal());
-            rowData.add(acmContestRankVo.getTotalTime());
+            if (isAcm) {
+                rowData.add(acmContestRankVo.getTotalTime());
+            } else {
+                rowData.add(acmContestRankVo.getTotalScore());
+            }
             HashMap<String, HashMap<String, Object>> submissionInfo = acmContestRankVo.getSubmissionInfo();
             for (String displayID : contestProblemDisplayIDList) {
                 HashMap<String, Object> problemInfo = submissionInfo.getOrDefault(displayID, null);

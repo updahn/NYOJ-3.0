@@ -69,7 +69,7 @@ public class ContestRecordVO implements Serializable {
     @ApiModelProperty(value = "提交时间，为提交时间减去比赛时间")
     private Long time;
 
-    @ApiModelProperty(value = "OI比赛的得分")
+    @ApiModelProperty(value = "比赛的得分")
     private Integer score;
 
     @ApiModelProperty(value = "提交耗时")

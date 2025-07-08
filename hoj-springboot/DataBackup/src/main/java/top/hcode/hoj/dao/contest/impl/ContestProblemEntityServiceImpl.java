@@ -4,16 +4,20 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.CollectionUtils;
+
+import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.entity.contest.ContestProblem;
 import top.hcode.hoj.mapper.ContestProblemMapper;
 import top.hcode.hoj.pojo.entity.contest.ContestRecord;
 import top.hcode.hoj.pojo.vo.ContestProblemVO;
+import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.contest.ContestProblemEntityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import top.hcode.hoj.dao.contest.ContestRecordEntityService;
 import top.hcode.hoj.dao.user.UserInfoEntityService;
 import top.hcode.hoj.pojo.vo.ProblemFullScreenListVO;
+import top.hcode.hoj.utils.Constants;
 
 import java.util.Date;
 import java.util.List;
@@ -39,6 +43,9 @@ public class ContestProblemEntityServiceImpl extends ServiceImpl<ContestProblemM
     @Autowired
     private ContestRecordEntityService contestRecordEntityService;
 
+    @Autowired
+    private ContestEntityService contestEntityService;
+
     @Override
     public List<ContestProblemVO> getContestProblemList(Long cid,
             Date startTime,
@@ -57,9 +64,20 @@ public class ContestProblemEntityServiceImpl extends ServiceImpl<ContestProblemM
         if (!CollectionUtils.isEmpty(groupRootUidList)) {
             AdminUidList.addAll(groupRootUidList);
         }
+        List<ContestProblemVO> contestProblemList = contestProblemMapper.getContestProblemVoList(cid, startTime,
+                endTime, sealTime, isAdmin, AdminUidList, !isContainsContestEndJudge, selectedTime);
 
-        return contestProblemMapper.getContestProblemVoList(cid, startTime, endTime, sealTime, isAdmin, AdminUidList,
-                !isContainsContestEndJudge, selectedTime);
+        Contest contest = contestEntityService.getById(cid);
+
+        if (contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()) {
+            // 过滤掉ac和total
+            contestProblemList.forEach(item -> {
+                item.setAc(null);
+                item.setTotal(null);
+            });
+        }
+
+        return contestProblemList;
     }
 
     @Override

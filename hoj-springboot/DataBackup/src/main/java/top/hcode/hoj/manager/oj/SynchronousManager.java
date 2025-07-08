@@ -633,7 +633,7 @@ public class SynchronousManager {
         problem.setIsRemote(record.getBool("isRemote"));
         problem.setDifficulty(record.getInt("difficulty"));
         problem.setAuth(record.getInt("auth"));
-        problem.setIoScore(record.getInt("ioScore"));
+        problem.setScore(record.getInt("ioScore"));
         problem.setCodeShare(record.getBool("codeShare"));
         problem.setSpjCode(record.getStr("spjCode", null));
         problem.setSpjLanguage(record.getStr("spjLanguage", null));

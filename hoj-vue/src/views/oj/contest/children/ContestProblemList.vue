@@ -41,13 +41,8 @@
         </template>
       </vxe-table-column>
 
-      <!-- ACM赛制的最近提交显示 -->
-      <vxe-table-column
-        field="acm-status"
-        title
-        width="50"
-        v-if="isAuthenticated && contestRuleType == RULE_TYPE.ACM"
-      >
+      <!-- ACM和考试赛制的最近提交显示 -->
+      <vxe-table-column field="acm-status" title width="50" v-if="isAuthenticated">
         <template v-slot="{ row }">
           <template v-if="isGetStatusOk">
             <el-tooltip :content="JUDGE_STATUS[row.myStatus]['name']" placement="top">
@@ -87,7 +82,12 @@
       <vxe-table-column field="displayTitle" :title="$t('m.Title')" min-width="200"></vxe-table-column>
 
       <!-- 以下列只有在实时刷新榜单的情况下才显示 -->
-      <vxe-table-column field="ac" :title="$t('m.AC')" min-width="80">
+      <vxe-table-column
+        v-if="isAuthenticated && contestRuleType !== CONTEST_TYPE.EXAMINATION"
+        field="ac"
+        :title="$t('m.AC')"
+        min-width="80"
+      >
         <template v-slot="{ row }">
           <span v-if="!ContestRealTimePermission">
             <i class="fa fa-question" style="font-weight: 600;font-size: 16px;color:#909399"></i>
@@ -95,7 +95,12 @@
           <span v-else>{{ row.ac }}</span>
         </template>
       </vxe-table-column>
-      <vxe-table-column field="total" :title="$t('m.Total')" min-width="80">
+      <vxe-table-column
+        v-if="contestRuleType !== CONTEST_TYPE.EXAMINATION"
+        field="total"
+        :title="$t('m.Total')"
+        min-width="80"
+      >
         <template v-slot="{ row }">
           <span v-if="!ContestRealTimePermission">
             <i class="fa fa-question" style="font-weight: 600;font-size: 16px;color:#909399"></i>
@@ -103,7 +108,12 @@
           <span v-else>{{ row.total }}</span>
         </template>
       </vxe-table-column>
-      <vxe-table-column field="ACRate" :title="$t('m.AC_Rate')" min-width="120">
+      <vxe-table-column
+        v-if="contestRuleType !== CONTEST_TYPE.EXAMINATION"
+        field="ACRate"
+        :title="$t('m.AC_Rate')"
+        min-width="120"
+      >
         <template v-slot="{ row }">
           <span>
             <el-tooltip effect="dark" :content="row.ac + '/' + row.total" placement="top">
@@ -122,7 +132,7 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import { JUDGE_STATUS, RULE_TYPE } from "@/common/constants";
+import { JUDGE_STATUS, RULE_TYPE, CONTEST_TYPE } from "@/common/constants";
 import api from "@/common/api";
 import utils from "@/common/utils";
 
@@ -132,6 +142,7 @@ export default {
     return {
       JUDGE_STATUS: {},
       RULE_TYPE: {},
+      CONTEST_TYPE: {},
       isGetStatusOk: false,
       testcolor: "rgba(0, 206, 209, 1)",
     };
@@ -139,6 +150,7 @@ export default {
   mounted() {
     this.RULE_TYPE = Object.assign({}, RULE_TYPE);
     this.JUDGE_STATUS = Object.assign({}, JUDGE_STATUS);
+    this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.getContestProblems();
   },
   methods: {

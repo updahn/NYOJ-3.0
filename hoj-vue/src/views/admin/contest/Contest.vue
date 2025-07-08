@@ -7,6 +7,18 @@
       <el-form label-position="top">
         <el-row :gutter="20">
           <el-col :span="24">
+            <el-form-item :label="$t('m.Contest_Auth')" required>
+              <el-radio-group v-model="contest.auth">
+                <el-radio :label="0">{{ $t('m.Public') }}</el-radio>
+                <el-radio :label="1">{{ $t('m.Private') }}</el-radio>
+                <el-radio :label="2">{{ $t('m.Protected') }}</el-radio>
+                <el-radio :label="3">{{ $t('m.Official') }}</el-radio>
+                <el-radio :label="4">{{ $t('m.Synchronous') }}</el-radio>
+                <el-radio :label="5">{{ $t('m.Examination') }}</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
             <el-form-item :label="$t('m.Contest_Title')" required>
               <el-input v-model="contest.title" :placeholder="$t('m.Contest_Title')"></el-input>
             </el-form-item>
@@ -19,6 +31,7 @@
           <el-col :md="8" :xs="24">
             <el-form-item :label="$t('m.Contest_Start_Time')" required>
               <el-date-picker
+                style="width: 50%;"
                 v-model="contest.startTime"
                 @change="changeDuration"
                 type="datetime"
@@ -29,6 +42,7 @@
           <el-col :md="8" :xs="24">
             <el-form-item :label="$t('m.Contest_End_Time')" required>
               <el-date-picker
+                style="width: 50%;"
                 v-model="contest.endTime"
                 @change="changeDuration"
                 type="datetime"
@@ -39,12 +53,12 @@
 
           <el-col :md="8" :xs="24">
             <el-form-item :label="$t('m.Contest_Duration')" required>
-              <el-input v-model="durationText" disabled></el-input>
+              <el-input style="width: 50%;" v-model="durationText" disabled></el-input>
             </el-form-item>
           </el-col>
         </el-row>
 
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-if="contest.auth != CONTEST_TYPE.EXAMINATION">
           <el-col :md="8" :xs="24">
             <el-form-item :label="$t('m.Contest_Rule_Type')" required>
               <el-radio
@@ -80,7 +94,7 @@
           </el-col>
         </el-row>
 
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-if="contest.auth != CONTEST_TYPE.EXAMINATION">
           <el-col :md="8" :xs="24" v-if="contest.sealRank">
             <el-form-item :label="$t('m.Timeliness_Of_Rank')" required>
               <el-switch
@@ -110,7 +124,7 @@
               :required="contest.sealRank"
               v-show="contest.sealRank"
             >
-              <el-select v-model="seal_rank_time">
+              <el-select style="width: 50%;" v-model="seal_rank_time">
                 <el-option
                   :label="$t('m.Contest_Seal_Half_Hour')"
                   :value="0"
@@ -138,7 +152,7 @@
         </el-row>
 
         <el-row :gutter="20">
-          <el-col :md="8" :xs="24">
+          <el-col :md="8" :xs="24" v-if="contest.auth != CONTEST_TYPE.EXAMINATION">
             <el-form-item :label="$t('m.Contest_Outside_ScoreBoard')" required>
               <el-switch
                 v-model="contest.openRank"
@@ -158,7 +172,7 @@
             </el-form-item>
           </el-col>
 
-          <el-col :md="8" :xs="24">
+          <el-col :md="8" :xs="24" v-if="contest.auth != CONTEST_TYPE.EXAMINATION">
             <el-form-item :label="$t('m.Print_Func')" required>
               <el-switch
                 v-model="contest.openPrint"
@@ -168,7 +182,7 @@
             </el-form-item>
           </el-col>
 
-          <el-col :md="8" :xs="24">
+          <el-col :md="8" :xs="24" v-if="contest.auth != CONTEST_TYPE.EXAMINATION">
             <el-form-item :label="$t('m.BoxFile_Func')" required>
               <el-switch
                 v-model="contest.openFile"
@@ -262,17 +276,6 @@
             </el-form-item>
           </el-col>
 
-          <el-col :md="8" :xs="24">
-            <el-form-item :label="$t('m.Contest_Auth')" required>
-              <el-select v-model="contest.auth">
-                <el-option :label="$t('m.Public')" :value="0"></el-option>
-                <el-option :label="$t('m.Private')" :value="1"></el-option>
-                <el-option :label="$t('m.Protected')" :value="2"></el-option>
-                <el-option :label="$t('m.Official')" :value="3"></el-option>
-                <el-option :label="$t('m.Synchronous')" :value="4"></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
           <el-col
             :md="8"
             :xs="24"
@@ -283,7 +286,11 @@
               v-show="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL"
               :required="contest.auth != CONTEST_TYPE.PUBLIC && contest.auth != CONTEST_TYPE.OFFICIAL"
             >
-              <el-input v-model="contest.pwd" :placeholder="$t('m.Contest_Password')"></el-input>
+              <el-input
+                style="width: 50%;"
+                v-model="contest.pwd"
+                :placeholder="$t('m.Contest_Password')"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col
@@ -299,22 +306,71 @@
               <el-switch v-model="contest.openAccountLimit"></el-switch>
             </el-form-item>
           </el-col>
+        </el-row>
 
+        <el-row :gutter="20">
+          <template v-if="contest.openAccountLimit">
+            <el-form :model="formRule">
+              <el-col :md="8" :xs="24">
+                <el-form-item :label="$t('m.Prefix')" prop="prefix">
+                  <el-input style="width: 50%;" v-model="formRule.prefix" placeholder="Prefix"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :md="8" :xs="24">
+                <el-form-item :label="$t('m.Suffix')" prop="suffix">
+                  <el-input style="width: 50%;" v-model="formRule.suffix" placeholder="Suffix"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :md="8" :xs="24">
+                <el-form-item :label="$t('m.Start_Number')" prop="number_from">
+                  <el-input-number style="width: 50%" v-model="formRule.number_from"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :md="8" :xs="24">
+                <el-form-item :label="$t('m.End_Number')" prop="number_to">
+                  <el-input-number style="width: 50%" v-model="formRule.number_to"></el-input-number>
+                </el-form-item>
+              </el-col>
+
+              <div class="userPreview" v-if="formRule.number_from <= formRule.number_to">
+                {{ $t('m.The_allowed_account_will_be') }}
+                {{ formRule.prefix + formRule.number_from + formRule.suffix }},
+                <span
+                  v-if="formRule.number_from + 1 < formRule.number_to"
+                >
+                  {{
+                  formRule.prefix +
+                  (formRule.number_from + 1) +
+                  formRule.suffix +
+                  '...'
+                  }}
+                </span>
+                <span
+                  v-if="formRule.number_from + 1 <= formRule.number_to"
+                >{{ formRule.prefix + formRule.number_to + formRule.suffix }}</span>
+              </div>
+
+              <el-col :md="24" :xs="24">
+                <el-form-item :label="$t('m.Extra_Account')" prop="prefix">
+                  <el-input
+                    type="textarea"
+                    :placeholder="$t('m.Extra_Account_Tips')"
+                    :rows="8"
+                    v-model="formRule.extra_account"
+                  ></el-input>
+                </el-form-item>
+              </el-col>
+            </el-form>
+          </template>
+        </el-row>
+
+        <el-row :gutter="20">
           <!-- 正式赛配置 -->
           <template v-if="contest.auth == CONTEST_TYPE.OFFICIAL">
             <el-col :md="8" :xs="24">
-              <el-form-item :label="$t('m.Max_Participants')" required>
-                <el-input-number
-                  style="width: 50%;"
-                  v-model="contest.maxParticipants"
-                  :min="1"
-                  :max="3"
-                ></el-input-number>
-              </el-form-item>
-            </el-col>
-            <el-col :md="8" :xs="24">
               <el-form-item :label="$t('m.Sign_Start_Time')" required>
                 <el-date-picker
+                  style="width: 50%;"
                   v-model="contest.signStartTime"
                   @change="changeSignDuration"
                   type="datetime"
@@ -326,6 +382,7 @@
             <el-col :md="8" :xs="24">
               <el-form-item :label="$t('m.Sign_End_Time')" required>
                 <el-date-picker
+                  style="width: 50%;"
                   v-model="contest.signEndTime"
                   @change="changeSignDuration"
                   type="datetime"
@@ -335,16 +392,27 @@
             </el-col>
             <el-col :md="8" :xs="24">
               <el-form-item :label="$t('m.Sign_Duration')" required>
-                <el-input v-model="signdurationText" disabled></el-input>
+                <el-input style="width: 50%;" v-model="signdurationText" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :md="8" :xs="24">
               <el-form-item :label="$t('m.Modify_endTime')" required>
                 <el-date-picker
+                  style="width: 50%;"
                   v-model="contest.modifyEndTime"
                   type="datetime"
                   :placeholder="$t('m.Modify_endTime')"
                 ></el-date-picker>
+              </el-form-item>
+            </el-col>
+            <el-col :md="8" :xs="24">
+              <el-form-item :label="$t('m.Max_Participants')" required>
+                <el-input-number
+                  style="width: 50%;"
+                  v-model="contest.maxParticipants"
+                  :min="1"
+                  :max="3"
+                ></el-input-number>
               </el-form-item>
             </el-col>
           </template>
@@ -403,67 +471,32 @@
               ></vxe-table-column>
             </vxe-table>
           </el-col>
+        </el-row>
 
-          <template v-if="contest.openAccountLimit">
-            <el-form :model="formRule">
-              <el-col :md="6" :xs="24">
-                <el-form-item :label="$t('m.Prefix')" prop="prefix">
-                  <el-input v-model="formRule.prefix" placeholder="Prefix"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :md="6" :xs="24">
-                <el-form-item :label="$t('m.Suffix')" prop="suffix">
-                  <el-input v-model="formRule.suffix" placeholder="Suffix"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :md="6" :xs="24">
-                <el-form-item :label="$t('m.Start_Number')" prop="number_from">
-                  <el-input-number v-model="formRule.number_from" style="width: 100%"></el-input-number>
-                </el-form-item>
-              </el-col>
-              <el-col :md="6" :xs="24">
-                <el-form-item :label="$t('m.End_Number')" prop="number_to">
-                  <el-input-number v-model="formRule.number_to" style="width: 100%"></el-input-number>
-                </el-form-item>
-              </el-col>
-
-              <div class="userPreview" v-if="formRule.number_from <= formRule.number_to">
-                {{ $t('m.The_allowed_account_will_be') }}
-                {{ formRule.prefix + formRule.number_from + formRule.suffix }},
-                <span
-                  v-if="formRule.number_from + 1 < formRule.number_to"
-                >
-                  {{
-                  formRule.prefix +
-                  (formRule.number_from + 1) +
-                  formRule.suffix +
-                  '...'
-                  }}
-                </span>
-                <span
-                  v-if="formRule.number_from + 1 <= formRule.number_to"
-                >{{ formRule.prefix + formRule.number_to + formRule.suffix }}</span>
-              </div>
-
-              <el-col :md="24" :xs="24">
-                <el-form-item :label="$t('m.Extra_Account')" prop="prefix">
-                  <el-input
-                    type="textarea"
-                    :placeholder="$t('m.Extra_Account_Tips')"
-                    :rows="8"
-                    v-model="formRule.extra_account"
-                  ></el-input>
-                </el-form-item>
-              </el-col>
-            </el-form>
-          </template>
-
-          <el-col :md="24" :xs="24">
+        <el-row :gutter="20">
+          <el-col :md="8" :xs="24">
             <el-form-item :label="$t('m.Contest_Award')" required>
-              <el-select v-model="contest.awardType" @change="contestAwardTypeChange">
+              <el-select
+                style="width: 50%;"
+                v-model="contest.awardType"
+                @change="contestAwardTypeChange"
+              >
                 <el-option :label="$t('m.Contest_Award_Null')" :value="0"></el-option>
-                <el-option :label="$t('m.Contest_Award_Set_Proportion')" :value="1"></el-option>
-                <el-option :label="$t('m.Contest_Award_Set_Number')" :value="2"></el-option>
+                <el-option
+                  v-if="contest.auth != CONTEST_TYPE.EXAMINATION"
+                  :label="$t('m.Contest_Award_Set_Proportion')"
+                  :value="1"
+                ></el-option>
+                <el-option
+                  v-if="contest.auth != CONTEST_TYPE.EXAMINATION"
+                  :label="$t('m.Contest_Award_Set_Number')"
+                  :value="2"
+                ></el-option>
+                <el-option
+                  v-if="contest.auth == CONTEST_TYPE.EXAMINATION"
+                  :label="$t('m.Contest_Award_Set_Score')"
+                  :value="3"
+                ></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -537,7 +570,13 @@
               <vxe-table-column
                 field="num"
                 min-width="150"
-                :title="contest.awardType == 1?$t('m.Contest_Award_Proportion'):$t('m.Contest_Award_Number')"
+                :title="
+                  contest.awardType == 1
+                    ? $t('m.Contest_Award_Proportion')
+                    : contest.awardType == 2
+                    ? $t('m.Contest_Award_Number')
+                    : $t('m.Contest_Award_Score')
+                "
               >
                 <template v-slot="{ row }">
                   <el-input
@@ -553,7 +592,13 @@
                     :placeholder="$t('m.Contest_Award_Number')"
                     v-model="row.num"
                     size="small"
-                    v-else
+                    v-else-if="contest.awardType == 2"
+                  ></el-input>
+                  <el-input
+                    :placeholder="$t('m.Contest_Award_Score')"
+                    v-model="row.num"
+                    size="small"
+                    v-else-if="contest.awardType == 3"
                   ></el-input>
                 </template>
               </vxe-table-column>
@@ -614,6 +659,7 @@ export default {
         accountLimitRule: "",
         starAccount: [],
         oiRankScoreType: "Recent",
+        awardType: 1,
         awardConfigList: [
           {
             priority: 1,
@@ -693,13 +739,25 @@ export default {
         this.getBoxFileList();
       }
     },
+    "contest.auth": function (newVal, oldVal) {
+      if (newVal == CONTEST_TYPE.EXAMINATION) {
+        this.contest.awardType = 0;
+        this.contest.type = 5;
+
+        // 全程封榜
+        this.seal_rank_time = 2;
+      } else {
+        this.contest.awardType = 1;
+        this.seal_rank_time = 1;
+      }
+    },
   },
   computed: {
     ...mapGetters(["userInfo"]),
   },
   methods: {
     getContestByCid() {
-      let cid = this.$route.params.contestId;
+      let cid = this.$route.params.contestID;
       if (cid) {
         api
           .admin_getContest(cid)
@@ -801,6 +859,7 @@ export default {
         this.contest.auth != this.CONTEST_TYPE.PUBLIC &&
         this.contest.auth != this.CONTEST_TYPE.OFFICIAL &&
         this.contest.auth != this.CONTEST_TYPE.SYNCHRONOUS &&
+        this.contest.auth != this.CONTEST_TYPE.EXAMINATION &&
         !this.contest.pwd
       ) {
         myMessage.error(

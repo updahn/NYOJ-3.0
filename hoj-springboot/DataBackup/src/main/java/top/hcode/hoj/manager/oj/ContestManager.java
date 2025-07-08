@@ -602,6 +602,11 @@ public class ContestManager {
 
         boolean isRoot = groupManager.getGroupAuthAdmin(contest.getGid());
 
+        // 考试只有超管可以查看所有提交记录，其他人只能查看自己的提交
+        if (!isRoot && contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()) {
+            onlyMine = true;
+        }
+
         // 需要对该比赛做判断，是否处于开始或结束状态才可以获取题目，同时若是私有赛需要判断是否已注册（比赛管理员包括超级管理员可以直接获取）
         contestValidator.validateContestAuth(contest, userRolesVo, isRoot);
 
@@ -621,8 +626,10 @@ public class ContestManager {
         String rule;
         if (contest.getType().intValue() == Constants.Contest.TYPE_ACM.getCode()) {
             rule = Constants.Contest.TYPE_ACM.getName();
-        } else {
+        } else if (contest.getType().intValue() == Constants.Contest.TYPE_OI.getCode()) {
             rule = Constants.Contest.TYPE_OI.getName();
+        } else {
+            rule = Constants.Contest.TYPE_EXAM.getName();
         }
         Date sealRankTime = null;
 
@@ -655,6 +662,16 @@ public class ContestManager {
         if (contestJudgeList.getTotal() == 0) { // 未查询到一条数据
             return contestJudgeList;
         } else {
+
+            // 如果不是考试，过滤比赛中ACM题目的分数
+            if (contest.getType().intValue() != Constants.Contest.TYPE_EXAM.getCode()) {
+                contestJudgeList.getRecords().forEach(judgeVo -> {
+                    if (judgeVo.getType().intValue() == Constants.Contest.TYPE_ACM.getCode()) {
+                        judgeVo.setScore(null);
+                    }
+                });
+            }
+
             // 比赛还是进行阶段，同时不是超级管理员与比赛管理员，需要将除自己之外的提交的时间、空间、长度隐藏
             if (contest.getStatus().intValue() == Constants.Contest.STATUS_RUNNING.getCode()
                     && !isRoot && !userRolesVo.getUid().equals(contest.getUid())) {
@@ -665,6 +682,14 @@ public class ContestManager {
                         judgeVo.setLength(null);
                     }
                 });
+
+                if (!isRoot && contest.getType().intValue() == Constants.Contest.TYPE_EXAM.getCode()) {
+                    contestJudgeList.getRecords().forEach(judgeVo -> {
+                        // 设置题目为未知状态，分数为空
+                        judgeVo.setStatus(-5);
+                        judgeVo.setScore(null);
+                    });
+                }
             }
             return contestJudgeList;
         }
@@ -847,6 +872,11 @@ public class ContestManager {
 
         boolean isRoot = groupManager.getGroupAuthAdmin(contest.getGid());
 
+        // 考试只有超管可以查看
+        if (!isRoot && contest.getAuth().intValue() == Constants.Contest.AUTH_EXAMINATION.getCode()) {
+            throw new StatusFailException("对不起，您无权限查看排行榜！");
+        }
+
         // 需要对该比赛做判断，是否处于开始或结束状态才可以获取题目，同时若是私有赛需要判断是否已注册（比赛管理员包括超级管理员可以直接获取）
         contestValidator.validateContestAuth(contest, userRolesVo, isRoot);
 
@@ -861,8 +891,9 @@ public class ContestManager {
         }
 
         IPage resultList;
-        if (contest.getType().intValue() == Constants.Contest.TYPE_ACM.getCode()) {
-            // ACM比赛
+        if (contest.getType().intValue() == Constants.Contest.TYPE_ACM.getCode()
+                || contest.getType().intValue() == Constants.Contest.TYPE_EXAM.getCode()) {
+            // ACM比赛或者考试
             // 进行排行榜计算以及排名分页
             resultList = contestRankManager.getContestACMRankPage(isOpenSealRank,
                     removeStar,

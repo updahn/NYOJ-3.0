@@ -3212,3 +3212,32 @@ DROP PROCEDURE add_schoolUser;
 rename table contest_sign to team_sign;
 
 
+/*
+* 将 problem 表中的 io_score 修改为 score
+*/
+DROP PROCEDURE IF EXISTS update_Problem_IoScoreToScore;
+DELIMITER $$
+
+CREATE PROCEDURE update_Problem_IoScoreToScore ()
+BEGIN
+    -- 如果 problem 表中存在 io_score 字段 且 不存在 score 字段，则进行重命名
+    IF EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE table_name = 'problem' AND column_name = 'io_score'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.COLUMNS
+        WHERE table_name = 'problem' AND column_name = 'score'
+    ) THEN
+        ALTER TABLE problem CHANGE COLUMN `io_score` `score` INT(11) DEFAULT NULL COMMENT '题目总分数';
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL update_Problem_IoScoreToScore;
+
+DROP PROCEDURE update_Problem_IoScoreToScore;
+
+
+
+

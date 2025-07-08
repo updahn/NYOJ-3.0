@@ -95,7 +95,7 @@
               <el-tag
                 size="medium"
                 class="filter-item"
-                v-for="(value, key, index) in PROBLEM_TYPE"
+                v-for="(value, key, index) in PROBLEM_TYPE_LEVEL"
                 :effect="query.type == key ? 'dark' : 'plain'"
                 :style="getTypeBlockColor(key)"
                 :key="index"
@@ -332,7 +332,7 @@ import {
   JUDGE_STATUS,
   JUDGE_STATUS_RESERVE,
   REMOTE_OJ,
-  PROBLEM_TYPE,
+  PROBLEM_TYPE_LEVEL,
 } from "@/common/constants";
 import utils from "@/common/utils";
 import myMessage from "@/common/message";
@@ -349,7 +349,7 @@ export default {
       JUDGE_STATUS: {},
       JUDGE_STATUS_RESERVE: {},
       REMOTE_OJ: {},
-      PROBLEM_TYPE: {},
+      PROBLEM_TYPE_LEVEL: {},
       tagsAndClassificationList: [],
       tagVisible: false,
       currentProblemTitle: "",
@@ -397,7 +397,7 @@ export default {
     this.JUDGE_STATUS_RESERVE = Object.assign({}, JUDGE_STATUS_RESERVE);
     this.JUDGE_STATUS = Object.assign({}, JUDGE_STATUS);
     this.REMOTE_OJ = Object.assign({}, REMOTE_OJ);
-    this.PROBLEM_TYPE = Object.assign({}, PROBLEM_TYPE);
+    this.PROBLEM_TYPE_LEVEL = Object.assign({}, PROBLEM_TYPE_LEVEL);
     this.currentProblemTitle = this.$i18n.t("m.Touch_Get_Status");
     // 初始化
     this.problemRecord = [

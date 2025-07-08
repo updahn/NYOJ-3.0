@@ -177,7 +177,7 @@ export default {
   },
   methods: {
     init() {
-      this.contestID = this.$route.params.contestId;
+      this.contestID = this.$route.params.contestID;
       if (this.contestID) {
         this.getContestAnnouncementList(1);
       } else {

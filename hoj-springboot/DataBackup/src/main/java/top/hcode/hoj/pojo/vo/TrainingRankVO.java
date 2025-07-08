@@ -42,6 +42,9 @@ public class TrainingRankVO {
     @ApiModelProperty(value = "总运行时间ms")
     private Integer totalRunTime;
 
+    @ApiModelProperty(value = "总得分")
+    private Integer totalScore;
+
     @ApiModelProperty(value = "有提交的题的提交详情")
     private HashMap<String, HashMap<String, Object>> submissionInfo;
 }

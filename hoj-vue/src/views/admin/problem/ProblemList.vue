@@ -24,7 +24,7 @@
               @click="addProblemDialogVisible = true"
             >{{ $t('m.Add_From_Public_Problem') }}</el-button>
           </span>
-          <span>
+          <span v-if="!(query.contestId && (contestAuth == CONTEST_TYPE.EXAMINATION))">
             <el-button
               type="success"
               size="small"
@@ -43,7 +43,9 @@
             ></vxe-input>
           </span>
 
-          <span>
+          <span
+            v-if="!(query.contestId && (contestAuth == CONTEST_TYPE.EXAMINATION || contestAuth == CONTEST_TYPE.PRIVATE))"
+          >
             <el-select
               v-model="query.oj"
               @change="ProblemListChangeFilter"
@@ -191,6 +193,23 @@
             </el-select>
           </template>
         </vxe-table-column>
+
+        <vxe-table-column
+          v-if="query.contestId && (contestAuth == CONTEST_TYPE.EXAMINATION)"
+          field="score"
+          min-width="50"
+          :title="$t('m.Score')"
+          show-overflow
+        >
+          <template v-slot="{ row }">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="handleUpdateProblemScore(row.title, row.id, row.peid, row.score)"
+            >{{ row.score ? row.score : '--' }}</el-button>
+          </template>
+        </vxe-table-column>
+
         <vxe-table-column field="author" min-width="130" :title="$t('m.Author')" show-overflow></vxe-table-column>
         <vxe-table-column min-width="120" :title="$t('m.Created_Time')">
           <template v-slot="{ row }">{{ row.gmtCreate | localtime }}</template>
@@ -396,6 +415,31 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <el-dialog
+      width="350px"
+      :visible.sync="updateProblemScoreDialogVisible"
+      :close-on-click-modal="false"
+      center
+    >
+      <template #title>
+        <span style="font-size: 18px;">{{ $t('m.Update_Problem_Score') }}</span>
+        <br />
+        <span style="font-size: 14px;">(Title: {{ contestProblemDto.title }})</span>
+      </template>
+
+      <el-form>
+        <el-form-item :label="$t('m.Score')" required>
+          <el-input-number size="small" v-model="contestProblemDto.score"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <span slot="footer">
+        <el-button
+          type="primary"
+          @click="changeContestProblemScore(contestProblemDto.pid, contestProblemDto.peid, contestProblemDto.score)"
+          :loading="changeProblemScoreLoading"
+        >{{ $t('m.To_Update') }}</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -404,7 +448,12 @@ import api from "@/common/api";
 import utils from "@/common/utils";
 import AddPublicProblem from "@/components/admin/AddPublicProblem.vue";
 import myMessage from "@/common/message";
-import { REMOTE_OJ, PROBLEM_LEVEL } from "@/common/constants";
+import {
+  REMOTE_OJ,
+  PROBLEM_LEVEL,
+  CONTEST_TYPE,
+  JUDGE_STATUS_RESERVE,
+} from "@/common/constants";
 import { mapGetters } from "vuex";
 export default {
   name: "ProblemList",
@@ -455,10 +504,25 @@ export default {
       displayIdList: [],
       errorMessage: "",
       errorMessage2: "",
+      updateProblemScoreDialogVisible: false,
+      changeProblemScoreLoading: false,
+      CONTEST_TYPE: {},
+      JUDGE_STATUS_RESERVE: {},
+      contestProblemDto: {
+        title: "",
+        pid: null,
+        peid: null,
+        score: null,
+      },
     };
   },
   mounted() {
     this.init();
+  },
+  created() {
+    if (this.$route.params.contestID) {
+      this.$store.dispatch("getContest");
+    }
   },
   computed: {
     ...mapGetters([
@@ -466,6 +530,7 @@ export default {
       "isSuperAdmin",
       "isAdminRole",
       "isMainAdminRole",
+      "contestAuth",
     ]),
     isContest() {
       return !(this.routeName == "admin-problem-list" && !this.query.contestId);
@@ -484,11 +549,13 @@ export default {
       this.query.oj = query.oj || "All";
       this.query.difficulty = query.difficulty || "All";
       this.query.type = query.type || "All";
-      this.query.contestId = this.$route.params.contestId;
+      this.query.contestId = this.$route.params.contestID;
       this.contestProblemMap = {};
       this.getProblemList();
       this.REMOTE_OJ = Object.assign({}, REMOTE_OJ);
       this.PROBLEM_LEVEL = Object.assign({}, PROBLEM_LEVEL);
+      this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
+      this.JUDGE_STATUS_RESERVE = Object.assign({}, JUDGE_STATUS_RESERVE);
     },
 
     goEdit(problemId) {
@@ -503,7 +570,7 @@ export default {
       } else if (this.routeName === "admin-contest-problem-list") {
         this.$router.push({
           name: "admin-edit-contest-problem",
-          params: { problemId: problemId, contestId: this.query.contestId },
+          params: { problemId: problemId, contestID: this.query.contestId },
         });
       }
     },
@@ -518,7 +585,7 @@ export default {
       } else if (this.routeName === "admin-contest-problem-list") {
         this.$router.push({
           name: "admin-create-contest-problem",
-          params: { contestId: this.query.contestId },
+          params: { contestID: this.query.contestId },
         });
       }
     },
@@ -529,7 +596,7 @@ export default {
           name: "admin-contest-problem-list",
           query: this.query,
           params: {
-            contestId: this.query.contestId,
+            contestID: this.query.contestId,
           },
         });
       } else {
@@ -742,6 +809,20 @@ export default {
         this.pushRouter();
       });
     },
+    changeContestProblemScore(pid, peid, score) {
+      this.changeProblemScoreLoading = true;
+      let data = {
+        pid: pid,
+        peid: peid,
+        score: score,
+      };
+      api.admin_changeContestProblemScore(data).then((res) => {
+        myMessage.success(this.$i18n.t("m.Update_Successfully"));
+        this.getProblemList();
+        this.changeProblemScoreLoading = false;
+        this.updateProblemScoreDialogVisible = false;
+      });
+    },
     updateRemoteDescription(pid) {
       this.$confirm(this.$i18n.t("m.Update_RemoteDescription_Tips"), "Tips", {
         type: "warning",
@@ -821,6 +902,15 @@ export default {
     },
     isValidNumber(value) {
       return /^\d+$/.test(value);
+    },
+    handleUpdateProblemScore(title, pid, peid, score) {
+      this.updateProblemScoreDialogVisible = true;
+      this.contestProblemDto = {
+        title: title,
+        pid: pid,
+        peid: peid,
+        score: score,
+      };
     },
   },
   watch: {

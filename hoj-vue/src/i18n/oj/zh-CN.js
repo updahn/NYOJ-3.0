@@ -15,6 +15,7 @@ export const m = {
   NavBar_Problem: '题目',
   NavBar_Training: '训练',
   NavBar_Contest: '比赛',
+  NavBar_Exam: '考试',
   NavBar_Status: '评测',
   NavBar_Rank: '排名',
   NavBar_ACM_Rank: 'ACM 排名',
@@ -53,6 +54,12 @@ export const m = {
   NavBar_Training_Rank: '训练榜单',
   NavBar_Training_Problem: '训练题目',
   NavBar_Training_Submission: '训练提交',
+  NavBar_Exam_Home: '考试主页',
+  NavBar_Exam_Comment: '考试评论',
+  NavBar_Exam_Problem: '考试题目',
+  NavBar_Exam_Submission: '考试提交',
+  NavBar_Exam_Announcement: '考试公告',
+  NavBar_Exam_Rank: '考试榜单',
 
   //  /components/oj/common/Login.vue 登录弹窗
   Login_Username: '用户名',
@@ -363,7 +370,7 @@ export const m = {
   Enter_Author: '请输入作者',
   Run_ID: 'Run ID',
   Problem: '题目',
-  Problem_Score: 'OI题目总分数',
+  Problem_Score: '题目总分数',
   OI_Rank_Score: 'OI排行榜得分',
   OI_Rank_Calculation_Rule: 'OI排行得分计算公式',
   Cancel_Evaluation: '取消评测',
@@ -465,16 +472,19 @@ export const m = {
   Ended: '已结束',
   No_contest: '暂无比赛',
   Contests: '比赛',
+  Exams: '考试',
   Public: '公开赛',
   Private: '私有赛',
   Protected: '保护赛',
   Official: '正式赛',
   Synchronous: '同步赛',
+  Examination: '考试',
   Public_Tips: '公开赛 - 每个用户都可查看与提交',
   Protected_Tips: '保护赛 - 每个用户都可查看，但是提交需要密码',
   Private_Tips: '私有赛 - 用户需要密码才可查看与提交',
   Official_Tips: '正式赛 - 根据比赛要求可能需要密码才能查看和提交',
   Synchronous_Tips: '同步赛 - 根据比赛要求可能需要密码才能查看和提交',
+  Examination_Tips: '考试 - 根据比赛要求可能需要密码才能查看和提交',
   Contest_Outside_ScoreBoard: '赛外榜单',
 
   // /views/oj/contest/ContestDetail.vue
@@ -484,7 +494,7 @@ export const m = {
   To_Enter_Need_Password: '请输入该比赛的密码，方可进入比赛',
   Enter_the_contest_password: '请输入比赛密码',
   Enter: '进入',
-  Overview: '比赛简介',
+  Overview: '简介',
   Announcement: '公告',
   Submissions: '提交记录',
   Rankings: '排行榜',
@@ -520,6 +530,7 @@ export const m = {
   Force_Update: '强制更新',
   Download_as_CSV: '以CSV格式导出排名',
   TotalTime: '总时间',
+  TotalScore: '总分',
   Top_10_Teams: 'Top 10 Teams',
   save_as_image: '保存成图片',
   Contest_Rank_Seq: '排名',
@@ -571,6 +582,7 @@ export const m = {
   Contest_Rejudge_Tips: '您确定重测所有提交记录?',
   Rejudge_successfully: '重测成功',
   Rejudge_failed: '重测失败',
+  Exam_Rejudge: '考试重新测评',
 
   // /views/oj/contest/children/ScrollBoard.vue
   ScrollBoard_Parameter_Config: '滚榜参数配置',
@@ -630,6 +642,7 @@ export const m = {
   // /components/oj/common/Announcements.vue
   Contest_Announcement: '比赛公告',
   No_Announcements: '暂无公告',
+  Exam_Announcement: '考试公告',
 
   // /components/oj/common/CodeMirror.vue
   Lang: '语言',
@@ -669,8 +682,12 @@ export const m = {
   // /components/oj/comment/Comment.vue
   Announcement_of_contest_Q_and_A_area: '比赛评论区公告',
   Announcement_of_contest_Q_and_A_area_tips1: '请不要提问与比赛无关的问题，禁止灌水！',
-  Announcement_of_contest_Q_and_A_area_tips2: '比赛过程中，仅自己与比赛管理员的评论可见！',
-  Announcement_of_contest_Q_and_A_area_tips3: '比赛管理员评论不可回复，比赛结束评论恢复正常！',
+  Announcement_of_contest_Q_and_A_area_tips2: '比赛过程中，仅自己与管理员的评论可见！',
+  Announcement_of_contest_Q_and_A_area_tips3: '管理员评论不可回复，比赛结束评论恢复正常！',
+  Announcement_of_exam_Q_and_A_area: '考试评论区公告',
+  Announcement_of_exam_Q_and_A_area_tips1: '请不要提问与考试无关的问题，禁止灌水！',
+  Announcement_of_exam_Q_and_A_area_tips2: '考试过程中，仅自己与管理员的评论可见！',
+  Announcement_of_exam_Q_and_A_area_tips3: '管理员评论不可回复，考试结束评论恢复正常！',
   Come_and_write_down_your_comments: '快来写下你的评论吧',
   Inline_Code: '行内代码',
   Code_Block: '代码块',

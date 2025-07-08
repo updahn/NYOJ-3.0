@@ -23,6 +23,7 @@ import top.hcode.hoj.crawler.problem.ProblemStrategy;
 import top.hcode.hoj.dao.contest.ContestEntityService;
 import top.hcode.hoj.dao.contest.ContestProblemEntityService;
 import top.hcode.hoj.dao.judge.JudgeEntityService;
+import top.hcode.hoj.dao.problem.ProblemCaseEntityService;
 import top.hcode.hoj.dao.problem.ProblemEntityService;
 import top.hcode.hoj.manager.admin.problem.RemoteProblemManager;
 import top.hcode.hoj.manager.group.GroupManager;
@@ -35,6 +36,7 @@ import top.hcode.hoj.pojo.entity.contest.Contest;
 import top.hcode.hoj.pojo.entity.contest.ContestProblem;
 import top.hcode.hoj.pojo.entity.judge.Judge;
 import top.hcode.hoj.pojo.entity.problem.Problem;
+import top.hcode.hoj.pojo.entity.problem.ProblemCase;
 import top.hcode.hoj.pojo.entity.problem.ProblemDescription;
 import top.hcode.hoj.shiro.AccountProfile;
 import top.hcode.hoj.utils.Constants;
@@ -80,6 +82,9 @@ public class AdminContestProblemManager {
     @Autowired
     private AdminNoticeManager adminNoticeManager;
 
+    @Autowired
+    private ProblemCaseEntityService problemCaseEntityService;
+
     public HashMap<String, Object> getProblemList(Integer limit, Integer currentPage, String keyword,
             Long cid, Integer problemType, String oj, Integer difficulty, Integer type, Long gid)
             throws StatusForbiddenException {
@@ -118,7 +123,7 @@ public class AdminContestProblemManager {
         Boolean isRemote = Constants.RemoteOJ.isRemoteOJ(oj);
 
         Long contestGid = contest.getGid();
-        IPage<ProblemResDTO> problemListPage = problemEntityService.getAdminContestProblemList(iPage, keyword, cid,
+        IPage<ProblemResDTO> problemListPage = problemEntityService.getAdminContestProblemList(iPage, keyword,
                 problemType, oj, difficulty, type, gid, isRemote, contestGid, pidList);
 
         if (pidList.size() > 0 && problemType == null) {
@@ -363,12 +368,24 @@ public class AdminContestProblemManager {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void changeProblemDescription(ContestProblemDTO contestProblemDto) throws StatusFailException {
+    public void changeProblemDescription(ContestProblemDTO contestProblemDto)
+            throws StatusFailException, StatusForbiddenException {
         Long pid = contestProblemDto.getPid();
         Long peid = contestProblemDto.getPeid();
         Long cid = contestProblemDto.getCid();
 
         ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, peid, null, null);
+
+        // 获取当前登录的用户
+        AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
+
+        boolean isRoot = SecurityUtils.getSubject().hasRole("root")
+                || SecurityUtils.getSubject().hasRole("admin");
+        // 只有超级管理员和题目管理员、题目创建者才能操作
+        if (!isRoot && !userRolesVo.getUsername().equals(problem.getAuthor())) {
+            throw new StatusForbiddenException("对不起，你无权限修改题目！");
+        }
+
         List<ProblemDescription> problemDescriptionList = problem.getProblemDescriptionList();
 
         boolean isOk = problemDescriptionList.stream()
@@ -382,6 +399,61 @@ public class AdminContestProblemManager {
                 });
 
         if (!isOk) {
+            throw new StatusFailException("更新失败");
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void changeProblemScore(ContestProblemDTO contestProblemDto)
+            throws StatusFailException, StatusForbiddenException {
+        Long pid = contestProblemDto.getPid();
+        Long peid = contestProblemDto.getPeid();
+        Integer score = contestProblemDto.getScore();
+
+        if (score == null || score < 0) {
+            throw new StatusFailException("分数不能为空且不能小于0");
+        }
+
+        ProblemResDTO problem = problemEntityService.getProblemResDTO(pid, peid, null, null);
+
+        // 获取当前登录的用户
+        AccountProfile userRolesVo = (AccountProfile) SecurityUtils.getSubject().getPrincipal();
+
+        boolean isRoot = SecurityUtils.getSubject().hasRole("root")
+                || SecurityUtils.getSubject().hasRole("admin");
+        // 只有超级管理员和题目管理员、题目创建者才能操作
+        if (!isRoot && !userRolesVo.getUsername().equals(problem.getAuthor())) {
+            throw new StatusForbiddenException("对不起，你无权限修改题目！");
+        }
+
+        // 修改题目总分数
+        UpdateWrapper<Problem> problemUpdateWrapper = new UpdateWrapper<>();
+        problemUpdateWrapper.eq("id", pid).set("score", score);
+        Boolean isOk = problemEntityService.update(problemUpdateWrapper);
+
+        // 修改每个测试点的分数
+        QueryWrapper<ProblemCase> problemCaseQueryWrapper = new QueryWrapper<>();
+        problemCaseQueryWrapper.eq("pid", pid);
+        List<ProblemCase> problemCaseList = problemCaseEntityService.list(problemCaseQueryWrapper);
+
+        int caseCount = problemCaseList.size();
+
+        if (caseCount == 0) {
+            throw new StatusFailException("题目没有测试点，无法设置分数！");
+        }
+
+        int avgScore = score / caseCount;
+        int remainder = score % caseCount;
+
+        for (int i = 0; i < caseCount; i++) {
+            ProblemCase pc = problemCaseList.get(i);
+            int distributedScore = avgScore + (i < remainder ? 1 : 0); // 尽可能平均
+            pc.setScore(distributedScore);
+        }
+
+        boolean isOk2 = problemCaseEntityService.updateBatchById(problemCaseList);
+
+        if (!isOk || !isOk2) {
             throw new StatusFailException("更新失败");
         }
     }

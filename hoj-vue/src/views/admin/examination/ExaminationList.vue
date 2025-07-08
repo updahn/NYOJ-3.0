@@ -39,6 +39,7 @@
               <el-option :label="$t('m.Protected')" :value="2"></el-option>
               <el-option :label="$t('m.Official')" :value="3"></el-option>
               <el-option :label="$t('m.Synchronous')" :value="4"></el-option>
+              <el-option :label="$t('m.Examination')" :value="5"></el-option>
             </el-select>
           </span>
           <span>

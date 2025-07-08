@@ -330,22 +330,22 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
                     if (!Objects.equals(oldProblemCase.getInput(), problemCase.getInput()) ||
                             !Objects.equals(oldProblemCase.getOutput(), problemCase.getOutput())) {
                         needUpdateProblemCaseList.add(problemCase);
-                    } else if (problem.getType().intValue() == Constants.Contest.TYPE_OI.getCode()) {
-                        // 分数变动 或者 subtask分组编号变更
-                        if (!Objects.equals(oldProblemCase.getScore(), problemCase.getScore())
-                                || !Objects.equals(oldProblemCase.getGroupNum(), problemCase.getGroupNum())) {
-                            needUpdateProblemCaseList.add(problemCase);
-                        }
                     }
+
+                    // 分数变动 或者 subtask分组编号变更
+                    if (!Objects.equals(oldProblemCase.getScore(), problemCase.getScore())
+                            || !Objects.equals(oldProblemCase.getGroupNum(), problemCase.getGroupNum())) {
+                        needUpdateProblemCaseList.add(problemCase);
+                    }
+
                 } else {
                     newProblemCaseList.add(problemCase.setPid(pid));
                 }
             }
-            // 设置oi总分数，根据每个测试点的加和
-            if (problem.getType().intValue() == Constants.Contest.TYPE_OI.getCode()) {
-                int sumScore = calProblemTotalScore(problem.getJudgeCaseMode(), problemDto.getSamples());
-                problem.setIoScore(sumScore);
-            }
+
+            int sumScore = calProblemTotalScore(problem.getJudgeCaseMode(), problemDto.getSamples());
+            problem.setScore(sumScore);
+
             // 执行批量删除操作
             boolean deleteCasesFromProblemResult = true;
             if (needDeleteProblemCases.size() > 0) {
@@ -521,13 +521,12 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
                 }
                 problemCase.setPid(pid);
             }
-            // 设置oi总分数，根据每个测试点的加和
-            if (problem.getType().intValue() == Constants.Contest.TYPE_OI.getCode()) {
-                UpdateWrapper<Problem> problemUpdateWrapper = new UpdateWrapper<>();
-                problemUpdateWrapper.eq("id", pid)
-                        .set("io_score", sumScore);
-                problemMapper.update(null, problemUpdateWrapper);
-            }
+            // 设置总分数，根据每个测试点的加和
+            UpdateWrapper<ProblemDescription> problemDescriptionUpdateWrapper = new UpdateWrapper<>();
+            problemDescriptionUpdateWrapper.eq("pid", pid)
+                    .set("score", sumScore);
+            problemDescriptionEntityService.update(problemDescriptionUpdateWrapper);
+
             addCasesToProblemResult = problemCaseEntityService.saveOrUpdateBatch(problemCases);
             // 获取代理bean对象执行异步方法===》根据测试文件初始info
             applicationContext.getBean(ProblemEntityServiceImpl.class).initUploadTestCase(
@@ -538,22 +537,18 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
                     testcaseDir,
                     problemDto.getSamples());
         } else {
-            // oi题目需要求取平均值，给每个测试点初始oi的score值，默认总分100分
-            if (problem.getType().intValue() == Constants.Contest.TYPE_OI.getCode()) {
-                for (ProblemCase problemCase : problemDto.getSamples()) {
-                    // 设置好新题目的pid和累加总分数
-                    problemCase.setPid(pid);
-                }
-                int sumScore = calProblemTotalScore(problem.getJudgeCaseMode(), problemDto.getSamples());
-                addCasesToProblemResult = problemCaseEntityService.saveOrUpdateBatch(problemDto.getSamples());
-                UpdateWrapper<Problem> problemUpdateWrapper = new UpdateWrapper<>();
-                problemUpdateWrapper.eq("id", pid)
-                        .set("io_score", sumScore);
-                problemMapper.update(null, problemUpdateWrapper);
-            } else {
-                problemDto.getSamples().forEach(problemCase -> problemCase.setPid(pid)); // 设置好新题目的pid
-                addCasesToProblemResult = problemCaseEntityService.saveOrUpdateBatch(problemDto.getSamples());
+            // 设置总分数，根据每个测试点的加和
+            for (ProblemCase problemCase : problemDto.getSamples()) {
+                // 设置好新题目的pid和累加总分数
+                problemCase.setPid(pid);
             }
+            int sumScore = calProblemTotalScore(problem.getJudgeCaseMode(), problemDto.getSamples());
+            UpdateWrapper<ProblemDescription> problemDescriptionUpdateWrapper = new UpdateWrapper<>();
+            problemDescriptionUpdateWrapper.eq("pid", pid)
+                    .set("score", sumScore);
+            problemDescriptionEntityService.update(problemDescriptionUpdateWrapper);
+            problemDto.getSamples().forEach(problemCase -> problemCase.setPid(pid)); // 设置好新题目的pid
+            addCasesToProblemResult = problemCaseEntityService.saveOrUpdateBatch(problemDto.getSamples());
             initHandTestCase(problemDto.getJudgeMode(),
                     problem.getJudgeCaseMode(),
                     problem.getCaseVersion(),
@@ -967,11 +962,11 @@ public class ProblemEntityServiceImpl extends ServiceImpl<ProblemMapper, Problem
     }
 
     @Override
-    public IPage<ProblemResDTO> getAdminContestProblemList(IPage<ProblemResDTO> iPage, String keyword, Long cid,
+    public IPage<ProblemResDTO> getAdminContestProblemList(IPage<ProblemResDTO> iPage, String keyword,
             Integer problemType, String oj, Integer difficulty, Integer type, Long gid, Boolean isRemote,
             Long contestGid, List<Long> pidList) {
         return Paginate.paginateWithExistingPage(iPage,
-                problemMapper.getAdminContestProblemList(keyword, cid, problemType, oj, difficulty, type, gid, isRemote,
+                problemMapper.getAdminContestProblemList(keyword, problemType, oj, difficulty, type, gid, isRemote,
                         contestGid, pidList));
     }
 

@@ -261,6 +261,7 @@ export const m = {
   Add_From_Public_Problem: 'Add From Public Problem',
   ACM_Contest_Add_From_Public_Problem_Tips: 'ACM Contest: Only ACM type problem and Remote Judge problem can be imported',
   OI_Contest_Add_From_Public_Problem_Tips: 'OI Contest: Only OI type problem and Remote Judge problem can be imported',
+  EXAM_Contest_Add_From_Public_Problem_Tips: 'Exam: support importing ACM, Selection, Filling, and Decide type local problems',
   Auth: 'Auth',
   Modified_User: 'Modified User',
   All_Problem: 'All Problem',
@@ -393,9 +394,9 @@ export const m = {
   Problem_Sample2: 'Answer',
   Problem_Answer_Output: 'Answer Output',
   Examples_Desc: 'Upload File: Compress all data files in the folder into a zip-type compressed package',
-  Answer_Examples_Desc1: 'Answer format: For multiple-choice questions, the answer is a series of answers separated by line breaks in alphabetical order (e.g., selecting A and B would be input as `A` `\\n` `B`)',
-  Answer_Examples_Desc2: 'Answer format: For fill-in-the-blank questions, the answer is a series of answers separated by line breaks (e.g., selecting A and B would be input as `A` `\\n` `B`)',
-  Answer_Examples_Desc3: 'Answer format: For true or false questions, the answer is either YES or NO, usually just one word!',
+  Answer_Examples_Desc1: 'Answer: For multiple-choice questions, the output should be answers separated by line breaks, in lexicographical order. For example: <pre>A\nB</pre>',
+  Answer_Examples_Desc2: 'Answer: For fill-in-the-blank questions, the answer is a series of answers separated by line breaks. For example: <pre>A\nB</pre>',
+  Answer_Examples_Desc3: 'Answer: For true or false questions, the answer is either YES or NO!',
 
   // /views/admin/problem/Tag.vue
   Admin_Tag: 'Admin Tag',
@@ -534,6 +535,7 @@ export const m = {
   Contest_Award_Null: 'Do not set',
   Contest_Award_Set_Number: 'Set the number',
   Contest_Award_Set_Proportion: 'Set the proportion',
+  Contest_Award_Set_Score: 'Set the score',
   Contest_Award_Priority: 'Priority',
   Contest_Award_Name: 'Award Name',
   Contest_Award_Background: 'Award Background',
@@ -541,6 +543,7 @@ export const m = {
   Contest_Award_Show: 'Award Style Display',
   Contest_Award_Number: 'Number',
   Contest_Award_Proportion: 'Proportion',
+  Contest_Award_Score: 'Score',
   Allow_Submission_After_The_Contest_Ends: 'Allow Submission after the contest ends',
   Synchronous: 'Synchronous',
   Synchronous_School: 'Synchronous School',
@@ -560,6 +563,7 @@ export const m = {
   Range_ID_error: 'Range ID error',
   Problem_ID_and_Display_ID_length_not_match: 'Problem ID and Display ID length not match',
   Modify_endTime: 'Modify End Time',
+  Update_Problem_Score: 'Update Problem Score',
 
   // /views/admin/discussion/Discussion.vue
   Discussion_ID: 'Discussion ID',

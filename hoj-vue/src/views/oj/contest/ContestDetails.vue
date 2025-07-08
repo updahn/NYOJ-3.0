@@ -47,7 +47,7 @@
                   {{ contest.type | parseContestType }}
                 </el-button>
               </template>
-              <template v-else>
+              <template v-else-if="contest.type == 1">
                 <el-tooltip
                   :content="
                     $t('m.Contest_Rank') +
@@ -63,6 +63,14 @@
                   placement="top"
                 >
                   <el-button size="small" :type="'warning'">
+                    <i class="fa fa-trophy"></i>
+                    {{ contest.type | parseContestType }}
+                  </el-button>
+                </el-tooltip>
+              </template>
+              <template v-else>
+                <el-tooltip :content="$t('m.Examination_Tips')" placement="top" effect="light">
+                  <el-button size="small" :type="'danger'">
                     <i class="fa fa-trophy"></i>
                     {{ contest.type | parseContestType }}
                   </el-button>
@@ -106,6 +114,7 @@
             <div
               v-if="contest.auth == CONTEST_TYPE.OFFICIAL"
               class="config"
+              style="margin-right: 10px;"
             >
               <el-button
                 round
@@ -146,6 +155,12 @@
                 @click="toAdminContest(contest.gid, contest.title)"
               >{{$t('m.To_Admin_Background')}}</el-button>
             </div>
+
+            <span class="hidden-sm-and-down" style="margin-left: 10px;">
+              <el-tooltip :content="$t('m.Enter_Focus_Mode')" placement="bottom">
+                <el-button icon="el-icon-full-screen" @click="switchFocusMode" size="small"></el-button>
+              </el-tooltip>
+            </span>
           </div>
         </el-card>
       </el-col>
@@ -153,7 +168,7 @@
     <Announcement></Announcement>
     <div class="sub-menu">
       <el-tabs @tab-click="tabClick" v-model="route_name">
-        <el-tab-pane name="ContestDetails" lazy>
+        <el-tab-pane name="Details" lazy>
           <span slot="label">
             <i class="el-icon-s-home"></i>
             &nbsp;{{ $t('m.Overview') }}
@@ -195,7 +210,7 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane name="ContestProblemList" lazy :disabled="contestMenuDisabled">
+        <el-tab-pane name="ProblemList" lazy :disabled="contestMenuDisabled">
           <span slot="label">
             <i class="fa fa-list" aria-hidden="true"></i>
             &nbsp;{{
@@ -203,21 +218,26 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestProblemList'"></router-view>
+            <router-view v-if="route_name === 'ProblemList'"></router-view>
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane name="ContestSubmissionList" lazy :disabled="contestMenuDisabled">
+        <el-tab-pane name="SubmissionList" lazy :disabled="contestMenuDisabled">
           <span slot="label">
             <i class="el-icon-menu"></i>
             &nbsp;{{ $t('m.Status') }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestSubmissionList'"></router-view>
+            <router-view v-if="route_name === 'SubmissionList'"></router-view>
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane name="ContestRank" lazy :disabled="contestMenuDisabled">
+        <el-tab-pane
+          v-if="(contest.auth === CONTEST_TYPE.EXAMINATION && isContestAdmin) || (contest.auth !== CONTEST_TYPE.EXAMINATION)"
+          name="Rank"
+          lazy
+          :disabled="contestMenuDisabled"
+        >
           <span slot="label">
             <i class="fa fa-bar-chart" aria-hidden="true"></i>
             &nbsp;{{
@@ -225,11 +245,11 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestRank'"></router-view>
+            <router-view v-if="route_name === 'Rank'"></router-view>
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane name="ContestAnnouncementList" lazy :disabled="contestMenuDisabled">
+        <el-tab-pane name="AnnouncementList" lazy :disabled="contestMenuDisabled">
           <span slot="label">
             <i class="fa fa-bullhorn" aria-hidden="true"></i>
             &nbsp;{{
@@ -237,12 +257,12 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestAnnouncementList'"></router-view>
+            <router-view v-if="route_name === 'AnnouncementList'"></router-view>
           </transition>
         </el-tab-pane>
 
         <el-tab-pane
-          name="ContestComment"
+          name="Comment"
           lazy
           :disabled="contestMenuDisabled"
           v-if="websiteConfig.openContestComment"
@@ -254,27 +274,22 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestComment'"></router-view>
+            <router-view v-if="route_name === 'Comment'"></router-view>
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane
-          name="ContestPrint"
-          lazy
-          :disabled="contestMenuDisabled"
-          v-if="contest.openPrint"
-        >
+        <el-tab-pane name="Print" lazy :disabled="contestMenuDisabled" v-if="contest.openPrint">
           <span slot="label">
             <i class="el-icon-printer"></i>
             &nbsp;{{ $t('m.Print') }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestPrint'"></router-view>
+            <router-view v-if="route_name === 'Print'"></router-view>
           </transition>
         </el-tab-pane>
 
         <el-tab-pane
-          name="ContestAdminPrint"
+          name="AdminPrint"
           lazy
           :disabled="contestMenuDisabled"
           v-if="isContestAdmin && contest.openPrint"
@@ -286,16 +301,11 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestAdminPrint'"></router-view>
+            <router-view v-if="route_name === 'AdminPrint'"></router-view>
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane
-          name="ContestACInfo"
-          lazy
-          :disabled="contestMenuDisabled"
-          v-if="showAdminHelper"
-        >
+        <el-tab-pane name="ACInfo" lazy :disabled="contestMenuDisabled" v-if="showAdminHelper">
           <span slot="label">
             <i class="el-icon-s-help" aria-hidden="true"></i>
             &nbsp;{{
@@ -303,15 +313,10 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestACInfo'"></router-view>
+            <router-view v-if="route_name === 'ACInfo'"></router-view>
           </transition>
         </el-tab-pane>
-        <el-tab-pane
-          name="ContestRejudgeAdmin"
-          lazy
-          :disabled="contestMenuDisabled"
-          v-if="isContestAdmin"
-        >
+        <el-tab-pane name="RejudgeAdmin" lazy :disabled="contestMenuDisabled" v-if="isContestAdmin">
           <span slot="label">
             <i class="el-icon-refresh" aria-hidden="true"></i>
             &nbsp;{{
@@ -319,16 +324,11 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestRejudgeAdmin'"></router-view>
+            <router-view v-if="route_name === 'RejudgeAdmin'"></router-view>
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane
-          name="ContestAdminMoss"
-          lazy
-          :disabled="contestMenuDisabled"
-          v-if="isContestAdmin"
-        >
+        <el-tab-pane v-if="isContestAdmin" name="AdminMoss" lazy :disabled="contestMenuDisabled">
           <span slot="label">
             <i class="el-icon-connection"></i>
             &nbsp;{{
@@ -336,15 +336,15 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestAdminMoss'"></router-view>
+            <router-view v-if="route_name === 'AdminMoss'"></router-view>
           </transition>
         </el-tab-pane>
 
         <el-tab-pane
-          name="ContestSession"
+          v-if="contest.auth != CONTEST_TYPE.EXAMINATION && isContestAdmin"
+          name="Session"
           lazy
           :disabled="contestMenuDisabled"
-          v-if="isContestAdmin"
         >
           <span slot="label">
             <i class="el-icon-aim"></i>
@@ -353,11 +353,16 @@
             }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestSession'"></router-view>
+            <router-view v-if="route_name === 'Session'"></router-view>
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane name="ScrollBoard" lazy :disabled="contestMenuDisabled" v-if="showScrollBoard">
+        <el-tab-pane
+          name="ScrollBoard"
+          lazy
+          :disabled="contestMenuDisabled"
+          v-if=" contest.auth != CONTEST_TYPE.EXAMINATION && showScrollBoard"
+        >
           <span slot="label">
             <i class="el-icon-video-camera-solid" aria-hidden="true"></i>
             &nbsp;{{
@@ -369,13 +374,18 @@
           </transition>
         </el-tab-pane>
 
-        <el-tab-pane name="ContestAcCsv" lazy :disabled="contestMenuDisabled" v-if="contestEnded">
+        <el-tab-pane
+          name="AcCsv"
+          lazy
+          :disabled="contestMenuDisabled"
+          v-if="contest.auth != CONTEST_TYPE.EXAMINATION && contestEnded"
+        >
           <span slot="label">
             <i class="el-icon-s-grid" aria-hidden="true"></i>
             &nbsp;{{ $t('m.ContestAcCsv') }}
           </span>
           <transition name="el-zoom-in-bottom">
-            <router-view v-if="route_name === 'ContestAcCsv'"></router-view>
+            <router-view v-if="route_name === 'AcCsv'"></router-view>
           </transition>
         </el-tab-pane>
 
@@ -439,11 +449,19 @@ export default {
       btnLoading: false,
       contestPassword: "",
       defaultAvatar: require("@/assets/default.jpg"),
+      isContest: true,
     };
   },
   created() {
     this.contestID = this.$route.params.contestID;
     this.route_name = this.$route.name.replace("Group", "");
+
+    if (this.route_name.toLowerCase().includes("contest")) {
+      this.isContest = true;
+    } else {
+      this.isContest = false;
+    }
+
     if (this.route_name == "ContestProblemDetails") {
       this.route_name = "ContestProblemList";
     }
@@ -453,6 +471,14 @@ export default {
     if (this.route_name == "ContestAdminMossDetails") {
       this.route_name = "ContestAdminMoss";
     }
+    if (this.route_name == "ExamProblemDetails") {
+      this.route_name = "ExamProblemList";
+    }
+
+    this.route_name = this.route_name
+      .replace("Contest", "")
+      .replace("Exam", "");
+
     this.CONTEST_TYPE_REVERSE = Object.assign({}, CONTEST_TYPE_REVERSE);
     this.CONTEST_TYPE = Object.assign({}, CONTEST_TYPE);
     this.CONTEST_STATUS = Object.assign({}, CONTEST_STATUS);
@@ -553,6 +579,11 @@ export default {
         this.goToContestDiscussion();
         return;
       }
+      if (!this.isContest) {
+        name = "Exam" + name;
+      } else {
+        name = "Contest" + name;
+      }
       if (this.contest.gid) {
         name = "Group" + name;
       }
@@ -608,6 +639,29 @@ export default {
       this.$router.push({
         name: "signup-contest-list",
         query: { keyword: title },
+      });
+    },
+    switchFocusMode() {
+      this.contestID = this.$route.params.contestID;
+      this.trainingID = this.$route.params.trainingID;
+      this.groupID = this.$route.params.groupID;
+
+      let isExam = this.$route.name.toLowerCase().includes("exam");
+
+      let routeName = isExam
+        ? "ExamFullProblemDetails"
+        : this.groupID
+        ? "GroupContestFullProblemDetails"
+        : "ContestFullProblemDetails";
+
+      this.$router.push({
+        name: routeName,
+        params: {
+          trainingID: this.trainingID,
+          contestID: this.contestID,
+          problemID: this.problemID,
+          groupID: this.groupID,
+        },
       });
     },
   },
@@ -678,13 +732,33 @@ export default {
   watch: {
     $route(newVal) {
       this.route_name = newVal.name.replace("Group", "");
-      if (this.route_name == "ContestProblemDetails") {
-        this.route_name = "ContestProblemList";
-      } else if (this.route_name == "ContestSubmissionDetails") {
-        this.route_name = "ContestSubmissionList";
-      } else if (this.route_name == "ContestAdminMossDetails") {
-        this.route_name = "ContestAdminMoss";
+
+      if (this.route_name.toLowerCase().includes("contest")) {
+        if (this.route_name == "ContestProblemDetails") {
+          this.route_name = "ContestProblemList";
+        } else if (this.route_name == "ContestSubmissionDetails") {
+          this.route_name = "ContestSubmissionList";
+        } else if (this.route_name == "ContestAdminMossDetails") {
+          this.route_name = "ContestAdminMoss";
+        } else if (this.route_name == "ExamProblemDetails") {
+          this.route_name = "ExamProblemList";
+        }
+        this.isContest = true;
+      } else {
+        if (this.route_name == "ExamProblemDetails") {
+          this.route_name = "ExamProblemList";
+        } else if (this.route_name == "ExamSubmissionDetails") {
+          this.route_name = "ExamSubmissionList";
+        } else if (this.route_name == "ExamAdminMossDetails") {
+          this.route_name = "ExamAdminMoss";
+        }
+        this.isContest = false;
       }
+
+      this.route_name = this.route_name
+        .replace("Contest", "")
+        .replace("Exam", "");
+
       this.contestID = newVal.params.contestID;
       this.changeDomTitle({ title: this.contest.title });
     },

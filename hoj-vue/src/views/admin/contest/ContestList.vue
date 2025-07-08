@@ -32,6 +32,7 @@
               <el-option :label="$t('m.All_Contest')" :value="'All'"></el-option>
               <el-option :label="'ACM'" :value="0"></el-option>
               <el-option :label="'OI'" :value="1"></el-option>
+              <el-option :label="$t('m.Examination')" :value="5"></el-option>
             </el-select>
           </span>
           <span>
@@ -47,6 +48,7 @@
               <el-option :label="$t('m.Protected')" :value="2"></el-option>
               <el-option :label="$t('m.Official')" :value="3"></el-option>
               <el-option :label="$t('m.Synchronous')" :value="4"></el-option>
+              <el-option :label="$t('m.Examination')" :value="5"></el-option>
             </el-select>
           </span>
           <span>
@@ -345,18 +347,21 @@ export default {
       this.downloadDialogVisible = false;
     },
     goEdit(contestId) {
-      this.$router.push({ name: "admin-edit-contest", params: { contestId } });
+      this.$router.push({
+        name: "admin-edit-contest",
+        params: { contestID: contestId },
+      });
     },
     goContestAnnouncement(contestId) {
       this.$router.push({
         name: "admin-contest-announcement",
-        params: { contestId },
+        params: { contestID: contestId },
       });
     },
     goContestProblemList(contestId) {
       this.$router.push({
         name: "admin-contest-problem-list",
-        params: { contestId },
+        params: { contestID: contestId },
       });
     },
     deleteContest(contestId) {

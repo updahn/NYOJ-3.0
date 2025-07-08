@@ -54,7 +54,7 @@ public class Contest implements Serializable {
     @ApiModelProperty(value = "比赛来源，原创为0，克隆赛为比赛id")
     private Integer source;
 
-    @ApiModelProperty(value = "0为公开赛，1为私有赛（访问有密码），2为保护赛（提交有密码），3为正式赛（访问要报名），4为同步赛")
+    @ApiModelProperty(value = "0为公开赛，1为私有赛（访问有密码），2为保护赛（提交有密码），3为正式赛（访问要报名），4为同步赛，5为考试")
     private Integer auth;
 
     @ApiModelProperty(value = "比赛密码")

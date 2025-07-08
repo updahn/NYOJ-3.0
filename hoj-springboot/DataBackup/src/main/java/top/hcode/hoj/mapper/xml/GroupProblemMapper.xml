@@ -27,7 +27,7 @@
         <result column="is_remote" property="isRemote"></result>
         <result column="difficulty" property="difficulty"></result>
         <result column="auth" property="auth"></result>
-        <result column="io_score" property="ioScore"></result>
+        <result column="score" property="score"></result>
         <result column="code_share" property="codeShare"></result>
         <result column="spj_code" property="spjCode"></result>
         <result column="spj_language" property="spjLanguage"></result>
