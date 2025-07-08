@@ -796,7 +796,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     // @Scheduled(cron = "0 0/20 * * * ?")
-    @Scheduled(cron = "0 0 8-23 * * ?") // 每小时第0分钟执行一次，8点到23点之间
+    @Scheduled(cron = "0 0 8-22 * * ?") // 每小时执行一次，8点到22点之间
     public void check30MRemoteJudgeVisible() {
 
         List<RemoteOJ> remoteOJList = Constants.RemoteOJ.getRemoteOJList();
@@ -809,64 +809,20 @@ public class ScheduleServiceImpl implements ScheduleService {
             judgeEntityService.getRemoteJudgeList(notInStatuses, null, strTime)
         ).orElse(new ArrayList<>());
 
-        // 封装为 Pair 列表
-        List<Pair_<Judge, Boolean>> checkJudgeList = judgeList.stream()
-            .map(judge -> new Pair_<Judge, Boolean>(judge, false))
-            .collect(Collectors.toCollection(ArrayList::new));
-
-        // 再获取所有 remote judge（不限制时间）
-        List<Judge> remoteJudgeList = judgeEntityService.getRemoteJudgeList(notInStatuses, null, null);
-
-        // 每个 remoteOJName 只保留第一条 Judge
-        Map<String, Judge> uniqueOJJudgeMap = new ConcurrentHashMap<>();
-
-        remoteJudgeList.parallelStream().forEach(judge -> {
-            String displayId = judge.getDisplayPid();
-            String remoteOJName = displayId.startsWith("VJ") ? "VJ" : displayId.split("-")[0].toUpperCase();
-
-            if (uniqueOJJudgeMap.putIfAbsent(remoteOJName, judge) == null) {
-                checkJudgeList.add(new Pair_<Judge, Boolean>(judge, true));
-                judgeList.add(judge);
-            }
-        });
-
         if (!CollectionUtils.isEmpty(judgeList)) {
             log.info("An Hour Check Remote Judge Visible: Size(): " + judgeList.size() + " List(): " + Arrays.toString(judgeList.toArray()));
 
             Map<String, List<Long>> successSubmitIds = new HashMap<>();
             Map<String, List<Long>> totalSubmitIds = new HashMap<>();
 
-            checkJudgeList.parallelStream().forEach(judge_pair -> {
-                Judge judge = judge_pair.getKey();
-
+            judgeList.parallelStream().forEach(judge -> {
                 String displayId = judge.getDisplayPid();
                 String remoteOJName = displayId.startsWith("VJ") ? "VJ" : displayId.split("-")[0].toUpperCase();
 
                 totalSubmitIds.computeIfAbsent(remoteOJName, k -> new ArrayList<>()).add(judge.getSubmitId());
 
-                Judge updatedJudge = judgeEntityService.getById(judge.getSubmitId());
-
-                // 获取对应的redis key
-                String redisKey = Constants.Schedule.CHECK_REMOTE_JUDGE.getCode() + "_" + remoteOJName;
-
-                // 如果judge_pair.getValue()为true，则进行重测
-                if (judge_pair.getValue()) {
-                    if (redisUtils.get(redisKey) == null) {
-                        try {
-                            rejudgeRemoteOj(updatedJudge);
-                        } catch (Exception e) {
-                            // 记录这次检查的judge
-                            redisUtils.set(redisKey, judge.getSubmitId());
-                        }
-                    }
-                }
-
-                // 获取judge的状态
-                int status = judgeEntityService.getById(judge.getSubmitId()).getStatus();
-
-                if (!notInStatuses.contains(status)) {
-                    // 如果有提交成功的，则删除
-                    redisUtils.del(redisKey);
+                // 获取judge的状态为正常评测的
+                if (!notInStatuses.contains(judgeEntityService.getById(judge.getSubmitId()).getStatus())) {
                     successSubmitIds.computeIfAbsent(remoteOJName, k -> new ArrayList<>()).add(judge.getSubmitId());
                 } else {
                     log.info("Remote Judge Visible: OJ: {} SubmitId: {} Failed", remoteOJName, judge.getSubmitId());
