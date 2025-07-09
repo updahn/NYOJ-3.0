@@ -697,6 +697,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         QueryWrapper<Judge> judgeQueryWrapper = new QueryWrapper<>();
         judgeQueryWrapper.select("distinct submit_id");
         judgeQueryWrapper.eq("status", Constants.Judge.STATUS_PENDING.getStatus());
+        judgeQueryWrapper.eq("is_remote", false);
         judgeQueryWrapper.apply("UNIX_TIMESTAMP(gmt_modified) > " + "UNIX_TIMESTAMP('" + strTime + "')");
         List<Judge> judgeList = judgeEntityService.list(judgeQueryWrapper);
         if (!CollectionUtils.isEmpty(judgeList)) {
