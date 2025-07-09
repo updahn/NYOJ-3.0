@@ -10,7 +10,6 @@ import cn.hutool.system.oshi.OshiUtil;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.dockerjava.api.DockerClient;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -39,6 +39,9 @@ import top.hcode.hoj.utils.Constants;
 import top.hcode.hoj.utils.DockerClientUtils;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -74,6 +77,9 @@ public class ConfigManager {
 
     @Autowired
     private NacosSwitchConfig nacosSwitchConfig;
+
+    @Autowired
+    private DockerClientUtils dockerClientUtils;
 
     @Value("${service-url.name}")
     private String judgeServiceName;
@@ -145,17 +151,46 @@ public class ConfigManager {
     }
 
     public List<JSONObject> getJudgeServiceInfo() {
-        List<JSONObject> serviceInfoList = new LinkedList<>();
-        List<ServiceInstance> serviceInstances = discoveryClient.getInstances(judgeServiceName);
-        for (ServiceInstance serviceInstance : serviceInstances) {
+        List<ServiceInstance> instances = discoveryClient.getInstances(judgeServiceName);
+
+        if (instances.isEmpty())
+            return Collections.emptyList();
+
+        // 创建固定大小线程池，核心数为实例数量或 CPU 核心数的较小值
+        ExecutorService executor = Executors.newFixedThreadPool(
+                Math.min(instances.size(), Runtime.getRuntime().availableProcessors()));
+
+        List<Future<JSONObject>> futures = new ArrayList<>();
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
+        // 提交所有并行任务
+        // 并行提交所有请求
+        for (ServiceInstance instance : instances) {
+            futures.add(executor.submit(() -> {
+                try {
+                    String result = restTemplate.getForObject(
+                            instance.getUri() + "/get-sys-config", String.class);
+
+                    JSONObject json = JSONUtil.parseObj(result, false);
+                    json.put("service", instance);
+                    return json;
+                } catch (Exception e) {
+                    return null; // 忽略单个实例的失败
+                }
+            }));
+        }
+
+        // 收集结果
+        List<JSONObject> serviceInfoList = new ArrayList<>();
+        for (Future<JSONObject> future : futures) {
             try {
-                String result = restTemplate.getForObject(serviceInstance.getUri() + "/get-sys-config", String.class);
-                JSONObject jsonObject = JSONUtil.parseObj(result, false);
-                jsonObject.put("service", serviceInstance);
-                serviceInfoList.add(jsonObject);
+                JSONObject json = future.get();
+                if (json != null) {
+                    serviceInfoList.add(json);
+                }
             } catch (Exception e) {
-                log.error("[Admin Dashboard] get judge service info error, uri={}, error={}", serviceInstance.getUri(),
-                        e);
+                log.error("[Admin Dashboard] get judge service info error, error={}", e.getMessage());
             }
         }
 
@@ -167,35 +202,28 @@ public class ConfigManager {
     }
 
     public List<JSONObject> getDockerServiceInfo() throws StatusFailException {
-        String[] headers = {
-                "CONTAINER ID", "NAME", "IMAGE", "COMMAND", "CREATED", "STATUS",
-                "PORTS", "CPU %", "MEM USAGE / LIMIT", "MEM %", "NET I/O", "BLOCK I/O"
-        };
 
         try {
-            DockerClient dockerclient = new DockerClientUtils().connect(backendServerIp, null);
-            List<List<String>> containerDetails = DockerClientUtils.getDockerContainerDetails(dockerclient);
+            List<String> selectContainerNameList = Arrays.asList(
+                    "hoj-frontend",
+                    "hoj-backend",
+                    "hoj-nacos",
+                    "hoj-mysql",
+                    "hoj-redis",
+                    "hoj-mysql-checker",
+                    "hoj-autohealth",
+                    "hoj-rsync-master",
+                    "hoj-htmltopdf");
 
-            // 定义状态优先级映射
-            Map<String, Integer> statusPriority = new HashMap<>();
-            statusPriority.put("Up", 1);
-            statusPriority.put("Created", 2);
-            statusPriority.put("Exited", 3);
+            List<Map<String, String>> containerDetailList = dockerClientUtils
+                    .getDockerContainerDetailList(selectContainerNameList);
 
-            // 对容器详情按状态进行排序
-            containerDetails.sort(Comparator.comparingInt(row -> {
-                String status = row.size() > 5 ? row.get(5) : "";
-                return statusPriority.entrySet().stream()
-                        .filter(entry -> status.startsWith(entry.getKey()))
-                        .map(Map.Entry::getValue)
-                        .findFirst()
-                        .orElse(Integer.MAX_VALUE);
-            }));
+            return containerDetailList.stream().map(row -> {
+                Set<String> keySet = row.keySet();
 
-            return containerDetails.stream().map(row -> {
                 JSONObject json = new JSONObject();
-                for (int i = 0; i < headers.length && i < row.size(); i++) {
-                    json.put(headers[i], row.get(i));
+                for (String key : keySet) {
+                    json.put(key, row.get(key));
                 }
                 return json;
             }).collect(Collectors.toList());
@@ -209,33 +237,21 @@ public class ConfigManager {
     public void setDockerServer(DockerConfigDTO config) throws StatusFailException {
         String containerId = config.getContainerId();
         String method = config.getMethod().toLowerCase();
-        String serverIp = config.getServerIp();
-
-        if (StringUtils.isEmpty(serverIp)) {
-            serverIp = backendServerIp;
-        }
 
         try {
-            DockerClient dockerclient = new DockerClientUtils().connect(serverIp, null);
-
-            Boolean isOk = false;
-
             if (method.equals("start")) {
-                isOk = DockerClientUtils.startContainer(dockerclient, containerId);
+                dockerClientUtils.startContainer(containerId);
             } else if (method.equals("stop")) {
-                isOk = DockerClientUtils.stopContainer(dockerclient, containerId);
+                dockerClientUtils.stopContainer(containerId);
             } else if (method.equals("restart")) {
-                isOk = DockerClientUtils.restartContainer(dockerclient, containerId);
+                dockerClientUtils.restartContainer(containerId);
             } else if (method.equals("pull")) {
-                isOk = DockerClientUtils.pullImage(dockerclient, containerId);
+                dockerClientUtils.pullImage(containerId);
             } else {
                 throw new StatusFailException("未知的命令！");
             }
-
-            if (!isOk) {
-                throw new StatusFailException("操作失败！");
-            }
         } catch (Exception e) {
+            log.error("[Admin Dashboard] set docker server error: {}", e.getMessage());
             throw new StatusFailException("操作失败！");
         }
     }

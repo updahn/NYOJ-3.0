@@ -339,21 +339,25 @@ public class Constants {
         }
 
         public String getPath() {
-            // 获取当前的环境
-            String env = SpringContextUtil.getActiveProfile();
+            try {
+                // 获取当前的环境
+                String env = SpringContextUtil.getActiveProfile();
 
-            if (env.equals("dev") && path.startsWith("/hoj")) {
-                // 判断系统
-                Boolean isLinux = isLinux();
+                if (env.equals("dev") && path.startsWith("/hoj")) {
+                    // 判断系统
+                    Boolean isLinux = isLinux();
 
-                if (!isLinux) {
-                    String winPath = "\\\\wsl.localhost\\Ubuntu-22.04\\home\\dym\\workspace\\hoj";
-                    return winPath + path.replace("/", "\\");
+                    if (!isLinux) {
+                        String winPath = "\\\\wsl.localhost\\Ubuntu-22.04\\home\\dym\\workspace\\hoj";
+                        return winPath + path.replace("/", "\\");
+                    } else {
+                        String linuxPath = "/home/dym/hoj";
+                        return linuxPath + path;
+                    }
                 } else {
-                    String linuxPath = "/home/dym/hoj";
-                    return linuxPath + path;
+                    return path;
                 }
-            } else {
+            } catch (Exception e) {
                 return path;
             }
         }

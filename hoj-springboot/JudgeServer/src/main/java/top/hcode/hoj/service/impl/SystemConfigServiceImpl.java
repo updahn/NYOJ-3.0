@@ -3,18 +3,16 @@ package top.hcode.hoj.service.impl;
 import cn.hutool.system.oshi.OshiUtil;
 
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
-
-import com.github.dockerjava.api.DockerClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 
 import top.hcode.hoj.service.SystemConfigService;
 import top.hcode.hoj.util.DockerClientUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @Author: Himit_ZH
@@ -24,8 +22,8 @@ import java.util.stream.IntStream;
 @Service
 public class SystemConfigServiceImpl implements SystemConfigService {
 
-    @Value("${hoj-judge-server.ip}")
-    private String dockerHost;
+    @Autowired
+    private DockerClientUtils dockerClientUtils;
 
     public HashMap<String, Object> getSystemConfig() {
         HashMap<String, Object> result = new HashMap<String, Object>();
@@ -43,27 +41,13 @@ public class SystemConfigServiceImpl implements SystemConfigService {
         result.put("percentMemoryLoad", percentMemoryLoad);
 
         try {
-            String[] headers = {
-                    "CONTAINER ID", "NAME", "IMAGE", "COMMAND", "CREATED", "STATUS",
-                    "PORTS", "CPU %", "MEM USAGE / LIMIT", "MEM %", "NET I/O", "BLOCK I/O"
-            };
+            List<String> selectContainerNameList = Arrays.asList("hoj-rsync-slave", "hoj-judgeserver");
 
-            DockerClient dockerClient = new DockerClientUtils().connect(dockerHost, null);
-            List<List<String>> containerDetails = DockerClientUtils.getDockerContainerDetails(dockerClient);
+            List<Map<String, String>> containerDetailList = dockerClientUtils
+                    .getDockerContainerDetailList(selectContainerNameList);
 
-            List<Map<String, String>> dockerList = containerDetails.stream()
-                    .filter(c -> c.size() > 1
-                            && ("/hoj-rsync-slave".equals(c.get(1)) || "/hoj-judgeserver".equals(c.get(1))))
-                    .map(container -> {
-                        Map<String, String> map = new HashMap<>();
-                        IntStream.range(0, Math.min(headers.length, container.size()))
-                                .forEach(i -> map.put(headers[i], container.get(i)));
-                        return map;
-                    })
-                    .collect(Collectors.toList());
-
-            if (!dockerList.isEmpty()) {
-                result.put("docker", dockerList);
+            if (!CollectionUtils.isEmpty(containerDetailList)) {
+                result.put("docker", containerDetailList);
             }
         } catch (Exception e) {
             e.printStackTrace();

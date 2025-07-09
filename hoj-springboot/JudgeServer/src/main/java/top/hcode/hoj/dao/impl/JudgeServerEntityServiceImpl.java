@@ -4,17 +4,22 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import top.hcode.hoj.judge.SandboxRun;
 import top.hcode.hoj.mapper.JudgeServerMapper;
 import top.hcode.hoj.pojo.entity.judge.JudgeServer;
+import top.hcode.hoj.util.DockerClientUtils;
 import top.hcode.hoj.dao.JudgeServerEntityService;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: Himit_ZH
@@ -38,6 +43,9 @@ public class JudgeServerEntityServiceImpl extends ServiceImpl<JudgeServerMapper,
 
     @Value("${hoj-judge-server.name}")
     private String name;
+
+    @Autowired
+    private DockerClientUtils dockerClientUtils;
 
     @Override
     public HashMap<String, Object> getJudgeServerInfo() {

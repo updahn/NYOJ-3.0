@@ -1,176 +1,166 @@
 package top.hcode.hoj.utils;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import com.github.dockerjava.api.DockerClient;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.*;
 import java.time.*;
-
-import com.github.dockerjava.core.*;
+import javax.net.ssl.SSLException;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.api.command.*;
-import com.github.dockerjava.httpclient5.ApacheDockerHttpClient;
-import com.github.dockerjava.transport.DockerHttpClient;
-import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 
-import com.alibaba.druid.util.StringUtils;
-
+@Component
+@Slf4j
 public class DockerClientUtils {
 
-    public DockerClient connect(String dockerHost, String dockerPort) {
+    private static DockerClient dockerClient;
 
-        if (StringUtils.isEmpty(dockerHost)) {
-            dockerHost = "localhost";
-        }
-
-        if (StringUtils.isEmpty(dockerPort)) {
-            dockerPort = "2376";
-        }
-
-        String dockerDir = Constants.File.DOCKER_CERT_PATH.getPath();
-
-        // 配置docker CLI的一些选项
-        DefaultDockerClientConfig config = DefaultDockerClientConfig
-                .createDefaultConfigBuilder()
-                .withDockerTlsVerify(true)
-                .withDockerCertPath(dockerDir)
-                .withDockerHost(String.format("tcp://%s:%s", dockerHost, dockerPort))
-                .build();
-
-        // 创建DockerHttpClient
-        DockerHttpClient httpClient = new ApacheDockerHttpClient.Builder()
-                .dockerHost(config.getDockerHost())
-                .sslConfig(config.getSSLConfig())
-                .maxConnections(100)
-                .connectionTimeout(Duration.ofSeconds(30))
-                .responseTimeout(Duration.ofSeconds(45))
-                .build();
-
-        DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
-        return dockerClient;
-    }
+    private static String[] HEADERS = {
+            "CONTAINER ID", "NAME", "IMAGE", "COMMAND", "CREATED", "STATUS",
+            "PORTS", "CPU %", "MEM USAGE / LIMIT", "MEM %", "NET I/O", "BLOCK I/O"
+    };
 
     /**
-     * @param dockerClient
+     * 构造函数，注入WebClient Bean
      *
-     * @return { List<Container> }
-     * @Description: 获取所有容器列表
+     * @param dockerClient 在DockerConfig中配置的WebClient Bean
      */
-    public static List<Container> getAllContainers(DockerClient dockerClient) {
-        return dockerClient.listContainersCmd().withShowAll(true).exec();
+    @Autowired
+    public void DockerClientUtils(@Qualifier("dockerClient") DockerClient webClient) throws SSLException {
+        DockerClientUtils.dockerClient = webClient;
     }
 
     /**
-     * @param dockerClient
-     * @param containerId  容器ID
+     * 获取单个容器详情
      *
-     * @return { Container }
-     * @Description: 获取单个容器内容
+     * @param containerId 容器ID
+     * @return 容器详情
      */
-    public static Map<String, String> getContainer(DockerClient dockerClient, String containerId) {
-        InspectContainerResponse info = dockerClient.inspectContainerCmd(containerId).exec();
-        Map<String, String> map = new HashMap<>();
+    public Map<String, String> getContainer(String containerId) {
+        try {
+            InspectContainerResponse info = dockerClient.inspectContainerCmd(containerId).exec();
+            Map<String, String> map = new HashMap<>();
 
-        map.put("name", Optional.ofNullable(info.getName()).orElse("").replaceFirst("^/", ""));
-        map.put("command", Optional.ofNullable(info.getConfig().getCmd())
-                .map(cmd -> String.join(" ", cmd))
-                .orElse(""));
-        map.put("image", info.getConfig().getImage());
-        map.put("status", info.getState().getStatus());
-        map.put("created", formattedTimeZone(info.getCreated()));
+            map.put("name", Optional.ofNullable(info.getName()).orElse("").replaceFirst("^/", ""));
+            map.put("command", Optional.ofNullable(info.getConfig().getCmd())
+                    .map(cmd -> String.join(" ", cmd))
+                    .orElse(""));
+            map.put("image", info.getConfig().getImage());
+            map.put("status", info.getState().getStatus());
+            map.put("created", formattedTimeZone(info.getCreated()));
 
-        // 端口信息拼接
-        Ports ports = info.getNetworkSettings().getPorts();
-        String portInfo = "";
-        if (ports != null && ports.getBindings() != null) {
-            portInfo = ports.getBindings().entrySet().stream()
-                    .map(entry -> {
-                        ExposedPort ep = entry.getKey();
-                        Ports.Binding[] bindings = entry.getValue();
-                        if (bindings != null && bindings.length > 0 && bindings[0] != null) {
-                            Ports.Binding b = bindings[0];
-                            String hostIp = b.getHostIp() != null ? b.getHostIp() + ":" : "";
-                            String hostPort = b.getHostPortSpec() != null ? b.getHostPortSpec() : "";
-                            return String.format("%s%s->%d/%s", hostIp, hostPort, ep.getPort(), ep.getProtocol());
-                        }
-                        return ep.getPort() + "/" + ep.getProtocol();
-                    })
-                    .collect(Collectors.joining(", "));
+            // 端口信息拼接
+            Ports ports = info.getNetworkSettings().getPorts();
+            String portInfo = "";
+            if (ports != null && ports.getBindings() != null) {
+                portInfo = ports.getBindings().entrySet().stream()
+                        .map(entry -> {
+                            ExposedPort ep = entry.getKey();
+                            Ports.Binding[] bindings = entry.getValue();
+                            if (bindings != null && bindings.length > 0 && bindings[0] != null) {
+                                Ports.Binding b = bindings[0];
+                                String hostIp = b.getHostIp() != null ? b.getHostIp() + ":" : "";
+                                String hostPort = b.getHostPortSpec() != null ? b.getHostPortSpec() : "";
+                                return String.format("%s%s->%d/%s", hostIp, hostPort, ep.getPort(), ep.getProtocol());
+                            }
+                            return ep.getPort() + "/" + ep.getProtocol();
+                        })
+                        .collect(Collectors.joining(", "));
+            }
+            map.put("ports", portInfo);
+
+            return map;
+        } catch (Exception e) {
+            log.error("Failed to get container {}: {}", containerId, e.getMessage());
+            return null;
         }
-        map.put("ports", portInfo);
-
-        return map;
     }
 
     /**
+     * 获取所有容器列表
      *
-     * @param dockerClient
-     * @param containerId  容器ID
+     * @param selectContainerNameList 筛选的容器名称列表
      *
+     * @return 容器列表
+     */
+    public List<Container> getAllContainerList(List<String> selectContainerNameList) {
+        try {
+            return dockerClient.listContainersCmd().withShowAll(true).withNameFilter(selectContainerNameList).exec();
+        } catch (Exception e) {
+            log.error("Failed to get containers: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * 启动容器
+     *
+     * @param containerId 容器ID
      * @return 是否成功启动容器
-     * @Description: 启动容器
      */
-    public static Boolean startContainer(DockerClient dockerClient, String containerId) {
+    public Boolean startContainer(String containerId) {
         try {
             dockerClient.startContainerCmd(containerId).exec();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to start container {}: {}", containerId, e.getMessage());
             return false;
         }
     }
 
     /**
+     * 重启容器
      *
-     * @param dockerClient
-     * @param containerId  容器ID
-     *
+     * @param containerId 容器ID
      * @return 是否成功重启容器
-     * @Description: 重启容器
      */
-    public static Boolean restartContainer(DockerClient dockerClient, String containerId) {
+    public Boolean restartContainer(String containerId) {
         try {
             dockerClient.restartContainerCmd(containerId).exec();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to restart container {}: {}", containerId, e.getMessage());
             return false;
         }
     }
 
     /**
+     * 停止容器
      *
-     * @param dockerClient
-     * @param containerId  容器ID
-     *
+     * @param containerId 容器ID
      * @return 是否成功停止容器
-     * @Description: 停止容器
      */
-    public static Boolean stopContainer(DockerClient dockerClient, String containerId) {
+    public Boolean stopContainer(String containerId) {
         try {
             dockerClient.stopContainerCmd(containerId).exec();
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to stop container {}: {}", containerId, e.getMessage());
             return false;
         }
     }
 
     /**
+     * 拉取镜像
      *
-     * @param dockerClient
-     * @param containerId  容器ID
-     *
+     * @param containerId 容器ID
      * @return 是否成功拉取镜像
-     * @Description: 现有容器拉取镜像
-     **/
-    public static Boolean pullImage(DockerClient dockerClient, String containerId) {
+     */
+    public Boolean pullImage(String containerId) {
         try {
-            Map<String, String> map = getContainer(dockerClient, containerId);
+            Map<String, String> map = getContainer(containerId);
 
             if (map != null) {
                 String repository = map.get("image");
@@ -179,79 +169,34 @@ public class DockerClientUtils {
             }
             return false;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to pull image for container {}: {}", containerId, e.getMessage());
             return false;
         }
     }
 
     /**
-     * @param isoTimeSeconds Docker容器创建时间戳（秒）
-     * @return {@code String } 格式化后的时间
+     * 获取Docker容器详情列表
      *
-     * @Description: 格式化时间
-     */
-    private static String formatTimestamp(Long isoTimeSeconds) {
-        // Docker容器的时间戳是以秒为单位，需要转换为毫秒
-        Instant instant = Instant.ofEpochSecond(isoTimeSeconds);
-        // 将Instant对象转换为ZonedDateTime对象（UTC时区）
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
-        // 转换为本地时区
-        ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
-        // 定义时间格式
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        // 格式化时间
-        return localZonedDateTime.format(formatter);
-    }
-
-    private static String formattedTimeZone(String isoTimeMillis) {
-        // 解析ISO 8601格式的字符串为Instant对象
-        Instant instant = Instant.parse(isoTimeMillis);
-        // 将Instant对象转换为ZonedDateTime对象（UTC时区）
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
-        // 转换为本地时区（如果需要）
-        ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
-        // 定义时间格式
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        // 格式化时间
-        return localZonedDateTime.format(formatter);
-    }
-
-    /**
-     * @param bytes Docker容器资源占用比特
-     * @return {@code String } 格式化后的资源占用
+     * @param selectContainerNameList 筛选的容器名称列表
      *
-     * @Description: 格式化资源占用
+     * @return 容器详情列表
      */
-    private static String formatBytes(long bytes) {
-        double kb = bytes / 1024.0;
-        double mb = kb / 1024.0;
-        double gb = mb / 1024.0;
-        if (gb >= 1)
-            return String.format("%.3f GiB", gb);
-        if (mb >= 1)
-            return String.format("%.3f MiB", mb);
-        if (kb >= 1)
-            return String.format("%.3f kB", kb);
-        return bytes + " B";
-    }
+    public List<Map<String, String>> getDockerContainerDetailList(List<String> selectContainerNameList) {
 
-    public static <T> T getSafe(Supplier<T> supplier) {
-        try {
-            return supplier.get();
-        } catch (Exception e) {
+        // 获取所有容器
+        List<Container> containerList = getAllContainerList(selectContainerNameList);
+
+        if (CollectionUtils.isEmpty(containerList)) {
             return null;
         }
-    }
-
-    public static List<List<String>> getDockerContainerDetails(DockerClient dockerClient) {
-        List<Container> containers = getAllContainers(dockerClient);
 
         List<List<String>> results = new ArrayList<>();
 
         ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
         List<Future<List<String>>> futureList = new ArrayList<>();
 
-        for (Container container : containers) {
+        for (Container container : containerList) {
             List<String> info = new ArrayList<>();
 
             String id = container.getId().substring(0, 12);
@@ -337,7 +282,6 @@ public class DockerClientUtils {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
                 return statsInfo;
             });
 
@@ -349,20 +293,94 @@ public class DockerClientUtils {
             try {
                 results.add(future.get(6, TimeUnit.SECONDS)); // 设置获取结果的最大等待时间
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Error getting container stats: {}", e.getMessage());
             }
         }
 
         executor.shutdown();
 
-        // 补充元素
+        // 补全缺失字段
         for (List<String> row : results) {
-            if (row.size() < 12) {
+            if (row.size() < 12)
                 row.addAll(Collections.nCopies(12 - row.size(), "--"));
-            }
         }
 
-        return results;
+        // 状态优先级排序
+        Map<String, Integer> statusPriority = new HashMap<>();
+        statusPriority.put("Up", 1);
+        statusPriority.put("Created", 2);
+        statusPriority.put("Exited", 3);
+
+        results.sort(Comparator.comparingInt(row -> statusPriority.entrySet().stream()
+                .filter(entry -> row.size() > 5 && row.get(5).startsWith(entry.getKey()))
+                .map(Map.Entry::getValue).findFirst().orElse(Integer.MAX_VALUE)));
+
+        // 转换为 Map 列表
+        return results.stream().map(row -> {
+            Map<String, String> json = new HashMap<>();
+            for (int i = 0; i < HEADERS.length && i < row.size(); i++)
+                json.put(HEADERS[i], row.get(i));
+            return json;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * @param isoTimeSeconds Docker容器创建时间戳（秒）
+     * @return {@code String } 格式化后的时间
+     *
+     * @Description: 格式化时间
+     */
+    private static String formatTimestamp(Long isoTimeSeconds) {
+        // Docker容器的时间戳是以秒为单位，需要转换为毫秒
+        Instant instant = Instant.ofEpochSecond(isoTimeSeconds);
+        // 将Instant对象转换为ZonedDateTime对象（UTC时区）
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        // 转换为本地时区
+        ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
+        // 定义时间格式
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        // 格式化时间
+        return localZonedDateTime.format(formatter);
+    }
+
+    private static String formattedTimeZone(String isoTimeMillis) {
+        // 解析ISO 8601格式的字符串为Instant对象
+        Instant instant = Instant.parse(isoTimeMillis);
+        // 将Instant对象转换为ZonedDateTime对象（UTC时区）
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        // 转换为本地时区（如果需要）
+        ZonedDateTime localZonedDateTime = zonedDateTime.withZoneSameInstant(ZoneId.systemDefault());
+        // 定义时间格式
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        // 格式化时间
+        return localZonedDateTime.format(formatter);
+    }
+
+    /**
+     * @param bytes Docker容器资源占用比特
+     * @return {@code String } 格式化后的资源占用
+     *
+     * @Description: 格式化资源占用
+     */
+    private static String formatBytes(long bytes) {
+        double kb = bytes / 1024.0;
+        double mb = kb / 1024.0;
+        double gb = mb / 1024.0;
+        if (gb >= 1)
+            return String.format("%.3f GiB", gb);
+        if (mb >= 1)
+            return String.format("%.3f MiB", mb);
+        if (kb >= 1)
+            return String.format("%.3f kB", kb);
+        return bytes + " B";
+    }
+
+    public static <T> T getSafe(Supplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

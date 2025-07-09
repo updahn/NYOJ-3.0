@@ -177,8 +177,18 @@
     </el-row>
 
     <el-card style="margin-top:10px">
-      <div slot="header">
+      <div
+        slot="header"
+        style="display: flex; justify-content: space-between; align-items: center;"
+      >
         <span class="panel-title home-title">{{ $t('m.Judge_Server') }}</span>
+        <el-button
+          type="primary"
+          @click="refreshJudgeServerList"
+          size="small"
+          icon="el-icon-refresh"
+          :loading="judgeLoading"
+        >{{ $t('m.Refresh') }}</el-button>
       </div>
       <div style="margin-bottom: 10px;font-size: 15px;">
         {{ $t('m.Server_Number') }}：
@@ -292,8 +302,18 @@
     </el-card>
 
     <el-card style="margin-top:10px">
-      <div slot="header">
+      <div
+        slot="header"
+        style="display: flex; justify-content: space-between; align-items: center;"
+      >
         <span class="panel-title home-title">{{ $t('m.Docker_Server') }}</span>
+        <el-button
+          type="primary"
+          @click="refreshDockerServerList"
+          size="small"
+          icon="el-icon-refresh"
+          :loading="dockerLoading"
+        >{{ $t('m.Refresh') }}</el-button>
       </div>
       <div style="margin-bottom: 10px;font-size: 15px;">
         {{ $t('m.Docker_Number') }}：
@@ -380,11 +400,9 @@ export default {
     this.refreshJudgeServerList();
     this.refreshGeneralSystemInfo();
     this.refreshDockerServerList();
-    // 每10秒刷新判题机服务和后台服务的情况
+    // 每10秒刷新后台服务的情况
     this.intervalId = setInterval(() => {
-      this.refreshJudgeServerList();
       this.refreshGeneralSystemInfo();
-      this.refreshDockerServerList();
     }, 10000);
     api.admin_getDashboardInfo().then(
       (resp) => {

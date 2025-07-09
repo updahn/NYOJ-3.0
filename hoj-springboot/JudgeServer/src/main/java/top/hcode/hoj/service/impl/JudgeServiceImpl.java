@@ -3,7 +3,6 @@ package top.hcode.hoj.service.impl;
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.github.dockerjava.api.DockerClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,6 +51,9 @@ public class JudgeServiceImpl implements JudgeService {
 
     @Autowired
     private RemoteJudgeContext remoteJudgeContext;
+
+    @Autowired
+    private DockerClientUtils dockerClientUtils;
 
     @Override
     public void judge(Judge judge) {
@@ -165,23 +167,16 @@ public class JudgeServiceImpl implements JudgeService {
 
         String containerId = dockerConfigDTO.getContainerId();
         String method = dockerConfigDTO.getMethod().toLowerCase();
-        String serverIp = dockerConfigDTO.getServerIp();
-
-        if (StringUtils.isEmpty(serverIp)) {
-            serverIp = IpUtils.getServiceIp();
-        }
 
         try {
-            DockerClient dockerclient = new DockerClientUtils().connect(serverIp, null);
-
             if (method.equals("start")) {
-                isOk = DockerClientUtils.startContainer(dockerclient, containerId);
+                isOk = dockerClientUtils.startContainer(containerId);
             } else if (method.equals("stop")) {
-                isOk = DockerClientUtils.stopContainer(dockerclient, containerId);
+                isOk = dockerClientUtils.stopContainer(containerId);
             } else if (method.equals("restart")) {
-                isOk = DockerClientUtils.restartContainer(dockerclient, containerId);
+                isOk = dockerClientUtils.restartContainer(containerId);
             } else if (method.equals("pull")) {
-                isOk = DockerClientUtils.pullImage(dockerclient, containerId);
+                isOk = dockerClientUtils.pullImage(containerId);
             }
 
             return isOk;
